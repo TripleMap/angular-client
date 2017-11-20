@@ -11,18 +11,16 @@ export class TdmapComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-  	console.log(L);
   	let map = L.map('map',{
   		editable:true,
-  		center:[60,30],
-  		zoom:16
+  		center:[59.950,30.21],
+  		zoom:11
   	});
 
+  	window.map = map;
   	let openStreetMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-
-
   }
 }
