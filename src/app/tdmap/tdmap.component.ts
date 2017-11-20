@@ -12,9 +12,10 @@ export class TdmapComponent implements OnInit {
 
   ngOnInit() {
   	let map = L.map('map',{
-  		editable:true,
-  		center:[59.950,30.21],
-  		zoom:11
+  		editable: true,
+  		center: [59.950,30.21],
+  		zoom: 11,
+  		zoomControl: false
   	});
 
   	window.map = map;
