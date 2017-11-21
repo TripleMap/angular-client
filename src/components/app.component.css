@@ -1,0 +1,6 @@
+layer-selection {
+	position: absolute;
+	z-index: 100;
+	right: 8px;
+	bottom: 16px;
+}

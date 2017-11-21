@@ -1,0 +1,66 @@
+.layer-selection-component {
+	width: 0;
+    height: 300px;
+    flex-direction: column;
+    display: flex;
+    left: 0;
+    position: relative;
+    justify-content: flex-end;
+	transition: all 200ms cubic-bezier(0.175, 0.885, 0.335, 1.05);
+	transform-origin: 50px 40% 0px;
+}
+
+.layer-selection-button {
+	position: absolute;
+	z-index: 10;
+	left: -56px;
+	transition: all 200ms cubic-bezier(0.175, 0.885, 0.335, 1.05);
+}
+
+.wrapper-active {
+	transform: rotate(60deg);
+}
+
+.button-active{
+	transform: rotate(-60deg);
+}
+
+.expansion-layers-panel {
+	width: 280px;
+	height: 360px;
+	position: absolute;
+	z-index: 5;
+	left: -132px;
+	top: -162px;
+	background: white;
+	transition: all 200ms cubic-bezier(0.175, 0.885, 0.335, 1.05);
+}
+
+.expansion-panel__expansed {
+	-webkit-animation-name: ScaleUp;
+  	-webkit-animation-duration:.15s;
+  	-webkit-animation-iteration-count: 1;
+  	-webkit-animation-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  	-webkit-animation-fill-mode: both;
+}
+
+.expansion-panel__collapsed {
+	-webkit-animation-name: ScaleDown;
+  	-webkit-animation-duration:.15s;
+  	-webkit-animation-iteration-count: 1;
+  	-webkit-animation-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  	-webkit-animation-fill-mode: both;
+}
+
+@keyframes ScaleUp {
+	0%  {transform: scale(0);border-radius: 0%}
+	100% {transform: scale(1);border-radius: 0%}
+}
+@keyframes ScaleDown {
+	0% {transform: scale(1); border-radius: 100%}
+	100% {transform: scale(0); border-radius: 100%; display: none;}
+}
+
+.toolbar-button > span {
+	padding: 0 !important;
+}

@@ -3,4 +3,5 @@
   position: absolute;
   top: 64px;
   bottom: 0;
+  z-index: 1;
 }
