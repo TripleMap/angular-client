@@ -10,7 +10,7 @@ import * as L from "leaflet";
 })
 export class TdmapComponent implements OnInit {
 
-  constructor(private mapService: MapService) {
+  constructor(private _mapService: MapService) {
 
   }
 
@@ -21,7 +21,8 @@ export class TdmapComponent implements OnInit {
       zoom: 11,
       zoomControl: false,
     });
-
-    this.mapService.baseMaps.openStreetMap.addTo(map);
+   
+    this._mapService.changeActiveBaseLayer("Open Street Map");
+    this._mapService.getActiveBaseLayer().layer.addTo(map);
   }
 }

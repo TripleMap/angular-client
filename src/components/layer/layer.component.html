@@ -1,16 +1,48 @@
 <div class="layer-selection-component" [ngClass]="{'wrapper-active': isActive}">
-    <button class="layer-selection-button" mat-fab color="primary" [ngClass]="{'button-active': isActive}" (click)="transformMaterial($event)">
-		<mat-icon aria-label="Example icon-button with a heart icon">add</mat-icon>
-	</button>
-    <div class="expansion-layers-panel" [ngClass]="isActive ? 'expansion-panel__expansed' : 'expansion-panel__collapsed'">
-        <mat-toolbar color="primary">
-            <mat-toolbar-row fxLayout="row">
-                <span>Управление слоями</span>
-                <span fxFlex="100%"></span>
-                <button mat-icon-button (click)="transformMaterial($event)">
-                   	<mat-icon aria-label="Close dialog">close</mat-icon>
-                </button>
-            </mat-toolbar-row>
-        </mat-toolbar>
-    </div>
+  <button class="layer-selection-button" mat-fab color="primary" [ngClass]="{'button-active': isActive}" (click)="transformMaterial($event)">
+    <mat-icon aria-label="Example icon-button with a heart icon">add</mat-icon>
+  </button>
+  <div class="expansion-layers-panel  mat-elevation-z5" [ngClass]="isActive ? 'expansion-panel__expansed' : 'expansion-panel__collapsed'">
+    <mat-toolbar color="primary">
+      <mat-toolbar-row fxLayout="row">
+        <span>Управление слоями</span>
+        <span fxFlex="100%"></span>
+        <button mat-icon-button (click)="transformMaterial($event)">
+          <mat-icon aria-label="Close dialog">close</mat-icon>
+        </button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Базовые слои
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-grid-list cols="3" rowHeight="76" gutterSize="2">
+          <mat-grid-tile *ngFor="let tile of baseLayers" [colspan]="1" [rowspan]="1" [ngSwitch]="tile.imageType">
+            <div *ngSwitchCase="'pan'" style="width:76px;height: 76px;">
+              <img [src]=tile.images[0] style="width:76px;height: 76px;" />
+              <img [src]=tile.images[1] style="width:76px;height: 76px;position: absolute;top:0;" />
+            </div>
+            <div *ngSwitchCase="'multi'" style="width:76px;height: 76px;">
+              <img [src]=tile.images[0] style="position: absolute;top:-50%;left: 0;width:76px;height: 76px;" />
+              <img [src]=tile.images[1] style="position: absolute;top:50%;left: 0;width:76px;height: 76px;" />
+            </div>
+            <div *ngSwitchCase="'single'" style="width:76px;height: 76px;">
+              <img [src]=tile.images[0] style="width:76px;height: 76px;" />
+            </div>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Кадастровые слои
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-checkbox *ngFor="let item of cadastrOverLayers" (change)="cadastrOverLayerChecked($event, item)" [(ngModel)]="item.checked">{{item.name }} </mat-checkbox>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
 </div>
