@@ -61,7 +61,6 @@ export class LayerComponent implements OnInit {
   }
 
   transformMaterial = (event) => this.isActive = !this.isActive;
-  isActiveBaseLayer = (name) => this._mapService.getActiveBaseLayer().name === name;
   changeBaseMapLayer = (name) => this._mapService.changeActiveBaseLayer(name);
 
   cadastrOverLayerChecked(e, item) {

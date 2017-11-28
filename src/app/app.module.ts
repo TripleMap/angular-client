@@ -69,6 +69,3 @@ import {
   bootstrap: [AppComponent]
 })
 export class AppModule { }
-export L;
-export Editable;
-export TDMap;

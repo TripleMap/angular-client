@@ -3,10 +3,10 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Injectable() export class MapService {
-    activeBaseLayer = new BehaviorSubject<any>();
-    baseMapsModels: { name: string; layer: any; imageType: string; images: string[]; }[];
-    overLayersCadastrModels: { name: string; layer: any; }[];
-    public map: L.Map;
+    public activeBaseLayer = new BehaviorSubject<any>(true);
+    public baseMapsModels: { name: string; layer: any; imageType: string; images: string[]; }[];
+    public overLayersCadastrModels: { name: string; layer: any; visible:boolean }[];
+    public map: any;
     public baseMaps: any;
 
     constructor() {

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MapService } from '../../services/MapService';
 
-import * as L from 'leaflet';
 // прикрутить хэш строки в браузере
 @Component({
   selector: 'td-map',
@@ -38,7 +37,7 @@ export class TdmapComponent implements OnInit {
       lng = Number(lngState);
     }
 
-    if (zoom && lat && lng) 
+    if (zoom && lat && lng) {
       map.setView([lat, lng], zoom);
     }
 
@@ -47,7 +46,7 @@ export class TdmapComponent implements OnInit {
       window.localStorage.setItem('MAP_STATE_COORDINATES_LAT', map.getCenter().lat);
       window.localStorage.setItem('MAP_STATE_COORDINATES_LNG', map.getCenter().lng);
       return null;
-    }
+    } 
 
     window.addEventListener('beforeunload', (e) => saveMapState());
   }
