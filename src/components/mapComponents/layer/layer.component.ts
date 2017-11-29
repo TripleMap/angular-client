@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MapService } from '../../services/MapService';
+import { MapService } from '../../../services/MapService';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -19,9 +19,7 @@ export class LayerComponent implements OnInit {
     this.cadastrOverLayers = this._mapService.getCadastrOverLayers();
 
     this.watcher = this._mapService.activeBaseLayer.subscribe((change) => {
-      if (change) {
-        change.layer.addTo(this._mapService.map);
-      }
+      if (change) change.layer.addTo(this._mapService.map);
     });
   }
 
@@ -31,6 +29,7 @@ export class LayerComponent implements OnInit {
     const saveMapState = () => {
       window.localStorage.setItem("MAP_STATE_ACTIVE_BASEMAP", this._mapService.getActiveBaseLayerName());
       window.localStorage.setItem('MAP_STATE_VISIBLE_CAD_LAYERS', this._mapService.getActiveCadastrLayersName().toString());
+      return null;
     }
     window.addEventListener("beforeunload", (e) => saveMapState());
   }
@@ -66,7 +65,4 @@ export class LayerComponent implements OnInit {
   cadastrOverLayerChecked(e, item) {
     e.checked ? this._mapService.addCadLayerToMap(item.name) : this._mapService.removeCadLayerFromMap(item.name);
   }
-
-
-
 }

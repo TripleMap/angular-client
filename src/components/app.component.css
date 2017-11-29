@@ -4,3 +4,7 @@ layer-selection {
     right: 0;
     bottom: 0;
 }
+zoom-controls{
+	position: absolute;
+	top: calc(50% - 40px);
+}

@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Injectable() export class MapService {
-    public activeBaseLayer = new BehaviorSubject<any>(true);
+    public activeBaseLayer = new BehaviorSubject<any>(false);
     public baseMapsModels: { name: string; layer: any; imageType: string; images: string[]; }[];
     public overLayersCadastrModels: { name: string; layer: any; visible:boolean }[];
     public map: any;
@@ -120,14 +119,11 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
     addCadLayerToMap = (layerName) => {
         this.overLayersCadastrModels.filter(cadLayerModel => cadLayerModel.name === layerName ? cadLayerModel : false)
-        .pop().layer.addTo(this.map)
-        console.log(this.map)
+        .pop().layer.addTo(this.map);
     };
 
     removeCadLayerFromMap = (layerName) => this.overLayersCadastrModels.filter(cadLayerModel => cadLayerModel.name === layerName ? cadLayerModel : false)
         .pop().layer.remove();
 
-    setMap = (map: object) => {
-        this.map = map;
-    }
+    setMap = (map: object) => this.map = map;
 }

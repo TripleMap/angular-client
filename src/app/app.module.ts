@@ -11,9 +11,6 @@ import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 
 // TDMap, Leaflet
-import * as L from 'leaflet';
-import * as Editable from '../external/Leaflet.Editable.js';
-import * as TDMap from '../external/TDMap.module.js';
 
 // materialComponents
 import { MatToolbarModule } from '@angular/material';
@@ -25,27 +22,36 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 
-// mapComponents
-import { TdmapComponent } from '../components/tdmap/tdmap.component';
-import { LayerComponent } from '../components/layer/layer.component';
-
 // services
 import { MapService } from '../services/MapService';
+
+// mapComponents
+import { TdmapComponent } from '../components/mapComponents/tdmap/tdmap.component';
+import { LayerComponent } from '../components/mapComponents/layer/layer.component';
+import { ZoomComponent } from '../components/mapComponents/zoom/zoom.component';
+import { MeasureComponent } from '../components/mapComponents/measure/measure.component';
+import { NgcFloatButtonModule } from 'ngc-float-button';
+import { MdFabSpeedDialExtendedComponent } from '../components/extendedComponents/md-fab-speed-dial-extended/md-fab-speed-dial-extended.component';
+
 
 
 
 // covalent 
-import {
-  CovalentCommonModule, CovalentLayoutModule, CovalentMediaModule, CovalentExpansionPanelModule,
-  CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
-  CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
-} from '@covalent/core';
+//import {
+//  CovalentCommonModule, CovalentLayoutModule, CovalentMediaModule, CovalentExpansionPanelModule,
+//  CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
+//  CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
+//} from '@covalent/core';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     TdmapComponent,
     LayerComponent,
+    ZoomComponent,
+    MeasureComponent,
+    MdFabSpeedDialExtendedComponent
   ],
   imports: [
     HttpModule,
@@ -61,9 +67,7 @@ import {
     MatExpansionModule,
     MatCheckboxModule,
     MatListModule,
-    CovalentCommonModule, CovalentLayoutModule, CovalentMediaModule, CovalentExpansionPanelModule,
-    CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
-    CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
+    NgcFloatButtonModule
   ],
   providers: [MapService],
   bootstrap: [AppComponent]
