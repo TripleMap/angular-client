@@ -1,0 +1,37 @@
+.mdi:before, .mdi-set {
+    display: inline-block;
+    font: normal normal normal 24px/1 "Material Design Icons";
+}
+
+.measure-tools-deactive_main {
+
+}
+
+.speed-dial_gru {
+	position: absolute;
+	z-index: 1;
+}
+
+.speed-dial_minions {
+	position: absolute;
+	z-index: 0;
+	top: 8px;
+	left: 8px;
+	opacity: 0;
+	transition: transform 280ms cubic-bezier(.4,0,.2,1), opacity 280ms cubic-bezier(.4,0,.2,1);
+}
+
+.measure-tools-active_first {
+	transform: translateX(56px);
+	opacity: 1;
+}
+
+.measure-tools-active_second {
+	transform: translateX(102px);
+	opacity: 1;
+}
+
+.measure-tools-active_third {
+	transform: translateX(150px);
+	opacity: 1;
+}

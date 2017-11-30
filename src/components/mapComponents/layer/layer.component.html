@@ -1,7 +1,7 @@
 <div class="layer-selection-component" [ngClass]="{'wrapper-active': isActive}">
     <button class="layer-selection-button" mat-fab color="primary" [ngClass]="{'button-active': isActive}" (click)="transformMaterial($event)">
-    <mat-icon>layers</mat-icon>
-  </button>
+        <mat-icon>layers</mat-icon>
+    </button>
     <div class="expansion-layers-panel mat-elevation-z5" [ngClass]="isActive ? 'expansion-panel__expansed' : 'expansion-panel__collapsed'">
         <mat-toolbar color="primary">
             <mat-toolbar-row fxLayout="row">

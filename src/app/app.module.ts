@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 // TDMap, Leaflet
 
 // materialComponents
-import { MatToolbarModule } from '@angular/material';
+import { MatToolbarModule, MatIconRegistry } from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -31,7 +31,6 @@ import { LayerComponent } from '../components/mapComponents/layer/layer.componen
 import { ZoomComponent } from '../components/mapComponents/zoom/zoom.component';
 import { MeasureComponent } from '../components/mapComponents/measure/measure.component';
 import { NgcFloatButtonModule } from 'ngc-float-button';
-import { MdFabSpeedDialExtendedComponent } from '../components/extendedComponents/md-fab-speed-dial-extended/md-fab-speed-dial-extended.component';
 
 
 
@@ -50,8 +49,7 @@ import { MdFabSpeedDialExtendedComponent } from '../components/extendedComponent
     TdmapComponent,
     LayerComponent,
     ZoomComponent,
-    MeasureComponent,
-    MdFabSpeedDialExtendedComponent
+    MeasureComponent
   ],
   imports: [
     HttpModule,
@@ -69,7 +67,7 @@ import { MdFabSpeedDialExtendedComponent } from '../components/extendedComponent
     MatListModule,
     NgcFloatButtonModule
   ],
-  providers: [MapService],
+  providers: [MatIconRegistry, MapService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -23,6 +23,8 @@
         ],
         "scripts": [
             "../node_modules/hammerjs/hammer.min.js",
+            "../node_modules/jquery/dist/jquery.slim.min.js",
+            "../node_modules/d3/index.js",
             "../node_modules/leaflet/dist/leaflet.js",
             "../src/external/Leaflet.Editable.js",
             "../src/external/TDMap.module.js"

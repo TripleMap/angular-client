@@ -1,5 +1,12 @@
-<md-fab-speed-dial-extended icon="mdi-ruler" direction="right" color="primary">
-    <ngc-float-item-button icon="person_add" content="float item 1"></ngc-float-item-button>
-    <ngc-float-item-button icon="gps_fixed" content="float item 2"></ngc-float-item-button>
-    <ngc-float-item-button icon="mode_edit" content="float item 3"></ngc-float-item-button>
-</md-fab-speed-dial-extended>
+<button mat-fab color="primary" (click)="showMeasureTools($event)" class="speed-dial_gru" [ngClass]=" isActive ? 'measure-tools-active_main' : 'measure-tools-deactive_main' ">
+    <mat-icon fontSet="mdi" fontIcon="mdi-ruler"></mat-icon>
+</button>
+<button mat-mini-fab color="white" class="speed-dial_minions" [ngClass]="{ 'measure-tools-active_first' : isActive }" (click)="showMeasureTools($event)" (click)="startPolygonMeasure($event)">
+    <mat-icon fontSet="mdi" fontIcon="mdi-vector-polygon"></mat-icon>
+</button>
+<button mat-mini-fab color="white" class="speed-dial_minions" [ngClass]="{ 'measure-tools-active_second' : isActive }" (click)="showMeasureTools($event)"  (click)="startPolylineMeasure($event)">
+    <mat-icon fontSet="mdi" fontIcon="mdi-vector-polyline"></mat-icon>
+</button>
+<button mat-mini-fab color="white" class="speed-dial_minions" [ngClass]="{ 'measure-tools-active_third' : isActive }"  (click)="showMeasureTools($event)" (click)="stopMeasure($event)">
+    <mat-icon fontSet="mdi" fontIcon="mdi-close"></mat-icon>
+</button>

@@ -8,3 +8,9 @@ zoom-controls{
 	position: absolute;
 	top: calc(50% - 40px);
 }
+
+measure-controls{
+	position: absolute;
+	left: 8px;
+    bottom: 80px;
+}
