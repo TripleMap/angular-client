@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 // TDMap, Leaflet
 
 // materialComponents
-import { MatToolbarModule, MatIconRegistry } from '@angular/material';
+import { MatToolbarModule, MatIconRegistry, MatTooltipModule} from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -21,6 +21,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
+import {MatSidenavModule} from '@angular/material/sidenav';
 
 // services
 import { MapService } from '../services/MapService';
@@ -36,11 +37,11 @@ import { NgcFloatButtonModule } from 'ngc-float-button';
 
 
 // covalent 
-//import {
-//  CovalentCommonModule, CovalentLayoutModule, CovalentMediaModule, CovalentExpansionPanelModule,
-//  CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
-//  CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
-//} from '@covalent/core';
+import {
+  CovalentCommonModule, CovalentLayoutModule, CovalentMediaModule, CovalentExpansionPanelModule,
+  CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
+  CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
+} from '@covalent/core';
 
 
 @NgModule({
@@ -65,7 +66,14 @@ import { NgcFloatButtonModule } from 'ngc-float-button';
     MatExpansionModule,
     MatCheckboxModule,
     MatListModule,
-    NgcFloatButtonModule
+    NgcFloatButtonModule,
+    MatSidenavModule,
+    MatTooltipModule,
+    CovalentCommonModule, 
+    CovalentLayoutModule,
+    CovalentMediaModule, CovalentExpansionPanelModule,
+  CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
+  CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
   ],
   providers: [MatIconRegistry, MapService],
   bootstrap: [AppComponent]

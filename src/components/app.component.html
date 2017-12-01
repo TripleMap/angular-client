@@ -1,5 +1,15 @@
-<mat-toolbar color="primary"></mat-toolbar>
-<td-map></td-map>
-<layer-selection></layer-selection>
-<zoom-controls></zoom-controls>
-<measure-controls></measure-controls>
+<td-layout [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'" [sidenavWidth]="(media.registerQuery('gt-xs') | async) ? '380px' : '100%'" [class]="activeTheme">
+  <td-navigation-drawer flex [sidenavTitle]="name" color='primary'>
+    <mat-nav-list [tdLayoutClose]="!media.query('gt-sm')"></mat-nav-list>
+  </td-navigation-drawer>
+  <td-layout-nav [toolbarTitle]="(media.registerQuery('gt-xs') | async) ? 'СкладМан' : ''" navigationRoute="/">
+    <button mat-icon-button td-menu-button tdLayoutToggle>
+      <mat-icon>menu</mat-icon>
+    </button>
+    <div td-toolbar-content layout="row" layout-align="start center" flex></div>
+    <td-map></td-map>
+    <layer-selection></layer-selection>
+    <zoom-controls></zoom-controls>
+    <measure-controls></measure-controls>
+  </td-layout-nav>
+</td-layout>

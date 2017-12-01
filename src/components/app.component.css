@@ -7,10 +7,18 @@ layer-selection {
 zoom-controls{
 	position: absolute;
 	top: calc(50% - 40px);
+	z-index: 100;
 }
 
 measure-controls{
 	position: absolute;
 	left: 8px;
     bottom: 80px;
+    z-index: 100;
+}
+td-map{
+	position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { MapService } from '../../../services/MapService';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -8,13 +8,13 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['./layer.component.css']
 })
 
-export class LayerComponent implements OnInit {
-  private cadastrOverLayers: any;
-  private baseLayers: any;
-  private isActive = false;
+export class LayerComponent implements AfterViewInit {
+  public cadastrOverLayers: any;
+  public baseLayers: any;
+  public isActive = false;
   watcher: Subscription;
 
-  constructor(private _mapService: MapService) {
+  constructor(public _mapService: MapService) {
     this.baseLayers = this._mapService.getBaseLayers();
     this.cadastrOverLayers = this._mapService.getCadastrOverLayers();
 
@@ -23,7 +23,7 @@ export class LayerComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.setBaseLayerOnInit();
     this.setCadastrOverLaersOnInit();
     const saveMapState = () => {

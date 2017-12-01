@@ -8,7 +8,7 @@ import { MapService } from '../../../services/MapService';
 })
 export class ZoomComponent {
 
-  	constructor(private _mapService: MapService) { }
+  	constructor(public _mapService: MapService) { }
 	
   	zoomIn(e){
   		if (this._mapService.map._zoom < this._mapService.map.getMaxZoom()) {

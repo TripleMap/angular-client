@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { MapService } from '../../../services/MapService';
 
 // прикрутить хэш строки в браузере
@@ -7,13 +7,13 @@ import { MapService } from '../../../services/MapService';
   templateUrl: './tdmap.component.html',
   styleUrls: ['./tdmap.component.css']
 })
-export class TdmapComponent implements OnInit {
+export class TdmapComponent implements AfterViewInit {
 
-  constructor(private _mapService: MapService) {
+  constructor(public _mapService: MapService) {
 
   }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     const map = L.map('map', {
       editable: true,
       center: [59.950, 30.21],

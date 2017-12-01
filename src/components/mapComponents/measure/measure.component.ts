@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 import { MapService } from '../../../services/MapService';
 
 @Component({
@@ -6,22 +6,16 @@ import { MapService } from '../../../services/MapService';
   templateUrl: './measure.component.html',
   styleUrls: ['./measure.component.css']
 })
-export class MeasureComponent implements OnInit {
-	private isActive = false;
-	private measureToolsIsActive = false;
-	private _measureTool: any;
+export class MeasureComponent {
+	public isActive = false;
+	public measureToolsIsActive = false;
+	public _measureTool: any;
 
-	constructor(_element: ElementRef, private _mapService: MapService) {
-		console.log(_element);
-	}
-
-	ngOnInit() {
-	
-	}
+	constructor(_element: ElementRef, public _mapService: MapService) {}
 
 	showMeasureTools = (event) => this.isActive = !this.isActive;
 
-	startPolylineMeasure() {
+	startPolylineMeasure(event) {
       if (this._measureTool) {
          this._measureTool.abortDrawing();
       } else {
@@ -31,7 +25,7 @@ export class MeasureComponent implements OnInit {
       this.measureToolsIsActive = true;
     };
 
-   startPolygonMeasure() {
+   startPolygonMeasure(event) {
     	if (this._measureTool) {
     	   this._measureTool.abortDrawing();
     	} else {
@@ -41,7 +35,7 @@ export class MeasureComponent implements OnInit {
     	this.measureToolsIsActive = true;
    }
 
-   stopMeasure() {
+   stopMeasure(event) {
       if (this._measureTool) {
         	this._measureTool.abortDrawing();
         	this._measureTool.map.fireEvent('stopmeasure');
