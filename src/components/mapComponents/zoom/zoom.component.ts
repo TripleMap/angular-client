@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MapService } from '../../../services/MapService';
+import { BaseLayersService } from '../../../services/BaseLayersService';
 
 @Component({
   selector: 'zoom-controls',
@@ -8,16 +8,16 @@ import { MapService } from '../../../services/MapService';
 })
 export class ZoomComponent {
 
-  	constructor(public _mapService: MapService) { }
+	constructor(public _baseLayersService: BaseLayersService) { }
 	
   	zoomIn(e){
-  		if (this._mapService.map._zoom < this._mapService.map.getMaxZoom()) {
-			this._mapService.map.zoomIn(this._mapService.map.options.zoomDelta * (e.shiftKey ? 3 : 1));
+  		if (this._baseLayersService.map._zoom < this._baseLayersService.map.getMaxZoom()) {
+			this._baseLayersService.map.zoomIn(this._baseLayersService.map.options.zoomDelta * (e.shiftKey ? 3 : 1));
 		}
   	}
   	zoomOut(e){
-		if (this._mapService.map._zoom > this._mapService.map.getMinZoom()) {
-			this._mapService.map.zoomOut(this._mapService.map.options.zoomDelta * (e.shiftKey ? 3 : 1));
+		if (this._baseLayersService.map._zoom > this._baseLayersService.map.getMinZoom()) {
+			this._baseLayersService.map.zoomOut(this._baseLayersService.map.options.zoomDelta * (e.shiftKey ? 3 : 1));
 		}
   	}
 }

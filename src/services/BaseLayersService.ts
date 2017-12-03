@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
-@Injectable() export class MapService {
+// вынести опции слоев за пределы конструктора (JSON)
+
+@Injectable() export class BaseLayersService {
     public activeBaseLayer = new BehaviorSubject<any>(false);
     public baseMapsModels: { name: string; layer: any; imageType: string; images: string[]; }[];
     public overLayersCadastrModels: { name: string; layer: any; visible:boolean }[];

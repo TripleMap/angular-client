@@ -1,5 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { MapService } from '../../../services/MapService';
+import { BaseLayersService } from '../../../services/BaseLayersService';
+import { OverLaysService } from '../../../services/OverLaysService';
 
 // прикрутить хэш строки в браузере
 @Component({
@@ -9,7 +10,7 @@ import { MapService } from '../../../services/MapService';
 })
 export class TdmapComponent implements AfterViewInit {
 
-  constructor(public _mapService: MapService) {
+  constructor(public _baseLayersService: BaseLayersService, public _overLayService: OverLaysService) {
 
   }
 
@@ -20,8 +21,8 @@ export class TdmapComponent implements AfterViewInit {
       zoom: 11,
       zoomControl: false,
     });
-    this._mapService.setMap(map);
-
+    this._baseLayersService.setMap(map);
+    this._overLayService.setMap(map);
     let zoom, lat, lng;
 
     const zoomState = window.localStorage.getItem('MAP_STATE_ZOOM');
@@ -49,5 +50,7 @@ export class TdmapComponent implements AfterViewInit {
     } 
 
     window.addEventListener('beforeunload', (e) => saveMapState());
+
+    this._overLayService.addLayerToMap();
   }
 }

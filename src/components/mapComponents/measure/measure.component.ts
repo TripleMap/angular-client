@@ -1,5 +1,5 @@
 import { Component, ElementRef } from '@angular/core';
-import { MapService } from '../../../services/MapService';
+import { BaseLayersService } from '../../../services/BaseLayersService';
 
 @Component({
   selector: 'measure-controls',
@@ -11,7 +11,7 @@ export class MeasureComponent {
 	public measureToolsIsActive = false;
 	public _measureTool: any;
 
-	constructor(_element: ElementRef, public _mapService: MapService) {}
+  constructor(_element: ElementRef, public _baseLayersService: BaseLayersService) {}
 
 	showMeasureTools = (event) => this.isActive = !this.isActive;
 
@@ -19,7 +19,7 @@ export class MeasureComponent {
       if (this._measureTool) {
          this._measureTool.abortDrawing();
       } else {
-         this._measureTool = new TDMap.Utils.Measurment(this._mapService.map);
+         this._measureTool = new TDMap.Utils.Measurment(this._baseLayersService.map);
       }
       this._measureTool.startPolylineMeasure();
       this.measureToolsIsActive = true;
@@ -29,7 +29,7 @@ export class MeasureComponent {
     	if (this._measureTool) {
     	   this._measureTool.abortDrawing();
     	} else {
-    	   this._measureTool = new TDMap.Utils.Measurment(this._mapService.map);
+    	   this._measureTool = new TDMap.Utils.Measurment(this._baseLayersService.map);
     	}
     	this._measureTool.startPolygonMeasure();
     	this.measureToolsIsActive = true;

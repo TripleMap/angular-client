@@ -1,19 +1,19 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { NgSwitch } from '@angular/common';
-import { NgSwitchCase } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { XHRBackend } from '@angular/http';
 
 import { AppComponent } from '../components/app.component';
 import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 // TDMap, Leaflet
 
 // materialComponents
-import { MatToolbarModule, MatIconRegistry, MatTooltipModule} from '@angular/material';
+import { MatToolbarModule, MatIconRegistry, MatTooltipModule } from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -21,10 +21,13 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
-import {MatSidenavModule} from '@angular/material/sidenav';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 // services
-import { MapService } from '../services/MapService';
+import { ApiHTTPInterseptor } from '../services/ApiHTTPInterseptorService';
+import { BaseLayersService } from '../services/BaseLayersService';
+import { OverLaysService } from '../services/OverLaysService';
+import { SelectedFeatureService } from "../services/SelectedFeatureService";
 
 // mapComponents
 import { TdmapComponent } from '../components/mapComponents/tdmap/tdmap.component';
@@ -53,8 +56,9 @@ import {
     MeasureComponent
   ],
   imports: [
-    HttpModule,
     BrowserModule,
+    HttpModule,
+    HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
@@ -69,13 +73,22 @@ import {
     NgcFloatButtonModule,
     MatSidenavModule,
     MatTooltipModule,
-    CovalentCommonModule, 
+    CovalentCommonModule,
     CovalentLayoutModule,
     CovalentMediaModule, CovalentExpansionPanelModule,
-  CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
-  CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
+    CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
+    CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
   ],
-  providers: [MatIconRegistry, MapService],
+  providers: [
+    MatIconRegistry,
+    BaseLayersService,
+    OverLaysService,
+    SelectedFeatureService,
+    {
+      provide: XHRBackend,
+      useClass: ApiHTTPInterseptor
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

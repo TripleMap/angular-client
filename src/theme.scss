@@ -1,7 +1,8 @@
 @import '~@angular/material/theming';
 @include mat-core();
-	$primary: mat-palette($mat-blue, 800);
-	$accent: mat-palette($mat-orange, 600, 100, 800);
-	$warn: mat-palette($mat-red, 600);
-	$theme: mat-light-theme($primary, $accent, $warn);
+$mat-orange-custom: ( 50: #FFF3E0, 100: #FFE0B2, 200: #FFCC80, 300: #FFB74D, 400: #FFA726, 500: #FF9800, 600: #FB8C00, 700: #F57C00, 800: #EF6C00, 900: #E65100, A100: #FFD180, A200: #FFAB40, A400: #FF9100, A700: #FF6D00, contrast: ( 50: $black-87-opacity, 100: $black-87-opacity, 200: $black-87-opacity, 300: $black-87-opacity, 400: $black-87-opacity, 500: white, 600: white, 700: white, 800: $white-87-opacity, 900: $white-87-opacity, A100: $black-87-opacity, A200: $black-87-opacity, A400: $black-87-opacity, A700: $white-87-opacity, ));
+$primary: mat-palette($mat-blue, 900);
+$accent: mat-palette($mat-orange-custom, A700, A100, A400);
+$warn: mat-palette($mat-red, 600);
+$theme: mat-light-theme($primary, $accent, $warn);
 @include angular-material-theme($theme);
