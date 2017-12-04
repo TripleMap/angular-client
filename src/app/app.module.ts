@@ -1,51 +1,62 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { BrowserModule } from "@angular/platform-browser";
+import { NgModule } from "@angular/core";
 
-import { AppRoutingModule } from './app-routing.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { XHRBackend } from '@angular/http';
+import { AppRoutingModule } from "./app-routing.module";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { XHRBackend } from "@angular/http";
 
-import { AppComponent } from '../components/app.component';
-import { HttpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { AppComponent } from "../components/app.component";
+import { HttpModule } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
+import { FormsModule } from "@angular/forms";
 
 // TDMap, Leaflet
 
 // materialComponents
-import { MatToolbarModule, MatIconRegistry, MatTooltipModule } from '@angular/material';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatListModule } from '@angular/material/list';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import {
+  MatToolbarModule,
+  MatIconRegistry,
+  MatTooltipModule
+} from "@angular/material";
+
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatGridListModule } from "@angular/material/grid-list";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatListModule } from "@angular/material/list";
+import { MatSidenavModule } from "@angular/material/sidenav";
 
 // services
-import { ApiHTTPInterseptor } from '../services/ApiHTTPInterseptorService';
-import { BaseLayersService } from '../services/BaseLayersService';
-import { OverLaysService } from '../services/OverLaysService';
+import { ApiHTTPInterseptor } from "../services/ApiHTTPInterseptorService";
+import { BaseLayersService } from "../services/BaseLayersService";
+import { OverLaysService } from "../services/OverLaysService";
 import { SelectedFeatureService } from "../services/SelectedFeatureService";
 
 // mapComponents
-import { TdmapComponent } from '../components/mapComponents/tdmap/tdmap.component';
-import { LayerComponent } from '../components/mapComponents/layer/layer.component';
-import { ZoomComponent } from '../components/mapComponents/zoom/zoom.component';
-import { MeasureComponent } from '../components/mapComponents/measure/measure.component';
-import { NgcFloatButtonModule } from 'ngc-float-button';
+import { TdmapComponent } from "../components/mapComponents/tdmap/tdmap.component";
+import { LayerComponent } from "../components/mapComponents/layer/layer.component";
+import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
+import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
+import { NgcFloatButtonModule } from "ngc-float-button";
 
-
-
-
-// covalent 
+// covalent
 import {
-  CovalentCommonModule, CovalentLayoutModule, CovalentMediaModule, CovalentExpansionPanelModule,
-  CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
-  CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
-} from '@covalent/core';
-
+  CovalentCommonModule,
+  CovalentLayoutModule,
+  CovalentMediaModule,
+  CovalentExpansionPanelModule,
+  CovalentStepsModule,
+  CovalentLoadingModule,
+  CovalentDialogsModule,
+  CovalentSearchModule,
+  CovalentPagingModule,
+  CovalentNotificationsModule,
+  CovalentMenuModule,
+  CovalentDataTableModule,
+  CovalentMessageModule
+} from "@covalent/core";
 
 @NgModule({
   declarations: [
@@ -75,9 +86,17 @@ import {
     MatTooltipModule,
     CovalentCommonModule,
     CovalentLayoutModule,
-    CovalentMediaModule, CovalentExpansionPanelModule,
-    CovalentStepsModule, CovalentLoadingModule, CovalentDialogsModule, CovalentSearchModule, CovalentPagingModule,
-    CovalentNotificationsModule, CovalentMenuModule, CovalentDataTableModule, CovalentMessageModule
+    CovalentMediaModule,
+    CovalentExpansionPanelModule,
+    CovalentStepsModule,
+    CovalentLoadingModule,
+    CovalentDialogsModule,
+    CovalentSearchModule,
+    CovalentPagingModule,
+    CovalentNotificationsModule,
+    CovalentMenuModule,
+    CovalentDataTableModule,
+    CovalentMessageModule
   ],
   providers: [
     MatIconRegistry,
@@ -91,4 +110,4 @@ import {
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
