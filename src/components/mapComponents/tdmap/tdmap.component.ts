@@ -22,12 +22,10 @@ export class TdmapComponent implements AfterViewInit, OnInit {
       let params = new HttpParams();
       if (requestParams){
         for(let key in requestParams){
-          params.append(key, requestParams[key]);
+          params = params.set(key, requestParams[key]);
         }
       }
-      return new Promise((resolve, reject) => {
-        this._http.get(url, {params}).subscribe(data => resolve({ data }));
-      });
+      return new Promise((resolve, reject) => this._http.get(url, {params}).subscribe(data => resolve({ data })));
     };
   }
 

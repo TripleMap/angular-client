@@ -1,15 +1,19 @@
-<td-layout [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'" [sidenavWidth]="(media.registerQuery('gt-xs') | async) ? '380px' : '100%'" [class]="activeTheme">
-  <td-navigation-drawer flex [sidenavTitle]="name" color='primary'>
-    <mat-nav-list [tdLayoutClose]="!media.query('gt-sm')"></mat-nav-list>
-  </td-navigation-drawer>
-  <td-layout-nav [toolbarTitle]="(media.registerQuery('gt-xs') | async) ? 'СкладМан' : ''" navigationRoute="/">
-    <button mat-icon-button td-menu-button tdLayoutToggle>
-      <mat-icon>menu</mat-icon>
-    </button>
-    <div td-toolbar-content layout="row" layout-align="start center" flex></div>
-    <td-map></td-map>
-    <layer-selection></layer-selection>
-    <zoom-controls></zoom-controls>
-    <measure-controls></measure-controls>
-  </td-layout-nav>
-</td-layout>
+<div class="example-container">
+    <mat-toolbar color="primary" class="toolbar">
+        <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
+        <h1 class="example-app-name">Responsive App</h1>
+    </mat-toolbar>
+
+    <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav #snav fixedTopGap="420">
+
+        </mat-sidenav>
+
+        <mat-sidenav-content>
+            <td-map></td-map>
+            <layer-selection></layer-selection>
+            <zoom-controls></zoom-controls>
+            <measure-controls></measure-controls>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>
