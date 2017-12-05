@@ -27,6 +27,9 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatListModule } from "@angular/material/list";
 import { MatSidenavModule } from "@angular/material/sidenav";
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 // services
 import { ApiHTTPInterseptor } from "../services/ApiHTTPInterseptorService";
@@ -84,6 +87,9 @@ import {
     NgcFloatButtonModule,
     MatSidenavModule,
     MatTooltipModule,
+    MatAutocompleteModule,
+    MatInputModule,
+    MatFormFieldModule,
     CovalentCommonModule,
     CovalentLayoutModule,
     CovalentMediaModule,

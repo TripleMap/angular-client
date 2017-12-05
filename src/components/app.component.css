@@ -1,68 +1,59 @@
 layer-selection {
-  position: absolute;
-  z-index: 100;
-  right: 0;
-  bottom: 0;
+    position: absolute;
+    z-index: 100;
+    left: 100%;
+    bottom: 0;
 }
 
 zoom-controls {
-  position: absolute;
-  top: calc(50% - 40px);
-  z-index: 100;
+    position: absolute;
+    top: calc(50% - 40px);
+    z-index: 100;
 }
 
 measure-controls {
-  position: absolute;
-  left: 8px;
-  bottom: 80px;
-  z-index: 100;
+    position: absolute;
+    left: 8px;
+    bottom: 80px;
+    z-index: 100;
 }
 
 td-map {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  z-index: 1;
-  left: 0;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    left: 0;
 }
 
 .toolbar {
-  position: absolute;
-  z-index: 10;
+    position: absolute;
+    z-index: 10;
 }
 
 .sidenav-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+}
+
+.hidden {
+    overflow: hidden;
 }
 
 .td-map-actions_active {
-  transition-duration: .4s;
-  transition-timing-function: cubic-bezier(.25, .8, .25, 1);
-  transition-property: margin-right;
-  margin-right: 440px;
+    transition-duration: .4s;
+    transition-timing-function: cubic-bezier(.25, .8, .25, 1);
+    transition-property: margin-left;
+    margin-left: -440px;
 }
 
 .td-map-actions_deactive {
-  transition-duration: .4s;
-  transition-timing-function: cubic-bezier(.25, .8, .25, 1);
-  transition-property: margin-right;
-  margin-right: 0px;
-}
-.td-map-actions_active_m {
-  transition-duration: .4s;
-  transition-timing-function: cubic-bezier(.25, .8, .25, 1);
-  transition-property: margin-left;
-  margin-left: -440px;
-}
-
-.td-map-actions_deactive_m {
-  transition-duration: .4s;
-  transition-timing-function: cubic-bezier(.25, .8, .25, 1);
-  transition-property: margin-left;
-  margin-left: 0px;
+    transition-duration: .4s;
+    transition-timing-function: cubic-bezier(.25, .8, .25, 1);
+    transition-property: margin-left;
+    margin-left: 0px;
 }

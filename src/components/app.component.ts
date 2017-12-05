@@ -1,16 +1,17 @@
 import { Component, ChangeDetectorRef, AfterViewInit } from "@angular/core";
 import { MatIconRegistry } from "@angular/material";
 import { MediaChange, ObservableMedia } from "@angular/flex-layout";
-
+import { FormControl, Validators } from '@angular/forms';
 @Component({
 	selector: "app-root",
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements AfterViewInit {
+	options: number[];
 	public activeMediaQuery = "";
 	public isActive:boolean = false;
-
+	public myControl = new FormControl('', [Validators.required, Validators.email]);
 	constructor(
 		public iconRegistry: MatIconRegistry,
 		public changeDetectorRef: ChangeDetectorRef,
@@ -21,10 +22,11 @@ export class AppComponent implements AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
+		this.options = [1,2,3]
 		this.changeDetectorRef.detectChanges();
 	}
 
-	toggle(): void {
+	toggleSideNav(): void {
 		this.isActive = !this.isActive;
 	}
 }

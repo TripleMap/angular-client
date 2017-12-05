@@ -1,20 +1,29 @@
-<mat-toolbar color="primary" class="toolbar">
-  <button mat-icon-button (click)="toggle()">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <h1 class="">СкладМан</h1>
-</mat-toolbar>
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav [opened]="isActive" 
-    fixedTopGap="56" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" 
-    class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ? 'side' : 'push'">
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <td-map  [ngClass]="isActive ? 'td-map-actions_active_m' : 'td-map-actions_deactive_m'"></td-map>
-    <div class="td-map-actions">
-      <layer-selection [ngClass]="isActive ? 'td-map-actions_active' : 'td-map-actions_deactive'"></layer-selection >
-      <zoom-controls></zoom-controls>
-      <measure-controls></measure-controls>
-    </div>
-  </mat-sidenav-content>
+    <mat-sidenav [opened]="isActive" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ? 'side' : 'push'">
+        <mat-toolbar color="primary" class="toolbar" fxLayout="row" fxLayoutAlign="space-between center">
+            <h1 class="">Фильтрация</h1>
+            <button mat-icon-button (click)="toggleSideNav()">
+              <mat-icon>close</mat-icon>
+            </button>
+        </mat-toolbar>
+    </mat-sidenav>
+    <mat-sidenav-content class="hidden">
+        <mat-toolbar color="primary" class="toolbar">
+            <button mat-button (click)="toggleSideNav()">
+              <mat-icon>search</mat-icon>
+            </button>
+            <h1 class="">СкладМан</h1>
+            <mat-autocomplete>
+                <mat-option *ngFor="let option of options" [value]="option">
+                    {{ option }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-toolbar>
+        <td-map [ngClass]="isActive && (activeMediaQuery !== 'xs') ? 'td-map-actions_active' : 'td-map-actions_deactive'"></td-map>
+        <div class="td-map-actions">
+            <layer-selection [ngClass]="isActive && (activeMediaQuery !== 'xs') ? 'td-map-actions_active' : 'td-map-actions_deactive'"></layer-selection>
+            <zoom-controls></zoom-controls>
+            <measure-controls></measure-controls>
+        </div>
+    </mat-sidenav-content>
 </mat-sidenav-container>
