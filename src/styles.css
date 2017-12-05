@@ -12,3 +12,7 @@ body {
 .td-layout-nav-content{
 	overflow: hidden !important;
 }
+
+.sidenav-container > div.mat-drawer-shown {
+	visibility: hidden;
+}

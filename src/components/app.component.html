@@ -1,19 +1,20 @@
-<div class="example-container">
-    <mat-toolbar color="primary" class="toolbar">
-        <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
-        <h1 class="example-app-name">Responsive App</h1>
-    </mat-toolbar>
-
-    <mat-sidenav-container class="sidenav-container">
-        <mat-sidenav #snav fixedTopGap="420">
-
-        </mat-sidenav>
-
-        <mat-sidenav-content>
-            <td-map></td-map>
-            <layer-selection></layer-selection>
-            <zoom-controls></zoom-controls>
-            <measure-controls></measure-controls>
-        </mat-sidenav-content>
-    </mat-sidenav-container>
-</div>
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-icon-button (click)="toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <h1 class="">СкладМан</h1>
+</mat-toolbar>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav [opened]="isActive" 
+    fixedTopGap="56" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" 
+    class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ? 'side' : 'push'">
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <td-map  [ngClass]="isActive ? 'td-map-actions_active_m' : 'td-map-actions_deactive_m'"></td-map>
+    <div class="td-map-actions">
+      <layer-selection [ngClass]="isActive ? 'td-map-actions_active' : 'td-map-actions_deactive'"></layer-selection >
+      <zoom-controls></zoom-controls>
+      <measure-controls></measure-controls>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
