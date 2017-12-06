@@ -8,7 +8,7 @@ import { XHRBackend } from "@angular/http";
 import { AppComponent } from "../components/app.component";
 import { HttpModule } from "@angular/http";
 import { HttpClientModule } from "@angular/common/http";
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 // TDMap, Leaflet
 
@@ -42,7 +42,7 @@ import { TdmapComponent } from "../components/mapComponents/tdmap/tdmap.componen
 import { LayerComponent } from "../components/mapComponents/layer/layer.component";
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
 import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
-import { NgcFloatButtonModule } from "ngc-float-button";
+import { SearchAutocompleteComponent } from '../components/search-autocomplete/search-autocomplete.component';
 
 // covalent
 import {
@@ -67,7 +67,8 @@ import {
     TdmapComponent,
     LayerComponent,
     ZoomComponent,
-    MeasureComponent
+    MeasureComponent,
+    SearchAutocompleteComponent
   ],
   imports: [
     BrowserModule,
@@ -77,6 +78,7 @@ import {
     BrowserAnimationsModule,
     FlexLayoutModule,
     FormsModule,
+    ReactiveFormsModule,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
@@ -84,7 +86,6 @@ import {
     MatExpansionModule,
     MatCheckboxModule,
     MatListModule,
-    NgcFloatButtonModule,
     MatSidenavModule,
     MatTooltipModule,
     MatAutocompleteModule,
