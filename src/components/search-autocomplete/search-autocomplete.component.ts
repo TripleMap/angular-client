@@ -3,9 +3,7 @@ import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FormControl, Validators } from "@angular/forms";
 
 import { Observable } from "rxjs/Observable";
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/switchMap';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 import { PkkTypeAhead } from "publicCadastral/PublicCadastralHub";
 
@@ -16,18 +14,21 @@ import { PkkTypeAhead } from "publicCadastral/PublicCadastralHub";
 })
 export class SearchAutocompleteComponent implements OnInit {
 	stateCtrl: FormControl;
-	filteredStates: Observable<any[]>;
+	filteredPkkObject: Observable<any[]>;
 
 	seachProviders: any[] = [new PkkTypeAhead(1, 10), new PkkTypeAhead(5, 10)];
 	activeSearchProvider: any;
 
 	constructor() {
 		this.stateCtrl = new FormControl();
-		this.filteredStates = this.stateCtrl.valueChanges
-			.debounceTime(400)
-			.distinctUntilChanged()
-			.switchMap(term => {console.log(term); return this.activeSearchProvider.getData(term)})
-			.subscribe(data => console.log(data));
+		this.filteredPkkObject = this.stateCtrl.valueChanges.pipe(
+			// wait 300ms after each keystroke before considering the term
+			debounceTime(400),
+			// ignore new term if same as previous term
+			distinctUntilChanged(),
+			// switch to new search observable each time the term changes
+			switchMap((term: string) =>  this.activeSearchProvider.getData(term))
+		);
 	}
 
 	filterStates(name: string) {}

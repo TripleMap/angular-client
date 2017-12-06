@@ -1,10 +1,12 @@
-import { Observable } from "rxjs/Observable";
-import { HttpModule, HttpClient } from "@angular/common/http";
-import 'rxjs/add/operator/map';
+import { HttpClient, HttpResponse } from "@angular/common/http";
 
-class SearchItem {
-  constructor(public val: string) {
-  }
+import { Observable } from "rxjs/Observable";
+import { of } from 'rxjs/observable/of';
+import { catchError, map, tap } from 'rxjs/operators';
+
+export class SearchItem {
+	id: number;
+	name: string;
 }
 export class PkkTypeAhead {
 	pkkObjType: number;
@@ -21,10 +23,12 @@ export class PkkTypeAhead {
 
 	getData(text: string): Observable<SearchItem[]>{
 		let fullUrl = `${this.apiUrl}text=${text}&limit=${this.limit}&type=${this.pkkObjType}`;
-		return this.http.get(fullUrl).map(res => {
-          return res.json().results.map(item => {
-            return new SearchItem(item);
-          });
-        });
+		console.log(text)
+		return this.http.get<SearchItem[]>(fullUrl)
+			.pipe(
+			tap(heroes => console.log(`fetched heroes`))
+			);
 	}
+
+	
 }
