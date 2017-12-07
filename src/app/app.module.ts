@@ -32,10 +32,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 // services
-import { ApiHTTPInterseptor } from "../services/ApiHTTPInterseptorService";
 import { BaseLayersService } from "../services/BaseLayersService";
 import { OverLaysService } from "../services/OverLaysService";
 import { SelectedFeatureService } from "../services/SelectedFeatureService";
+import { PkkTypeAheadFactory } from "../publicCadastral/PublicCadastralHub";
 
 // mapComponents
 import { TdmapComponent } from "../components/mapComponents/tdmap/tdmap.component";
@@ -110,10 +110,7 @@ import {
     BaseLayersService,
     OverLaysService,
     SelectedFeatureService,
-    {
-      provide: XHRBackend,
-      useClass: ApiHTTPInterseptor
-    }
+    PkkTypeAheadFactory
   ],
   bootstrap: [AppComponent]
 })

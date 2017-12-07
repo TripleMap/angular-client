@@ -2,8 +2,8 @@
     <mat-form-field class="example-full-width">
         <input matInput placeholder="Поиск..." aria-label="State" [matAutocomplete]="auto" [formControl]="stateCtrl">
         <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let state of filteredPkkObject | async" [value]="name">
-                <span>{{ state }}</span>
+            <mat-option *ngFor="let state of filteredPkkObject | async" [value]="state">
+                <span>{{ state.value }}</span>
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>
