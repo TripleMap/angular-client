@@ -22,18 +22,16 @@ export class SearchAutocompleteComponent implements OnInit {
 	activeSearchProvider: any;
 
 	constructor(public PkkTypeAheadFactory: PkkTypeAheadFactory) {
-		this.stateCtrl = new FormControl();
-
-		this.seachProviders.push(PkkTypeAheadFactory.createPkkTypeAhead(1, 10)); 
-		this.seachProviders.push(PkkTypeAheadFactory.createPkkTypeAhead(5, 10)); 
-
+		this.stateCtrl = new FormControl();		
 		this.filteredPkkObject = this.stateCtrl.valueChanges
 			.debounceTime(400)
 			.distinctUntilChanged()
 			.switchMap((term: string) => this.activeSearchProvider.getData(term))
 	}
-	
+
 	ngOnInit() {
+		this.seachProviders.push(this.PkkTypeAheadFactory.createPkkTypeAhead(1, 10)); 
+		this.seachProviders.push(this.PkkTypeAheadFactory.createPkkTypeAhead(5, 10)); 
 		this.activeSearchProvider = this.seachProviders[0];
 	}
 }
