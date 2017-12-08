@@ -2,39 +2,49 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
 import { Observable } from "rxjs/Observable";
-import { of } from "rxjs/observable/of";
-import { catchError, map, tap } from "rxjs/operators";
+import { catchError, map } from "rxjs/operators";
 
-export class SearchItem {
-	id: number;
-	name: string;
-}
 export class PkkTypeAhead {
 	pkkObjType: number;
 	limit: number;
-	apiUrl: string;
+	typeAheadUrl: string;
+	featuresUrl: string;
 	http: HttpClient;
-	constructor(type: number, limit: number, http: any) {
-		this.apiUrl = "http://pkk5.rosreestr.ru/api/typeahead";
+	displayName: string;
+
+	constructor(type: number, limit: number, displayName: string, http: any) {
+		this.typeAheadUrl = "http://pkk5.rosreestr.ru/api/typeahead";
+		this.featuresUrl = "http://pkk5.rosreestr.ru/api/features";
 		this.pkkObjType = type;
 		this.limit = limit;
+		this.displayName = displayName;
 		this.http = http;
 	}
 
-	getData(text: string): Observable<any> {
-		return this.http.get<any[]>(this.apiUrl, {
-			params: new HttpParams()
-				.set("text", text)
-				.set("limit", this.limit.toString())
-				.set("type", this.pkkObjType.toString())
-		}).map((data:any) => data.results);
+	getTypeAheadData(text: string): Observable<any> {
+		return this.http
+			.get<any[]>(this.typeAheadUrl, {
+				params: new HttpParams()
+					.set("text", text)
+					.set("limit", this.limit.toString())
+					.set("type", this.pkkObjType.toString())
+			})
+			.map((data: any) => data.results);
+	}
+
+	getFeatureData(cadNum: string): Observable<any> {
+		let clearCadNum = cadNum.split(':').map(elem => Number(elem)).join(':');
+		let fullUrl = `${this.featuresUrl}/${this.pkkObjType}/${clearCadNum}`;
+		return this.http
+			.get<any[]>(fullUrl, {})
+			.map((data: any) => data.feature);
 	}
 }
 
 @Injectable()
 export class PkkTypeAheadFactory {
 	constructor(private http: HttpClient) {}
-	createPkkTypeAhead(type, limit) {
-		return new PkkTypeAhead(type, limit, this.http);
+	createPkkTypeAhead(type, limit, displayName) {
+		return new PkkTypeAhead(type, limit, displayName, this.http);
 	}
 }

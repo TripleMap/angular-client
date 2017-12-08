@@ -27,14 +27,16 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatListModule } from "@angular/material/list";
 import { MatSidenavModule } from "@angular/material/sidenav";
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatSelectModule } from "@angular/material/select";
 // services
+import { MapService } from "../services/MapService";
 import { BaseLayersService } from "../services/BaseLayersService";
 import { OverLaysService } from "../services/OverLaysService";
 import { SelectedFeatureService } from "../services/SelectedFeatureService";
+
 import { PkkTypeAheadFactory } from "../publicCadastral/PublicCadastralHub";
 
 // mapComponents
@@ -42,7 +44,7 @@ import { TdmapComponent } from "../components/mapComponents/tdmap/tdmap.componen
 import { LayerComponent } from "../components/mapComponents/layer/layer.component";
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
 import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
-import { SearchAutocompleteComponent } from '../components/search-autocomplete/search-autocomplete.component';
+import { SearchAutocompleteComponent } from "../components/search-autocomplete/search-autocomplete.component";
 
 // covalent
 import {
@@ -91,6 +93,7 @@ import {
     MatAutocompleteModule,
     MatInputModule,
     MatFormFieldModule,
+    MatSelectModule,
     CovalentCommonModule,
     CovalentLayoutModule,
     CovalentMediaModule,
@@ -107,6 +110,7 @@ import {
   ],
   providers: [
     MatIconRegistry,
+    MapService,
     BaseLayersService,
     OverLaysService,
     SelectedFeatureService,

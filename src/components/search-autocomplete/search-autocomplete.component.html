@@ -1,10 +1,20 @@
 <form color="primary">
-    <mat-form-field >
-        <input class="pkk-search" style="font-size: 16px;line-height: 16px;" matInput placeholder="поиск кад. номера" aria-label="State" [matAutocomplete]="auto" [formControl]="stateCtrl">
-        <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let state of filteredPkkObject | async" [value]="state">
-                <span>{{ state.value }}</span>
-            </mat-option>
-        </mat-autocomplete>
-    </mat-form-field>
+  <mat-form-field style="min-width:260px;">
+    <input class="pkk-search" style="font-size: 16px;line-height: 16px;" matInput placeholder="поиск" aria-label="State" [matAutocomplete]="auto" [formControl]="pkkCtrl">
+    <button mat-button *ngIf="pkkCtrl.value" matSuffix mat-icon-button aria-label="Clear" (click)="clearAutocomplete()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option *ngFor="let cadObj of filteredPkkObject | async" [value]="cadObj.value" (onSelectionChange)="forceSeacheCadObject(cadObj)">
+        <span>{{ cadObj.value }}</span>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <mat-form-field style="width:60px;">
+    <mat-select placeholder="" [(ngModel)]="activeSearchProvider" name="food">
+      <mat-option *ngFor="let provider of seachProviders" [value]="provider">
+        {{provider.displayName}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </form>

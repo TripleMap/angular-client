@@ -1,14 +1,17 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FormControl, Validators } from "@angular/forms";
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from "rxjs/Subscription";
 import { Observable } from "rxjs/Observable";
-import { debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
-import 'rxjs/add/operator/debounceTime'
-import 'rxjs/add/operator/distinctUntilChanged'
-import 'rxjs/add/operator/switchMap'
-import 'rxjs/add/operator/map'
+
+import { MatAutocompleteTrigger } from "@angular/material";
+import "rxjs/add/operator/debounceTime";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/map";
+
 import { PkkTypeAheadFactory } from "publicCadastral/PublicCadastralHub";
+import { MapService } from "../../services/MapService";
 
 @Component({
 	selector: "app-search-autocomplete",
@@ -16,22 +19,52 @@ import { PkkTypeAheadFactory } from "publicCadastral/PublicCadastralHub";
 	styleUrls: ["./search-autocomplete.component.css"]
 })
 export class SearchAutocompleteComponent implements OnInit {
-	stateCtrl: FormControl;
+	pkkCtrl: FormControl;
 	filteredPkkObject: Observable<any[]>;
 	seachProviders: any[] = [];
 	activeSearchProvider: any;
+	matAutocomplete: any;
 
-	constructor(public PkkTypeAheadFactory: PkkTypeAheadFactory) {
-		this.stateCtrl = new FormControl();		
-		this.filteredPkkObject = this.stateCtrl.valueChanges
-			.debounceTime(400)
+	constructor(
+		public _pkkTypeAheadFactory: PkkTypeAheadFactory,
+		public _mapService: MapService
+	) {
+		this.pkkCtrl = new FormControl();
+		this.filteredPkkObject = this.pkkCtrl.valueChanges
+			.debounceTime(300)
 			.distinctUntilChanged()
-			.switchMap((term: string) => this.activeSearchProvider.getData(term))
+			.switchMap((term: string) =>
+				this.activeSearchProvider.getTypeAheadData(term)
+			);
 	}
 
 	ngOnInit() {
-		this.seachProviders.push(this.PkkTypeAheadFactory.createPkkTypeAhead(1, 10)); 
-		this.seachProviders.push(this.PkkTypeAheadFactory.createPkkTypeAhead(5, 10)); 
+		this.seachProviders.push(
+			this._pkkTypeAheadFactory.createPkkTypeAhead(1, 10, "ЗУ")
+		);
+		this.seachProviders.push(
+			this._pkkTypeAheadFactory.createPkkTypeAhead(5, 10, "ОКС")
+		);
 		this.activeSearchProvider = this.seachProviders[0];
 	}
+
+	forceSeacheCadObject(cadObj) {
+		if (!cadObj) return;
+		this.activeSearchProvider
+			.getFeatureData(cadObj.value)
+			.subscribe(cadData => this.setViewOnCadData(cadData));
+	}
+
+	setViewOnCadData = cadData => {
+		if (!cadData) return;
+		if (!cadData.center) return;
+		this._mapService.updateMapPosition(
+			L.Projection.SphericalMercator.unproject(
+				L.point(cadData.center.x, cadData.center.y)
+			),
+			16
+		);
+	};
+
+	clearAutocomplete = () => this.pkkCtrl.setValue("");
 }

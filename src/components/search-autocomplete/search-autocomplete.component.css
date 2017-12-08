@@ -5,3 +5,14 @@
 /deep/  .mat-form-field-underline {
 	background-color: white !important;
 }
+
+/deep/  .mat-select-value{
+	color: white !important;
+}
+/deep/ .mat-select-arrow {
+	color: rgba(255, 255, 255, 0.54);
+}
+
+/deep/ .mat-select-value-text{
+	font-size: 0.7em;
+}

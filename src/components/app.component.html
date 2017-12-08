@@ -12,6 +12,7 @@
       <button mat-button (click)="toggleSideNav()">
         <mat-icon>search</mat-icon>
       </button>
+      <span style="width: 16px;"></span>
       <app-search-autocomplete></app-search-autocomplete>
     </mat-toolbar>
     <td-map [ngClass]="isActive && (activeMediaQuery !== 'xs') ? 'td-map-actions_active' : 'td-map-actions_deactive'"></td-map>
