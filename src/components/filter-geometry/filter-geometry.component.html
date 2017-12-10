@@ -1,0 +1,14 @@
+<mat-toolbar color="primary" class="toolbar" fxLayout="row" fxLayoutAlign="space-between center">
+    <h1 class="">Фильтрация</h1>
+    <button mat-icon-button (click)="clearFilter()">
+        <mat-icon>cached</mat-icon>
+      </button>
+</mat-toolbar>
+<div class="filter-wrapper" fxLayout="column">
+    <form>
+        <section fxLayout="column">
+            <mat-checkbox class="avaliable-survey-segmented" [formControl]="showSurveyCtrl">Возможно межевание</mat-checkbox>
+            <mat-checkbox class="avaliable-survey-segmented" [formControl]="showSegmentedCtrl">Возможно объединение</mat-checkbox>
+        </section>
+    </form>
+</div>

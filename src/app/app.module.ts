@@ -36,6 +36,8 @@ import { MapService } from "../services/MapService";
 import { BaseLayersService } from "../services/BaseLayersService";
 import { OverLaysService } from "../services/OverLaysService";
 import { SelectedFeatureService } from "../services/SelectedFeatureService";
+import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
+
 
 import { PkkTypeAheadFactory } from "../publicCadastral/PublicCadastralHub";
 
@@ -45,23 +47,7 @@ import { LayerComponent } from "../components/mapComponents/layer/layer.componen
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
 import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
 import { SearchAutocompleteComponent } from "../components/search-autocomplete/search-autocomplete.component";
-
-// covalent
-import {
-  CovalentCommonModule,
-  CovalentLayoutModule,
-  CovalentMediaModule,
-  CovalentExpansionPanelModule,
-  CovalentStepsModule,
-  CovalentLoadingModule,
-  CovalentDialogsModule,
-  CovalentSearchModule,
-  CovalentPagingModule,
-  CovalentNotificationsModule,
-  CovalentMenuModule,
-  CovalentDataTableModule,
-  CovalentMessageModule
-} from "@covalent/core";
+import { FilterGeometryComponent } from '../components/filter-geometry/filter-geometry.component';
 
 @NgModule({
   declarations: [
@@ -70,7 +56,8 @@ import {
     LayerComponent,
     ZoomComponent,
     MeasureComponent,
-    SearchAutocompleteComponent
+    SearchAutocompleteComponent,
+    FilterGeometryComponent
   ],
   imports: [
     BrowserModule,
@@ -93,20 +80,7 @@ import {
     MatAutocompleteModule,
     MatInputModule,
     MatFormFieldModule,
-    MatSelectModule,
-    CovalentCommonModule,
-    CovalentLayoutModule,
-    CovalentMediaModule,
-    CovalentExpansionPanelModule,
-    CovalentStepsModule,
-    CovalentLoadingModule,
-    CovalentDialogsModule,
-    CovalentSearchModule,
-    CovalentPagingModule,
-    CovalentNotificationsModule,
-    CovalentMenuModule,
-    CovalentDataTableModule,
-    CovalentMessageModule
+    MatSelectModule
   ],
   providers: [
     MatIconRegistry,
@@ -114,7 +88,8 @@ import {
     BaseLayersService,
     OverLaysService,
     SelectedFeatureService,
-    PkkTypeAheadFactory
+    PkkTypeAheadFactory,
+    FilterGeometryAdapter
   ],
   bootstrap: [AppComponent]
 })

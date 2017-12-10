@@ -22,6 +22,7 @@ export class PkkTypeAhead {
 	}
 
 	getTypeAheadData(text: string): Observable<any> {
+		if (!text) return;
 		return this.http
 			.get<any[]>(this.typeAheadUrl, {
 				params: new HttpParams()
@@ -33,6 +34,7 @@ export class PkkTypeAhead {
 	}
 
 	getFeatureData(cadNum: string): Observable<any> {
+		if (!cadNum) return;
 		let clearCadNum = cadNum.split(':').map(elem => Number(elem)).join(':');
 		let fullUrl = `${this.featuresUrl}/${this.pkkObjType}/${clearCadNum}`;
 		return this.http
@@ -43,7 +45,7 @@ export class PkkTypeAhead {
 
 @Injectable()
 export class PkkTypeAheadFactory {
-	constructor(private http: HttpClient) {}
+	constructor(private http: HttpClient) { }
 	createPkkTypeAhead(type, limit, displayName) {
 		return new PkkTypeAhead(type, limit, displayName, this.http);
 	}

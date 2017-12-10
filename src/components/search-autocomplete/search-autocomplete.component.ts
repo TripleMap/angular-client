@@ -9,8 +9,9 @@ import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/map";
+import 'rxjs/add/observable/of';
 
-import { PkkTypeAheadFactory } from "publicCadastral/PublicCadastralHub";
+import { PkkTypeAheadFactory } from "../../publicCadastral/PublicCadastralHub";
 import { MapService } from "../../services/MapService";
 
 @Component({
@@ -34,7 +35,7 @@ export class SearchAutocompleteComponent implements OnInit {
 			.debounceTime(300)
 			.distinctUntilChanged()
 			.switchMap((term: string) =>
-				this.activeSearchProvider.getTypeAheadData(term)
+				term.length > 6 ? this.activeSearchProvider.getTypeAheadData(term) : Observable.of([])
 			);
 	}
 
@@ -47,6 +48,8 @@ export class SearchAutocompleteComponent implements OnInit {
 		);
 		this.activeSearchProvider = this.seachProviders[0];
 	}
+
+	minimalLength = (term: string) => (term && term.length < 6) ? '' : term;
 
 	forceSeacheCadObject(cadObj) {
 		if (!cadObj) return;
@@ -67,4 +70,10 @@ export class SearchAutocompleteComponent implements OnInit {
 	};
 
 	clearAutocomplete = () => this.pkkCtrl.setValue("");
+	stopOnEnterPress(e) {
+		if (e.keyCode === 13) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		}
+	}
 }
