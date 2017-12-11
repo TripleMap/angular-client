@@ -3,9 +3,6 @@ import { FormControl, Validators } from "@angular/forms";
 import { Subscription } from "rxjs/Subscription";
 import { Observable } from "rxjs/Observable";
 
-import "rxjs/add/operator/merge";
-
-
 import { SelectedFeatureService } from "../../services/SelectedFeatureService";
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
 
@@ -30,8 +27,7 @@ export class FilterGeometryComponent implements OnInit {
   ngOnInit() {
     this.showSurveyCtrlWatcher = this.showSurveyCtrl.valueChanges;
     this.showSegmentedCtrlWatcher = this.showSegmentedCtrl.valueChanges;
-
-    this._filterGeometryAdapter.mainFlow.merge(...[this.showSurveyCtrlWatcher, this.showSegmentedCtrlWatcher])
+    this._filterGeometryAdapter.mergeMainFlow([this.showSurveyCtrl.valueChanges, this.showSegmentedCtrl.valueChanges]);
   }
   clearFilter() {
 

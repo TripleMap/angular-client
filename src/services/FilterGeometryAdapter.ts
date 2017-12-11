@@ -4,15 +4,20 @@ import { BaseLayersService } from "./BaseLayersService";
 import { OverLaysService } from "./OverLaysService";
 
 import { Observable } from "rxjs/Observable";
-
+import "rxjs/add/operator/merge";
 
 @Injectable()
 export class FilterGeometryAdapter {
+	mainFlow: Observable<any[]>;
 
-    mainFlow: Observable<any[]>;
+	constructor() {
+		this.mainFlow = new Observable();
+	}
 
-    constructor() {
-        this.mainFlow = new Observable();
-        this.mainFlow.subscribe(x => console.log(x));
-    }
+	mergeMainFlow(observers) {
+		this.mainFlow = this.mainFlow.merge(...observers);
+		//this.mainFlow.subscribe(data => {
+		//	console.log(data);
+		//});
+	}
 }
