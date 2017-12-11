@@ -25,9 +25,11 @@ export class FilterGeometryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.showSurveyCtrlWatcher = this.showSurveyCtrl.valueChanges;
-    this.showSegmentedCtrlWatcher = this.showSegmentedCtrl.valueChanges;
-    this._filterGeometryAdapter.mergeMainFlow([this.showSurveyCtrl.valueChanges, this.showSegmentedCtrl.valueChanges]);
+    this.showSurveyCtrlWatcher = this.showSurveyCtrl.valueChanges.map(data => ({ a: 'showSurveyCtrl', d: data}));
+    this.showSegmentedCtrlWatcher = this.showSegmentedCtrl.valueChanges.map(data => ({ a: 'showSegmentedCtrl', d: data }));
+    this._filterGeometryAdapter.mergeMainFlow([this.showSurveyCtrlWatcher]);
+    this._filterGeometryAdapter.mergeMainFlow([this.showSegmentedCtrlWatcher]);
+
   }
   clearFilter() {
 
