@@ -19,7 +19,7 @@ export class OverLaysService {
         this.baseMainLayerOptions = {
             maxZoom: 24,
             minZoom: 12,
-            dataUrl: "http://188.134.5.249:3000/api/zusklads/geoJSON",
+            dataUrl: "http://localhost:3000/api/zusklads/geoJSON",
             styled: false,
             labeled: false,
             style: {

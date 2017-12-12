@@ -24,14 +24,10 @@ export class MapService {
         let zoom, lat, lng;
 
         const zoomState = window.localStorage.getItem("MAP_STATE_ZOOM");
-        const latState = window.localStorage.getItem(
-            "MAP_STATE_COORDINATES_LAT"
-        );
-        const lngState = window.localStorage.getItem(
-            "MAP_STATE_COORDINATES_LNG"
-        );
+        const latState = window.localStorage.getItem("MAP_STATE_COORDINATES_LAT");
+        const lngState = window.localStorage.getItem("MAP_STATE_COORDINATES_LNG");
 
-        if (zoomState && zoomState) {
+        if (zoomState) {
             zoom = Number(zoomState);
         }
 
@@ -44,26 +40,19 @@ export class MapService {
             this.map.setView([lat, lng], zoom);
         }
 
-        function saveMapState() {
+        let saveMapState = () => {
             window.localStorage.setItem("MAP_STATE_ZOOM", this.map.getZoom());
-            window.localStorage.setItem(
-                "MAP_STATE_COORDINATES_LAT",
-                this.map.getCenter().lat
-            );
-            window.localStorage.setItem(
-                "MAP_STATE_COORDINATES_LNG",
-                this.map.getCenter().lng
-            );
-            return null;
-        }
+            window.localStorage.setItem("MAP_STATE_COORDINATES_LAT",this.map.getCenter().lat);
+            window.localStorage.setItem("MAP_STATE_COORDINATES_LNG",this.map.getCenter().lng);
+        };
 
-        window.addEventListener("beforeunload", e => saveMapState());
+        window.addEventListener("beforeunload", saveMapState);
 
         this._overLayService.addLayerToMap();
     }
 
     getMap = () => this.map;
-    updateMapPosition = (latLng:any, zoom: number) => {
+    updateMapPosition = (latLng: any, zoom: number) => {
         this.map.setView(latLng, zoom);
-    }
+    };
 }

@@ -3,21 +3,18 @@ import { HttpClient } from "@angular/common/http";
 import { BaseLayersService } from "./BaseLayersService";
 import { OverLaysService } from "./OverLaysService";
 
-import { Observable } from "rxjs/Observable";
-import 'rxjs/add/observable/merge';
+import { Subject } from "rxjs/Subject";
 
 @Injectable()
 export class FilterGeometryAdapter {
-	mainFlow: Observable<any[]>;
+	public mainFlow: Subject<any>;
 
 	constructor() {
-
+		this.mainFlow = new Subject();
+		this.mainFlow.subscribe(this.updateFilters);
 	}
 
-	mergeMainFlow(observers) {
-		this.mainFlow = Observable.merge(...observers);
-		this.mainFlow.subscribe(data => {
-			console.log(data);
-		});
+	updateFilters(element){
+		console.log(element);
 	}
 }
