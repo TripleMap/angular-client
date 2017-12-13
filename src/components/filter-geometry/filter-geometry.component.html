@@ -5,20 +5,46 @@
   </button>
 </mat-toolbar>
 <div class="filter-wrapper" fxLayout="column">
-  <form>
-    <section fxLayout="column">
-      <mat-checkbox class="avaliable-survey-segmented" [formControl]="showSurveyCtrl">Возможно межевание</mat-checkbox>
-      <mat-checkbox class="avaliable-survey-segmented" [formControl]="showSegmentedCtrl">Возможно объединение</mat-checkbox>
+  <form [formGroup]="firstLine">
+    <section fxLayout="column" class="filter-sections">
+      <mat-checkbox class="avaliable-survey-segmented" formControlName="survey">Возможно межевание</mat-checkbox>
+      <mat-checkbox class="avaliable-survey-segmented" formControlName="segmented">Возможно объединение</mat-checkbox>
     </section>
-    <section fxLayout="row">
-      <label>Площадь: </label>
-      <mat-form-field>
-        <input matInput placeholder="От" [formControl]="showFromCtrl" min="0">
-      </mat-form-field>
-      <mat-form-field >
-        <input matInput placeholder="До" [formControl]="showToCtrl" min="0">
-
-      </mat-form-field>
+    <section fxLayout="column" class="filter-sections">
+      <label class="mat-body-2 filter-subheading">Площадь: </label>
+      <section fxLayout="row">
+        <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+          <input matInput type="number" placeholder="От" formControlName="squareFrom" min="0">
+          <mat-error *ngIf="firstLine.get('squareFrom')?.invalid">Неверное значение</mat-error>
+        </mat-form-field>
+        <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+          <input matInput type="number" placeholder="До" formControlName="squareTo" min="0">
+          <mat-error *ngIf="firstLine.get('squareTo')?.invalid">Неверное значение</mat-error>
+        </mat-form-field>
+        <mat-form-field fxFlex="20%" fxFlexOffset="4px">
+          <mat-select formControlName="squareUnit">
+            <mat-optgroup label="Единицы измерения">
+              <mat-option *ngFor="let squareUnit of squareUnits" [value]="squareUnit">{{squareUnit.ru}}</mat-option>
+            </mat-optgroup>
+          </mat-select>
+        </mat-form-field>
+      </section>
+    </section>
+    <section fxLayout="column" class="filter-sections">
+      <label class="mat-body-2 filter-subheading">Удаленность от МКАД: </label>
+      <section fxLayout="row">
+        <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+          <input matInput type="number" placeholder="От" formControlName="distanceFrom" min="0">
+          <span matSuffix>км</span>
+          <mat-error *ngIf="firstLine.get('squareFrom')?.invalid">Неверное значение</mat-error>
+        </mat-form-field>
+        <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+          <input matInput type="number" placeholder="До" formControlName="distanceTo" min="0">
+          <span matSuffix>км</span>
+          <mat-error *ngIf="firstLine.get('squareTo')?.invalid">Неверное значение</mat-error>
+        </mat-form-field>
+        <span fxFlex="20%" fxFlexOffset="4px"></span>
+      </section>
     </section>
   </form>
 </div>

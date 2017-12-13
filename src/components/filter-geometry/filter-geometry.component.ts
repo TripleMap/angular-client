@@ -1,10 +1,15 @@
 import { Component, OnInit } from "@angular/core";
-import { FormControl, Validators } from "@angular/forms";
-import { Subscription } from "rxjs/Subscription";
-import { Observable } from "rxjs/Observable";
+import {
+  FormControl,
+  FormGroup,
+  FormBuilder,
+  Validators
+} from "@angular/forms";
 
 import { SelectedFeatureService } from "../../services/SelectedFeatureService";
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
+
+import "rxjs/add/operator/filter";
 
 @Component({
   selector: "filter-geometry",
@@ -12,31 +17,49 @@ import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
   styleUrls: ["./filter-geometry.component.css"]
 })
 export class FilterGeometryComponent implements OnInit {
-  showSurveyCtrl: FormControl;
-  showSegmentedCtrl: FormControl;
-  showFromCtrl: FormControl;
-  showToCtrl: FormControl;
+  public firstLine: FormGroup;
+  public squareUnits: { ru: string; eng: string }[];
+
   constructor(
     public _selectedFeatureService: SelectedFeatureService,
-    public _filterGeometryAdapter: FilterGeometryAdapter
+    public _filterGeometryAdapter: FilterGeometryAdapter,
+    public fb: FormBuilder
   ) {
-    this.showSurveyCtrl = new FormControl();
-    this.showSegmentedCtrl = new FormControl();
-    this.showSurveyCtrl.setValue(true);
-    this.showSegmentedCtrl.setValue(true);
+    this.squareUnits = [
+      {
+        ru: "м\xB2",
+        eng: "m"
+      },
+      {
+        ru: "Га",
+        eng: "ga"
+      },
+      {
+        ru: "км\xB2",
+        eng: "km"
+      }
+    ];
 
-    this.showFromCtrl = new FormControl();
-    this.showToCtrl = new FormControl();
+    this.firstLine = this.fb.group({
+      survey: true,
+      segmented: true,
+      squareFrom: [null, Validators.min(0)],
+      squareTo: [null, Validators.min(0)],
+      squareUnit: this.squareUnits[1],
+      distanceFrom: [null, Validators.min(0)],
+      distanceTo: [null, Validators.min(0)]
+    });
   }
 
-  ngOnInit() {
-    this.showSurveyCtrl.valueChanges
-      .map(data => ({ a: "showSurvey", d: data }))
-      .subscribe(this._filterGeometryAdapter.mainFlow);
-
-    this.showSegmentedCtrl.valueChanges
-      .map(data => ({ a: "showSegmented", d: data }))
-      .subscribe(this._filterGeometryAdapter.mainFlow);
-  }
+  ngOnInit() {}
   clearFilter() {}
+  ngAfterViewInit(): void {
+    this.firstLine.valueChanges
+      .debounceTime(300)
+      .distinctUntilChanged()
+      .filter(this.isValidForm)
+      .subscribe(this._filterGeometryAdapter.mainFlow);
+  }
+
+  isValidForm = () => this.firstLine.status === "VALID";
 }

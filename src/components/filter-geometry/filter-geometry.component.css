@@ -1,9 +1,18 @@
 .filter-wrapper {
-    width: 100%;
-    height: calc(100% - 64px);
-    padding: 16px;
+	width: 100%;
+	height: calc(100% - 64px);
+	padding: 16px 32px 16px 16px;
 }
 
 .avaliable-survey-segmented {
-    padding-top: 4px;
+	padding-top: 4px;
+}
+
+.filter-subheading {
+	line-height: 24px;
+}
+
+
+.filter-sections:not(:first-child) {
+    padding-top: 8px;
 }
