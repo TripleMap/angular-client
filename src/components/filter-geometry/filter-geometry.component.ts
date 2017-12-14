@@ -1,65 +1,37 @@
-import { Component, OnInit } from "@angular/core";
-import {
-  FormControl,
-  FormGroup,
-  FormBuilder,
-  Validators
-} from "@angular/forms";
-
-import { SelectedFeatureService } from "../../services/SelectedFeatureService";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
-
-import "rxjs/add/operator/filter";
-
 @Component({
   selector: "filter-geometry",
   templateUrl: "./filter-geometry.component.html",
   styleUrls: ["./filter-geometry.component.css"]
 })
-export class FilterGeometryComponent implements OnInit {
-  public firstLine: FormGroup;
-  public squareUnits: { ru: string; eng: string }[];
-
-  constructor(
-    public _selectedFeatureService: SelectedFeatureService,
-    public _filterGeometryAdapter: FilterGeometryAdapter,
-    public fb: FormBuilder
-  ) {
-    this.squareUnits = [
-      {
-        ru: "м\xB2",
-        eng: "m"
-      },
-      {
-        ru: "Га",
-        eng: "ga"
-      },
-      {
-        ru: "км\xB2",
-        eng: "km"
-      }
-    ];
-
-    this.firstLine = this.fb.group({
-      survey: true,
-      segmented: true,
-      squareFrom: [null, Validators.min(0)],
-      squareTo: [null, Validators.min(0)],
-      squareUnit: this.squareUnits[1],
-      distanceFrom: [null, Validators.min(0)],
-      distanceTo: [null, Validators.min(0)]
-    });
+export class FilterGeometryComponent implements OnInit, OnDestroy {
+  isFiltersActive: boolean;
+  isResultPaneAvalible: boolean;
+  isResultPaneCounts: number;
+  constructor(public _filterGeometryAdapter: FilterGeometryAdapter) {
+    this.isFiltersActive = true;
+    this.isResultPaneAvalible = false;
   }
 
-  ngOnInit() {}
-  clearFilter() {}
-  ngAfterViewInit(): void {
-    this.firstLine.valueChanges
-      .debounceTime(300)
-      .distinctUntilChanged()
-      .filter(this.isValidForm)
-      .subscribe(this._filterGeometryAdapter.mainFlow);
+  ngOnInit() {
+    this._filterGeometryAdapter.filteredObjects.subscribe(
+      this.toogleAvaliableResultPane
+    );
   }
 
-  isValidForm = () => this.firstLine.status === "VALID";
+  changeFilterOrResultPane() {
+    this.isFiltersActive = !this.isFiltersActive;
+  }
+
+  toogleAvaliableResultPane = data => {
+    this.isResultPaneAvalible = data && data.length > 0;
+    this.isResultPaneCounts = data && data.length > 0 ? data.length : null;
+  };
+
+  clearFilters() {}
+
+  ngOnDestroy() {
+    this._filterGeometryAdapter.filteredObjects.unsubscribe();
+  }
 }

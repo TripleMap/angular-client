@@ -1,18 +1,21 @@
 .filter-wrapper {
 	width: 100%;
 	height: calc(100% - 64px);
-	padding: 16px 32px 16px 16px;
+	padding: 16px 16px 0 16px;
 }
 
-.avaliable-survey-segmented {
-	padding-top: 4px;
-}
-
-.filter-subheading {
-	line-height: 24px;
+.filter-pane-toggler{
+	margin: 8px 0;
 }
 
 
-.filter-sections:not(:first-child) {
-    padding-top: 8px;
+filter-geometry-first-line{
+	padding-right: 16px;
+}
+
+filter-geometry-result-list.collapsed {
+	height: 0
+}
+filter-geometry-result-list.expanded {
+	height: calc(100% - 54px);
 }

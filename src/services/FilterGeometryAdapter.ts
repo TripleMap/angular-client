@@ -1,20 +1,40 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { BaseLayersService } from "./BaseLayersService";
 import { OverLaysService } from "./OverLaysService";
 
+import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
-
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 @Injectable()
 export class FilterGeometryAdapter {
 	public mainFlow: Subject<any>;
-
-	constructor() {
+	public filteredObjects: Subject<any>;
+	public filters: object;
+	constructor(public _http: HttpClient) {
 		this.mainFlow = new Subject();
-		this.mainFlow.subscribe(this.updateFilters);
+		this.filters = {};
+		this.filteredObjects = new Subject();
+		this.mainFlow
+			.map(this.concatenateAllFilters)
+			.subscribe(this.updateLayerFilters);
 	}
 
-	updateFilters(element){
-		console.log(element);
-	}
+	updateLayerFilters = requestParams => {
+		this._http
+			.post("api/zusklads/filtered", { params: requestParams })
+			.subscribe(this.updateSLayerFilters);
+	};
+
+	updateSLayerFilters = data => {
+		this.filteredObjects.next(data);
+	};
+
+	concatenateAllFilters = filters => {
+		for (let key in filters) {
+			this.filters[key] = filters[key];
+		}
+
+		return this.filters;
+	};
 }

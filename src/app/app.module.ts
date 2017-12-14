@@ -1,5 +1,6 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
+import { HTTP_INTERCEPTORS } from "@angular/common/http";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -31,13 +32,15 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
+import { MatCardModule } from "@angular/material/card";
+
 // services
+import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService";
 import { MapService } from "../services/MapService";
 import { BaseLayersService } from "../services/BaseLayersService";
 import { OverLaysService } from "../services/OverLaysService";
 import { SelectedFeatureService } from "../services/SelectedFeatureService";
 import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
-
 
 import { PkkTypeAheadFactory } from "../publicCadastral/PublicCadastralHub";
 
@@ -47,7 +50,12 @@ import { LayerComponent } from "../components/mapComponents/layer/layer.componen
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
 import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
 import { SearchAutocompleteComponent } from "../components/search-autocomplete/search-autocomplete.component";
-import { FilterGeometryComponent } from '../components/filter-geometry/filter-geometry.component';
+import { FilterGeometryComponent } from "../components/filter-geometry/filter-geometry.component";
+import { FilterGeometryFirstLineComponent } from "../components/filter-geometry/filter-geometry-first-line/filter-geometry-first-line.component";
+import { FilterGeometryResultListComponent } from "../components/filter-geometry/filter-geometry-result-list/filter-geometry-result-list.component";
+
+//covalent
+import { CovalentVirtualScrollModule } from "@covalent/core";
 
 @NgModule({
   declarations: [
@@ -57,7 +65,9 @@ import { FilterGeometryComponent } from '../components/filter-geometry/filter-ge
     ZoomComponent,
     MeasureComponent,
     SearchAutocompleteComponent,
-    FilterGeometryComponent
+    FilterGeometryComponent,
+    FilterGeometryFirstLineComponent,
+    FilterGeometryResultListComponent
   ],
   imports: [
     BrowserModule,
@@ -80,9 +90,16 @@ import { FilterGeometryComponent } from '../components/filter-geometry/filter-ge
     MatAutocompleteModule,
     MatInputModule,
     MatFormFieldModule,
-    MatSelectModule
+    MatSelectModule,
+    MatCardModule,
+    CovalentVirtualScrollModule
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiHTTPInterceptorService,
+      multi: true
+    },
     MatIconRegistry,
     MapService,
     BaseLayersService,

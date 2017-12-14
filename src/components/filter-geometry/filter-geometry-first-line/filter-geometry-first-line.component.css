@@ -1,0 +1,12 @@
+.avaliable-survey-segmented {
+	padding-top: 4px;
+}
+
+.filter-subheading {
+	line-height: 24px;
+}
+
+
+.filter-sections:not(:first-child) {
+    padding-top: 8px;
+}
