@@ -6,8 +6,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
     public selectedFeature = new BehaviorSubject<any>(false);
     public selectedFeatureTempStyle: any;
     public activeStyle = {
-        weight: 3,
-        color: '#F44336'
+        weight: 4,
+        color: '#ff6d00'
     };
 
     constructor() {}
@@ -28,12 +28,13 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
     getFeatureInfoId = () => this.selectedFeature.getValue().feature.feature.properties.zu_id;
 
     setTempFeatureAndStyleId(feature) {
+        if(!feature) return;
         let tempStyle = {
             weight: feature.options.weight,
             color: feature.options.color
         };
         feature.setStyle(this.activeStyle);
         this.feature.next(feature);
-        setTimeout(() => this.selectedFeature.getValue().setStyle(tempStyle), 5000);
+        setTimeout(() => this.feature.getValue().setStyle(tempStyle), 3600);
     }
 }

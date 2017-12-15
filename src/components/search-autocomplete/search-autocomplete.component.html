@@ -5,7 +5,7 @@
       <mat-icon>close</mat-icon>
     </button>
         <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let cadObj of filteredPkkObject | async" [value]="cadObj.value" (onSelectionChange)="forceSeacheCadObject(cadObj)">
+            <mat-option *ngFor="let cadObj of filteredPkkObject | async" [value]="cadObj.value" (onSelectionChange)="forceSeacheCadObject(cadObj)" [disabled]="cadObj && cadObj.type === 'warn' ">
                 <span>{{ cadObj.value }}</span>
             </mat-option>
         </mat-autocomplete>

@@ -25,10 +25,10 @@ export class OverLaysService {
             style: {
                 weight: 1.04,
                 color: "#1B5E20",
-                fillColor: "#4CAF50",
+                fillColor: "#388E3C",
                 dashArray: "",
                 opacity: 1.0,
-                fillOpacity: 0.6,
+                fillOpacity: 0.4,
                 zIndex: 600
             }
         };
@@ -44,7 +44,9 @@ export class OverLaysService {
             this.mainLayer.remove();
             this.mainLayer = null;
         }
-        this.mainLayer = new TDMap.Service.GeoJSONServiceLayer(this.baseMainLayerOptions);
+        this.mainLayer = new TDMap.Service.GeoJSONServiceLayer(
+            this.baseMainLayerOptions
+        );
         this.mainLayer.addTo(this.map);
         this.baseMainLayerOptions.styled ? this.mainLayer.setStyles(this.styles) : this.mainLayer.removeStyles();
         this.baseMainLayerOptions.labeled ? this.mainLayer.setLabels(this.labels) : this.mainLayer.removeLabels();
@@ -60,4 +62,14 @@ export class OverLaysService {
         this.mainLayer.updateLabels();
     }
     removeFilteredIds = arrayOfId => this.mainLayer.removeFilteredIds();
+
+    getFeatureById = id => {
+        let result;
+        this.mainLayer.eachLayer(layer => {
+            if (layer.feature.properties.zu_id === id) {
+                result = layer;
+            }
+        });
+        return result || null;
+    };
 }

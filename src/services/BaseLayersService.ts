@@ -54,7 +54,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
             layer: L.tileLayer.Rosreestr('http://{s}.pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export?dpi=96&transparent=true&format=png32&bbox={bbox}&size=256,256&bboxSR=3857&imageSR=3857&f=image&layers=show%3A22%2C36%2C37%2C23%2C24', {
                 tileSize: 256,
                 clickable: true,
-                attribution: 'Rosreestr'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
             }),
             visible: false
         }, {
@@ -62,7 +62,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
             layer: L.tileLayer.Rosreestr('http://{s}.pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export?dpi=96&transparent=true&format=png32&bbox={bbox}&size=512,512&bboxSR=3857&imageSR=3857&f=image&layers=show%3A1%2C2%2C3%2C4%2C5%2C6%2C7', {
                 tileSize: 256,
                 clickable: true,
-                attribution: 'Rosreestr'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
             }),
             visible: false
         }, {
@@ -70,7 +70,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
             layer: L.tileLayer.Rosreestr('http://{s}.pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export?dpi=96&transparent=true&format=png32&bbox={bbox}&size=256,256&bboxSR=3857&imageSR=3857&f=image&layers=show%3A9%2C10%2C11%2C12%2C13%2C14%2C15%2C16', {
                 tileSize: 256,
                 clickable: true,
-                attribution: 'Rosreestr'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
             }),
             visible: false
         }, {
@@ -78,7 +78,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
             layer: L.tileLayer.Rosreestr('http://{s}.pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export?dpi=96&transparent=true&format=png32&bbox={bbox}&size=256,256&bboxSR=3857&imageSR=3857&f=image&layers=show%3A18%2C19%2C20', {
                 tileSize: 256,
                 clickable: true,
-                attribution: 'Rosreestr'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
             }),
             visible: false
         }, {
@@ -86,7 +86,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
             layer: L.tileLayer.Rosreestr('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/ZONES/MapServer/export?dpi=96&transparent=true&format=png32&layers=show:0&bbox={bbox}&size=256,256&bboxSR=3857&imageSR=3857&f=image', {
                 tileSize: 256,
                 clickable: true,
-                attribution: 'Rosreestr'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
             }),
             visible: false
         }];

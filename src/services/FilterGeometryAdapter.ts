@@ -37,4 +37,6 @@ export class FilterGeometryAdapter {
 
 		return this.filters;
 	};
+
+	clearData = () => this.filteredObjects.next([]);
 }

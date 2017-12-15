@@ -8,7 +8,6 @@ import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 	styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements AfterViewInit {
-	options: number[];
 	public activeMediaQuery = "";
 	public isActive: boolean = false;
 
@@ -22,7 +21,6 @@ export class AppComponent implements AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		this.options = [1, 2, 3];
 		this.changeDetectorRef.detectChanges();
 	}
 

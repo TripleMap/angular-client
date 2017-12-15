@@ -29,8 +29,7 @@ export class PkkTypeAhead {
 					.set("text", text)
 					.set("limit", this.limit.toString())
 					.set("type", this.pkkObjType.toString())
-			})
-			.map((data: any) => data.results);
+			});
 	}
 
 	getFeatureData(cadNum: string): Observable<any> {

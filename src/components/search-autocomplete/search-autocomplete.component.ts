@@ -9,7 +9,8 @@ import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/distinctUntilChanged";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/map";
-import 'rxjs/add/observable/of';
+import "rxjs/add/observable/of";
+import "rxjs/add/operator/catch";
 
 import { PkkTypeAheadFactory } from "../../publicCadastral/PublicCadastralHub";
 import { MapService } from "../../services/MapService";
@@ -34,8 +35,28 @@ export class SearchAutocompleteComponent implements OnInit {
 		this.filteredPkkObject = this.pkkCtrl.valueChanges
 			.debounceTime(300)
 			.distinctUntilChanged()
+			.filter((term: string) => term.length > 6)
 			.switchMap((term: string) =>
-				term.length > 6 ? this.activeSearchProvider.getTypeAheadData(term) : Observable.of([])
+				this.activeSearchProvider.getTypeAheadData(term)
+			)
+			.map(
+				(data: any) =>
+					data.results && data.results.length > 0
+						? data.results
+						: [{ value: "Ничего не найдено", type: "warn" }]
+			)
+			.catch(
+				e =>
+					e.status === 500
+						? Observable.of<any>([
+								{
+									value: "Не удалось получить данные",
+									type: "warn"
+								}
+							])
+						: Observable.of<any>([
+								{ value: "Ошибка запроса", type: "warn" }
+							])
 			);
 	}
 
@@ -49,7 +70,7 @@ export class SearchAutocompleteComponent implements OnInit {
 		this.activeSearchProvider = this.seachProviders[0];
 	}
 
-	minimalLength = (term: string) => (term && term.length < 6) ? '' : term;
+	minimalLength = (term: string) => (term && term.length < 6 ? "" : term);
 
 	forceSeacheCadObject(cadObj) {
 		if (!cadObj) return;
