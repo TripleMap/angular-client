@@ -1,9 +1,9 @@
 <form class="dark-theme">
     <mat-form-field style="min-width:260px;" color="white">
-        <input class="pkk-search" color="white" style="font-size: 16px;line-height: 16px;" matInput placeholder="поиск" aria-label="State" (keypress)="stopOnEnterPress($event)" [matAutocomplete]="auto" [formControl]="pkkCtrl" >
+        <input class="pkk-search" color="white" style="font-size: 16px;line-height: 16px;" matInput placeholder="поиск" aria-label="State" (keypress)="stopOnEnterPress($event)" [matAutocomplete]="auto" [formControl]="pkkCtrl">
         <button mat-button *ngIf="pkkCtrl.value" matSuffix mat-icon-button aria-label="Clear" color="white" (click)="clearAutocomplete()">
-      <mat-icon>close</mat-icon>
-    </button>
+            <mat-icon>close</mat-icon>
+        </button>
         <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let cadObj of filteredPkkObject | async" [value]="cadObj.value" (onSelectionChange)="forceSeacheCadObject(cadObj)" [disabled]="cadObj && cadObj.type === 'warn' ">
                 <span>{{ cadObj.value }}</span>

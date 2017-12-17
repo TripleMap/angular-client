@@ -11,7 +11,8 @@ import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/map";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/catch";
-
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/startWith";
 import { PkkTypeAheadFactory } from "../../publicCadastral/PublicCadastralHub";
 import { MapService } from "../../services/MapService";
 
@@ -35,43 +36,27 @@ export class SearchAutocompleteComponent implements OnInit {
 		this.filteredPkkObject = this.pkkCtrl.valueChanges
 			.debounceTime(300)
 			.distinctUntilChanged()
-			.filter((term: string) => term.length > 6)
-			.switchMap((term: string) =>
-				this.activeSearchProvider.getTypeAheadData(term)
-			)
-			.map(
-				(data: any) =>
-					data.results && data.results.length > 0
-						? data.results
-						: [{ value: "Ничего не найдено", type: "warn" }]
-			)
-			.catch(
-				e =>
-					e.status === 500
-						? Observable.of<any>([
-								{
-									value: "Не удалось получить данные",
-									type: "warn"
-								}
-							])
-						: Observable.of<any>([
-								{ value: "Ошибка запроса", type: "warn" }
-							])
-			);
+			.switchMap((term: string) => term.length > 5 ? this.activeSearchProvider.getTypeAheadData(term) : Observable.of<any>('filter'))
+			.map((data: any) => data.results && data.results.length > 0 ? data.results : data === 'filter' ? [] : [{ value: "Ничего не найдено", type: "warn" }])
+			.catch(e => {
+				return e.status === 500 ? Observable.of<any>([{
+					value: "Не удалось получить данные",
+					type: "warn"
+				}]) : Observable.of<any>([{ value: "Ошибка запроса", type: "warn" }])
+			});
 	}
 
 	ngOnInit() {
-		this.seachProviders.push(
-			this._pkkTypeAheadFactory.createPkkTypeAhead(1, 10, "ЗУ")
-		);
-		this.seachProviders.push(
-			this._pkkTypeAheadFactory.createPkkTypeAhead(5, 10, "ОКС")
-		);
+		this.seachProviders.push(this._pkkTypeAheadFactory.createPkkTypeAhead(1, 10, "ЗУ"));
+		this.seachProviders.push(this._pkkTypeAheadFactory.createPkkTypeAhead(5, 10, "ОКС"));
 		this.activeSearchProvider = this.seachProviders[0];
 	}
 
-	minimalLength = (term: string) => (term && term.length < 6 ? "" : term);
+	clearBeforeRequest(term) {
 
+	}
+
+	minimalLength = (term: string) => (term && term.length < 6 ? "" : term);
 	forceSeacheCadObject(cadObj) {
 		if (!cadObj) return;
 		this.activeSearchProvider
@@ -83,14 +68,11 @@ export class SearchAutocompleteComponent implements OnInit {
 		if (!cadData) return;
 		if (!cadData.center) return;
 		this._mapService.updateMapPosition(
-			L.Projection.SphericalMercator.unproject(
-				L.point(cadData.center.x, cadData.center.y)
-			),
-			16
+			L.Projection.SphericalMercator.unproject(L.point(cadData.center.x, cadData.center.y)), 16
 		);
 	};
 
-	clearAutocomplete = () => this.pkkCtrl.setValue("");
+	clearAutocomplete = () => this.pkkCtrl.setValue('');
 	stopOnEnterPress(e) {
 		if (e.keyCode === 13) {
 			e.stopImmediatePropagation();

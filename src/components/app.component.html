@@ -1,6 +1,6 @@
 <mat-sidenav-container class="sidenav-container">
     <mat-sidenav [opened]="isActive" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ? 'side' : 'push'">
-        <filter-geometry></filter-geometry>
+        <filter-geometry (closesidenav)="toggleSideNav()"></filter-geometry>
     </mat-sidenav>
     <mat-sidenav-content class="hidden">
         <mat-toolbar color="primary" class="toolbar">

@@ -1,14 +1,14 @@
-<mat-card *ngIf="isActive" style="height: calc(100% - 24px);padding: 0 0 16px 16px;">
-  <td-virtual-scroll-container [data]="filteredList" [trackBy]="trackByFn" style="height: calc(100% - 36px)" #resultList>
-    <ng-template let-row="row" let-last="last" tdVirtualScrollRow>
-      <mat-option (click)="showItemOnMap(row)">
-        <label>{{row.cn}}</label>
-      </mat-option>
-      <mat-divider></mat-divider>
-    </ng-template>
-  </td-virtual-scroll-container>
-  <mat-card-actions style="padding-left: 16px;width: 100%;border-top: 1px solid rgba(0, 0, 0, 0.12);"> 
-    <button mat-button (click)="resultList.scrollToStart()"> К первому </button>
-    <button mat-button (click)="resultList.scrollToEnd()"> К последнему </button>
-  </mat-card-actions>
+<mat-card *ngIf="isActive" class="filter-result-card">
+    <td-virtual-scroll-container [data]="filteredList" [trackBy]="trackByFn" class="filter-result-card_list" #resultList>
+        <ng-template let-row="row" let-last="last" tdVirtualScrollRow>
+            <mat-option (click)="showItemOnMap(row)">
+                <label>{{row.cn}}</label>
+            </mat-option>
+            <mat-divider></mat-divider>
+        </ng-template>
+    </td-virtual-scroll-container>
+    <mat-card-actions class="filter-result-card_actions">
+        <button mat-button (click)="resultList.scrollToStart()"> К первому </button>
+        <button mat-button (click)="resultList.scrollToEnd()"> К последнему </button>
+    </mat-card-actions>
 </mat-card>

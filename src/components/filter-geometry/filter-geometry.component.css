@@ -1,21 +1,28 @@
 .filter-wrapper {
-	width: 100%;
-	height: calc(100% - 64px);
-	padding: 16px 16px 0 16px;
+    width: 100%;
+    height: calc(100% - 64px);
+    padding: 16px 16px 16px 16px;
+    overflow: auto;
 }
 
-.filter-pane-toggler{
-	margin: 8px 0;
+.filter-pane-toggler {
+    margin: 8px 0;
+    min-height: 36px;
 }
 
-
-filter-geometry-first-line{
-	padding-right: 16px;
+filter-geometry-first-line {
+    padding-right: 16px;
 }
 
 filter-geometry-result-list.collapsed {
-	height: 0
+    height: 0
 }
+
 filter-geometry-result-list.expanded {
-	height: calc(100% - 54px);
+    height: calc(100% - 54px);
+}
+
+.filter-toolbar-label {
+    line-height: 38px;
+    padding-left: 16px;
 }

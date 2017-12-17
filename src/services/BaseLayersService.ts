@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 @Injectable() export class BaseLayersService {
     public activeBaseLayer = new BehaviorSubject<any>(false);
     public baseMapsModels: { name: string; layer: any; imageType: string; images: string[]; }[];
-    public overLayersCadastrModels: { name: string; layer: any; visible:boolean }[];
+    public overLayersCadastrModels: { name: string; layer: any; visible: boolean }[];
     public map: any;
     public baseMaps: any;
 
@@ -50,8 +50,16 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
         }];
 
         this.overLayersCadastrModels = [{
-            name: 'Кадастровые границы',
+            name: 'Земельные участки',
             layer: L.tileLayer.Rosreestr('http://{s}.pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export?dpi=96&transparent=true&format=png32&bbox={bbox}&size=256,256&bboxSR=3857&imageSR=3857&f=image&layers=show%3A22%2C36%2C37%2C23%2C24', {
+                tileSize: 256,
+                clickable: true,
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
+            }),
+            visible: false
+        }, {
+            name: 'Объекты капитального строительства',
+            layer: L.tileLayer.Rosreestr('http://{s}.pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export?dpi=96&transparent=true&format=png32&bbox={bbox}&size=256,256&bboxSR=3857&imageSR=3857&f=image&layers=show%3A29%2C30%2C31%2C33%2C35%2C39', {
                 tileSize: 256,
                 clickable: true,
                 attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
@@ -121,7 +129,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
     addCadLayerToMap = (layerName) => {
         this.overLayersCadastrModels.filter(cadLayerModel => cadLayerModel.name === layerName ? cadLayerModel : false)
-        .pop().layer.addTo(this.map);
+            .pop().layer.addTo(this.map);
     };
 
     removeCadLayerFromMap = (layerName) => this.overLayersCadastrModels.filter(cadLayerModel => cadLayerModel.name === layerName ? cadLayerModel : false)

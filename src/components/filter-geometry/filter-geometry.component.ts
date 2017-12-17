@@ -1,6 +1,6 @@
-import { Component, ViewChild, OnInit, OnDestroy } from "@angular/core";
+import { Component, ViewChild, OnInit, OnDestroy, Output, EventEmitter } from "@angular/core";
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
-
+import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FilterGeometryFirstLineComponent } from './filter-geometry-first-line/filter-geometry-first-line.component';
 
 @Component({
@@ -12,11 +12,15 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   isFiltersActive: boolean;
   isResultPaneAvalible: boolean;
   isResultPaneCounts: number;
+  public activeMediaQuery: string = "";
   @ViewChild(FilterGeometryFirstLineComponent) firstLine: FilterGeometryFirstLineComponent;
-
-  constructor(public _filterGeometryAdapter: FilterGeometryAdapter) {
+  @Output()
+  closesidenav: EventEmitter<string> = new EventEmitter<string>();
+  
+  constructor(public _filterGeometryAdapter: FilterGeometryAdapter, public media: ObservableMedia) {
     this.isFiltersActive = true;
     this.isResultPaneAvalible = false;
+    media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
   }
 
   ngOnInit() {
@@ -41,5 +45,8 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._filterGeometryAdapter.filteredObjects.unsubscribe();
+  }
+  toggleSideNav() {
+    this.closesidenav.emit('close-sidenav');
   }
 }
