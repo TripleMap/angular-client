@@ -27,11 +27,13 @@ export class SearchAutocompleteComponent implements OnInit {
 	seachProviders: any[] = [];
 	activeSearchProvider: any;
 	matAutocomplete: any;
-
+	public activeMediaQuery = "";
 	constructor(
 		public _pkkTypeAheadFactory: PkkTypeAheadFactory,
-		public _mapService: MapService
+		public _mapService: MapService,
+		public media: ObservableMedia
 	) {
+		media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
 		this.pkkCtrl = new FormControl();
 		this.filteredPkkObject = this.pkkCtrl.valueChanges
 			.debounceTime(300)

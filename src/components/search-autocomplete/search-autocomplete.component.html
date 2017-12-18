@@ -1,7 +1,7 @@
-<form class="dark-theme">
-    <mat-form-field style="min-width:260px;" color="white">
+<form class="dark-theme" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '340px'">
+    <mat-form-field color="white" [style.width]="(activeMediaQuery === 'xs') ? 'calc(100% - 60px)' : '280px'">
         <input class="pkk-search" color="white" style="font-size: 16px;line-height: 16px;" matInput placeholder="поиск" aria-label="State" (keypress)="stopOnEnterPress($event)" [matAutocomplete]="auto" [formControl]="pkkCtrl">
-        <button mat-button *ngIf="pkkCtrl.value" matSuffix mat-icon-button aria-label="Clear" color="white" (click)="clearAutocomplete()">
+        <button *ngIf="pkkCtrl.value" matSuffix mat-icon-button aria-label="Clear" color="white" (click)="clearAutocomplete()">
             <mat-icon>close</mat-icon>
         </button>
         <mat-autocomplete #auto="matAutocomplete">

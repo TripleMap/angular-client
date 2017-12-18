@@ -1,18 +1,20 @@
 <mat-sidenav-container class="sidenav-container">
-    <mat-sidenav [opened]="isActive" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ? 'side' : 'push'">
+    <mat-sidenav [opened]="isActive" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ?'push': 'side'">
         <filter-geometry (closesidenav)="toggleSideNav()"></filter-geometry>
     </mat-sidenav>
     <mat-sidenav-content class="hidden">
         <mat-toolbar color="primary" class="toolbar">
-            <button mat-button (click)="toggleSideNav()">
-        <mat-icon>search</mat-icon>
-      </button>
-            <span style="width: 16px;"></span>
-            <app-search-autocomplete></app-search-autocomplete>
+            <button  mat-icon-button (click)="toggleSideNav()" *ngIf="activeMediaQuery === 'xs'"> 
+                <mat-icon>search</mat-icon>
+            </button>
+            <button mat-button (click)="toggleSideNav()" *ngIf="activeMediaQuery !== 'xs'"> 
+                <mat-icon>search</mat-icon>
+            </button>
+            <app-search-autocomplete [style.width]="(activeMediaQuery === 'xs') ? '100%' : '340px'"></app-search-autocomplete>
         </mat-toolbar>
-        <td-map [ngClass]="isActive && (activeMediaQuery !== 'xs') ? 'td-map-actions_active' : 'td-map-actions_deactive'"></td-map>
+        <td-map></td-map>
         <div class="td-map-actions">
-            <layer-selection [ngClass]="isActive && (activeMediaQuery !== 'xs') ? 'td-map-actions_active' : 'td-map-actions_deactive'"></layer-selection>
+            <layer-selection></layer-selection>
             <zoom-controls></zoom-controls>
             <measure-controls></measure-controls>
         </div>

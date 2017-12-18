@@ -17,7 +17,7 @@ export class AppComponent implements AfterViewInit {
 		public media: ObservableMedia
 	) {
 		this.iconRegistry.registerFontClassAlias("materialdesignicons", "mdi");
-		media.subscribe((change: MediaChange) =>(this.activeMediaQuery = change ? change.mqAlias : ""));
+		media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
 	}
 
 	ngAfterViewInit(): void {
