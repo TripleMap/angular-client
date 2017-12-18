@@ -9,7 +9,10 @@ import { HttpParams, HttpClient } from "@angular/common/http";
   styleUrls: ["./tdmap.component.css"]
 })
 export class TdmapComponent implements AfterViewInit, OnInit {
-  constructor(public _http: HttpClient, public _mapService: MapService) {}
+  constructor(
+    public _http: HttpClient,
+    public _mapService: MapService
+  ) {}
 
   ngOnInit() {
     // переопределяем getPromise
@@ -21,12 +24,7 @@ export class TdmapComponent implements AfterViewInit, OnInit {
         }
       }
       return new Promise((resolve, reject) =>
-        this._http.get(url, { params }).subscribe(
-          data => resolve({ data }),
-          err => {
-            alert(err);
-          }
-        )
+        this._http.get(url, { params }).subscribe(data => resolve({ data }))
       );
     };
   }
