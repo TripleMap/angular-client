@@ -1,8 +1,8 @@
 layer-selection {
     position: fixed;
     z-index: 100;
-    left: 100%;
-    bottom: 0;
+    right: 0;
+    top:100%;
 }
 
 zoom-controls {
