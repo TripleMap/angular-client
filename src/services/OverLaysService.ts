@@ -1,11 +1,9 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { HttpClient } from "@angular/common/http";
 import { SelectedFeatureService } from "./SelectedFeatureService";
 
 @Injectable()
 export class OverLaysService {
-    public activeOverLayer = new BehaviorSubject<any>(false);
     public map: any;
     public mainLayer: any;
     public styles: any;

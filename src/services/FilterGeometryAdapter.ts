@@ -23,12 +23,9 @@ export class FilterGeometryAdapter {
 	updateLayerFilters = requestParams => {
 		this._http
 			.post("api/zusklads/filtered", { params: requestParams })
-			.subscribe(this.updateSLayerFilters);
+			.subscribe(data => this.filteredObjects.next(data));
 	};
 
-	updateSLayerFilters = data => {
-		this.filteredObjects.next(data);
-	};
 
 	concatenateAllFilters = filters => {
 		for (let key in filters) {
