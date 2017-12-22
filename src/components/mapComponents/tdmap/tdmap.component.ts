@@ -3,6 +3,7 @@ import { MapService } from "../../../services/MapService";
 import { HttpParams, HttpClient } from "@angular/common/http";
 
 // прикрутить хэш строки в браузере
+//   background: #284360;
 @Component({
   selector: "td-map",
   templateUrl: "./tdmap.component.html",
