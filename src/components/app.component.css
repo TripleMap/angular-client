@@ -28,6 +28,15 @@ td-map {
     top: 64px;
 }
 
+td-map-panel {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    left: 0;
+    top: 64px;
+}
+
 .toolbar {
     position: absolute;
     z-index: 10;

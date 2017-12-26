@@ -54,9 +54,11 @@ import { SearchAutocompleteComponent } from "../components/search-autocomplete/s
 import { FilterGeometryComponent } from "../components/filter-geometry/filter-geometry.component";
 import { FilterGeometryFirstLineComponent } from "../components/filter-geometry/filter-geometry-first-line/filter-geometry-first-line.component";
 import { FilterGeometryResultListComponent } from "../components/filter-geometry/filter-geometry-result-list/filter-geometry-result-list.component";
+import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
+
 
 //covalent
-import { CovalentVirtualScrollModule } from "@covalent/core";
+import { CovalentVirtualScrollModule, CovalentDataTableModule } from "@covalent/core";
 
 @NgModule({
   declarations: [
@@ -68,7 +70,8 @@ import { CovalentVirtualScrollModule } from "@covalent/core";
     SearchAutocompleteComponent,
     FilterGeometryComponent,
     FilterGeometryFirstLineComponent,
-    FilterGeometryResultListComponent
+    FilterGeometryResultListComponent,
+    TdMapPanelComponent
   ],
   imports: [
     BrowserModule,
@@ -94,7 +97,8 @@ import { CovalentVirtualScrollModule } from "@covalent/core";
     MatSelectModule,
     MatCardModule,
     MatTabsModule,
-    CovalentVirtualScrollModule
+    CovalentVirtualScrollModule,
+    CovalentDataTableModule
   ],
   providers: [
     {

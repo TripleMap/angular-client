@@ -3,6 +3,8 @@ import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
 import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FilterGeometryFirstLineComponent } from './filter-geometry-first-line/filter-geometry-first-line.component';
 
+// Track by Id
+
 @Component({
   selector: "filter-geometry",
   templateUrl: "./filter-geometry.component.html",
