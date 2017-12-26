@@ -4,19 +4,26 @@
     </mat-sidenav>
     <mat-sidenav-content class="hidden">
         <mat-toolbar color="primary" class="toolbar">
-            <button  mat-icon-button (click)="toggleSideNav()" *ngIf="activeMediaQuery === 'xs'"> 
+            <button mat-icon-button (click)="toggleSideNav()" *ngIf="activeMediaQuery === 'xs'"> 
                 <mat-icon>search</mat-icon>
             </button>
             <button mat-button (click)="toggleSideNav()" *ngIf="activeMediaQuery !== 'xs'"> 
                 <mat-icon>search</mat-icon>
             </button>
             <app-search-autocomplete [style.width]="(activeMediaQuery === 'xs') ? '100%' : '340px'"></app-search-autocomplete>
+            <mat-tab-group class="demo-tab-group dark-theme" style="margin-left: auto;">
+                <mat-tab label="Карта">
+                    <td-map></td-map>
+                    <div class="td-map-actions">
+                        <layer-selection></layer-selection>
+                        <zoom-controls [ngClass]="(activeMediaQuery !== 'xs' && isActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></zoom-controls>
+                        <measure-controls [ngClass]="(activeMediaQuery !== 'xs' && isActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></measure-controls>
+                    </div>
+                </mat-tab>
+                <mat-tab label="Атрибутивная таблица">
+                </mat-tab>
+            </mat-tab-group>
         </mat-toolbar>
-        <td-map></td-map>
-        <div class="td-map-actions">
-            <layer-selection></layer-selection>
-            <zoom-controls></zoom-controls>
-            <measure-controls></measure-controls>
-        </div>
+
     </mat-sidenav-content>
 </mat-sidenav-container>

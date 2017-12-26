@@ -2,17 +2,18 @@ layer-selection {
     position: fixed;
     z-index: 100;
     right: 0;
-    top:100%;
+    top: 100%;
 }
 
 zoom-controls {
-    position: absolute;
+    position: fixed;
     top: calc(50% - 40px);
     z-index: 100;
+    left: 0;
 }
 
 measure-controls {
-    position: absolute;
+    position: fixed;
     left: 8px;
     bottom: 72px;
     z-index: 100;
@@ -24,6 +25,7 @@ td-map {
     width: 100%;
     z-index: 1;
     left: 0;
+    top: 64px;
 }
 
 .toolbar {
@@ -48,7 +50,7 @@ td-map {
     transition-duration: .4s;
     transition-timing-function: cubic-bezier(.25, .8, .25, 1);
     transition-property: margin-left;
-    margin-left: -440px;
+    margin-left: 440px;
 }
 
 .td-map-actions_deactive {
@@ -58,6 +60,6 @@ td-map {
     margin-left: 0px;
 }
 
-app-search-autocomplete{
+app-search-autocomplete {
     margin-left: 16px;
 }
