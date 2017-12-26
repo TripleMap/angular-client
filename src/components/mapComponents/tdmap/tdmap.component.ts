@@ -17,7 +17,7 @@ export class TdmapComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
     // переопределяем getPromise
-    TDMap.Utils.Promise.getPromise = (url: string, requestParams: any) => {
+    TDMap.Utils.Promises.getPromise = (url: string, requestParams: any) => {
       let params = new HttpParams();
       if (requestParams) {
         for (let key in requestParams) {

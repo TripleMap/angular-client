@@ -16,8 +16,8 @@ export class OverLaysService {
     ) {
         this.baseMainLayerOptions = {
             maxZoom: 24,
-            minZoom: 12,
-            dataUrl: "api/zusklads/geoJSON",
+            minZoom: 10,
+            dataUrl: "api/parcels/GetFeatures",
             styled: false,
             labeled: false,
             style: {
