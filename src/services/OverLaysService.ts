@@ -1,13 +1,11 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { SelectedFeatureService } from "./SelectedFeatureService";
 
 @Injectable()
 export class OverLaysService {
     public map: any;
     public mainLayer: any;
-    public styles: any;
-    public labels: any;
     public baseMainLayerOptions: any;
 
     constructor(
@@ -30,6 +28,21 @@ export class OverLaysService {
                 zIndex: 600
             }
         };
+        this.changeProtoTDMapGetPromise();
+    }
+
+    changeProtoTDMapGetPromise() {
+        // переопределяем getPromise
+        TDMap.Utils.Promises.getPromise = (url: string, requestParams: any) => {
+            let params = new HttpParams();
+            if (requestParams) {
+                for (let key in requestParams) {
+                    params = params.set(key, requestParams[key]);
+                }
+            }
+
+            return this._http.get(url, { params });
+        };
     }
 
     setMap = (map: any) => (this.map = map);
@@ -42,12 +55,13 @@ export class OverLaysService {
             this.mainLayer.remove();
             this.mainLayer = null;
         }
+
+
         this.mainLayer = new TDMap.Service.GeoJSONServiceLayer(
             this.baseMainLayerOptions
         );
+        console.log(this.mainLayer);
         this.mainLayer.addTo(this.map);
-        this.baseMainLayerOptions.styled ? this.mainLayer.setStyles(this.styles) : this.mainLayer.removeStyles();
-        this.baseMainLayerOptions.labeled ? this.mainLayer.setLabels(this.labels) : this.mainLayer.removeLabels();
         this.mainLayer.on("tdmap:layer:click", this.subscribeLayerClick);
 
         //this.mainLayer.on('ERROR', function (e) {

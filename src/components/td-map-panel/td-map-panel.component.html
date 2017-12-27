@@ -1,3 +1,15 @@
-<p>
-  td-map-panel works!
-</p>
+<td-data-table
+  #dataTable
+  [data]="filteredData"
+  [columns]="columns"
+  [selectable]="selectable"
+  [clickable]="clickable"
+  [multiple]="multiple"
+  [sortable]="true"
+  [sortBy]="sortBy"
+  [(ngModel)]="selectedRows"
+  [sortOrder]="sortOrder"
+  (sortChange)="sort($event)"
+  (rowClick)="showAlert($event)"
+  [style.height.px]="200">
+</td-data-table>

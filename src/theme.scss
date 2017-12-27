@@ -34,6 +34,7 @@ $mat-orange-custom: (
 			A700: $white-87-opacity
 		)
 );
+
 $primary: mat-palette($mat-blue, 700);
 $accent: mat-palette($mat-orange-custom, A700, A100, A400);
 $warn: mat-palette($mat-red, 600);
@@ -41,11 +42,20 @@ $theme: mat-light-theme($primary, $accent, $warn);
 
 @include angular-material-theme($theme);
 
-$dark-primary: mat-palette($mat-blue, 700);
-$dark-accent: mat-palette($mat-orange-custom, A700, A100, A400);
-$dark-warn: mat-palette($mat-red, 600);
-$dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
-
 .dark-theme {
+	$dark-primary: mat-palette($mat-blue, 700);
+	$dark-accent: mat-palette($mat-orange-custom, A700, A100, A400);
+	$dark-warn: mat-palette($mat-red, 600);
+	$dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
 	@include angular-material-theme($dark-theme);
 }
+
+.light-theme {
+	$light-primary: mat-palette($mat-blue, 700);
+	$light-accent: mat-palette($mat-orange-custom, A700, A100, A400);
+	$light-warn: mat-palette($mat-red, 600);
+	$light-theme: mat-light-theme($light-primary, $light-accent, $light-warn);
+	@include angular-material-theme($light-theme);
+}
+
+
