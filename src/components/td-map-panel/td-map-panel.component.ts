@@ -11,7 +11,7 @@ export class TdMapPanelComponent implements AfterViewInit {
 
 	ngAfterViewInit() {
 		this._overLaysService.mainLayer.featuresFlow.subscribe(data =>
-			console.log(data)
+			data
 		);
 	}
 }

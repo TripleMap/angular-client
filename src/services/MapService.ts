@@ -47,7 +47,6 @@ export class MapService {
         };
 
         window.addEventListener("beforeunload", saveMapState);
-
         this._overLayService.addLayerToMap();
     }
 

@@ -21,7 +21,7 @@ export class MeasureComponent{
     if (this._measureTool) {
       this._measureTool.abortDrawing();
     } else {
-      this._measureTool = new TDMap.Utils.Measurment(
+      this._measureTool = new TDMap.Tools.Measurment(
         this._baseLayersService.map
       );
     }
@@ -33,7 +33,7 @@ export class MeasureComponent{
     if (this._measureTool) {
       this._measureTool.abortDrawing();
     } else {
-      this._measureTool = new TDMap.Utils.Measurment(
+      this._measureTool = new TDMap.Tools.Measurment(
         this._baseLayersService.map
       );
     }

@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { SelectedFeatureService } from "./SelectedFeatureService";
 
+
 @Injectable()
 export class OverLaysService {
     public map: any;
@@ -18,6 +19,7 @@ export class OverLaysService {
             dataUrl: "api/parcels/GetFeatures",
             styled: false,
             labeled: false,
+            selectable: true,
             style: {
                 weight: 1.04,
                 color: "#1B5E20",
@@ -51,18 +53,17 @@ export class OverLaysService {
 
     addLayerToMap() {
         if (this.mainLayer) {
-            this.mainLayer.off("tdmap:layer:click", this.subscribeLayerClick);
+            this.mainLayer.off("click", this.subscribeLayerClick);
             this.mainLayer.remove();
             this.mainLayer = null;
         }
 
 
-        this.mainLayer = new TDMap.Service.GeoJSONServiceLayer(
+        this.mainLayer = new TDMap.Service.GeoJSONService(
             this.baseMainLayerOptions
         );
-        console.log(this.mainLayer);
         this.mainLayer.addTo(this.map);
-        this.mainLayer.on("tdmap:layer:click", this.subscribeLayerClick);
+        this.mainLayer.on("click", this.subscribeLayerClick);
 
         //this.mainLayer.on('ERROR', function (e) {
         //    that.showToast(e.message);

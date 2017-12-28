@@ -41,7 +41,9 @@
                         Кадастровые слои
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <mat-checkbox *ngFor="let item of cadastrOverLayers" (change)="cadastrOverLayerChecked($event, item)" [(ngModel)]="item.visible">{{item.name}}</mat-checkbox>
+                <div fxLayout="column">
+                    <mat-checkbox *ngFor="let item of cadastrOverLayers" (change)="cadastrOverLayerChecked($event, item)" [(ngModel)]="item.visible">{{item.name}}</mat-checkbox>
+                </div>
             </mat-expansion-panel>
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
