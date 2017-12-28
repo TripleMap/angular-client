@@ -14,7 +14,7 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	public filteredList: any[];
 	constructor(
 		public _filterGeometryAdapter: FilterGeometryAdapter,
-		public _mapService: MapService,
+		public MapService: MapService,
 		public _selectedFeatureService: SelectedFeatureService,
 		public _overLaysService: OverLaysService
 	) {}
@@ -30,21 +30,17 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	}
 
 	showItemOnMap(item) {
-		let map = this._mapService.getMap();
 		let onLoadData = () => {
 			this._selectedFeatureService.setTempFeatureAndStyleId(
 				this._overLaysService.getFeatureById(item.zu_id)
 			);
 		};
 		let onmoveEnd = () => {
-			map.once("layer:load", onLoadData);
+			this.MapService.getMap().once("layer:load", onLoadData);
 		};
-		map.once("moveend", onmoveEnd);
-		this._mapService.updateMapPosition(
-			L.Projection.SphericalMercator.unproject(
-				L.point(item.center.x, item.center.y)
-			),
-			16
-		);
+		this.MapService.getMap().once("moveend", onmoveEnd);
+		this.MapService.TDMapManager
+			.updateMapPosition(L.Projection.SphericalMercator.unproject(
+				L.point(item.center.x, item.center.y)), 16);
 	}
 }

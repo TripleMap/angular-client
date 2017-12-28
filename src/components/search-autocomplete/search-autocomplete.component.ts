@@ -30,7 +30,7 @@ export class SearchAutocompleteComponent implements OnInit {
 	public activeMediaQuery = "";
 	constructor(
 		public _pkkTypeAheadFactory: PkkTypeAheadFactory,
-		public _mapService: MapService,
+		public MapService: MapService,
 		public media: ObservableMedia
 	) {
 		media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
@@ -69,7 +69,7 @@ export class SearchAutocompleteComponent implements OnInit {
 	setViewOnCadData = cadData => {
 		if (!cadData) return;
 		if (!cadData.center) return;
-		this._mapService.updateMapPosition(
+		this.MapService.TDMapManager.updateMapPosition(
 			L.Projection.SphericalMercator.unproject(L.point(cadData.center.x, cadData.center.y)), 16
 		);
 	};

@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
+import { MapService } from './MapService';
+import { TDMap } from '../../external/TDMap.min.js';
 // вынести опции слоев за пределы конструктора (JSON)
 
 @Injectable() export class BaseLayersService {
     public activeBaseLayer = new BehaviorSubject<any>(false);
     public baseMapsModels: { name: string; layer: any; imageType: string; images: string[]; }[];
     public overLayersCadastrModels: { name: string; layer: any; visible: boolean }[];
-    public map: any;
-    public baseMaps: any;
 
-    constructor() {
+    constructor(public MapService: MapService) {
         this.baseMapsModels = [{
             name: 'Yandex - гибрид',
             layer: new TDMap.Layers.YandexProvider('hybrid'),
@@ -114,9 +114,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
     getBaseLayerByName = (name: string) => this.baseMapsModels.filter(layerModel => layerModel.name === name ? layerModel : false).pop();
     getCadastrOverLayerByName = (name: string) => this.overLayersCadastrModels.filter(layerModel => layerModel.name === name ? layerModel : false).pop();
 
-    getActiveBaseLayerName = () => {
-        if (this.activeBaseLayer.getValue()) return this.activeBaseLayer.getValue().name;
-    }
+    getActiveBaseLayerName = () => (this.activeBaseLayer.getValue())?  this.activeBaseLayer.getValue().name: false;
+ 
     changeActiveBaseLayer(layerName: string) {
         if (!this.getBaseLayersNames().includes(layerName)) {
             return;
@@ -135,11 +134,9 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
     addCadLayerToMap = (layerName) => {
         this.overLayersCadastrModels.filter(cadLayerModel => cadLayerModel.name === layerName ? cadLayerModel : false)
-            .pop().layer.addTo(this.map);
+            .pop().layer.addTo(this.MapService.getMap());
     };
 
     removeCadLayerFromMap = (layerName) => this.overLayersCadastrModels.filter(cadLayerModel => cadLayerModel.name === layerName ? cadLayerModel : false)
         .pop().layer.remove();
-
-    setMap = (map: object) => this.map = map;
 }

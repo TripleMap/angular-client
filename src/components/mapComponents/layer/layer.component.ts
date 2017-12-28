@@ -1,5 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { BaseLayersService } from '../../../services/BaseLayersService';
+import { MapService } from '../../../services/MapService';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -14,12 +15,12 @@ export class LayerComponent implements AfterViewInit {
   public isActive = false;
   watcher: Subscription;
 
-  constructor(public _baseLayersService: BaseLayersService) {
-    this.baseLayers = this._baseLayersService.getBaseLayers();
-    this.cadastrOverLayers = this._baseLayersService.getCadastrOverLayers();
+  constructor(public BaseLayersService: BaseLayersService,public MapService: MapService) {
+    this.baseLayers = this.BaseLayersService.getBaseLayers();
+    this.cadastrOverLayers = this.BaseLayersService.getCadastrOverLayers();
 
-    this.watcher = this._baseLayersService.activeBaseLayer.subscribe((change) => {
-      if (change) change.layer.addTo(this._baseLayersService.map);
+    this.watcher = this.BaseLayersService.activeBaseLayer.subscribe((change) => {
+      if (change) change.layer.addTo(this.MapService.getMap());
     });
   }
 
@@ -27,8 +28,8 @@ export class LayerComponent implements AfterViewInit {
     this.setBaseLayerOnInit();
     this.setCadastrOverLaersOnInit();
     const saveMapState = () => {
-      window.localStorage.setItem("MAP_STATE_ACTIVE_BASEMAP", this._baseLayersService.getActiveBaseLayerName());
-      window.localStorage.setItem('MAP_STATE_VISIBLE_CAD_LAYERS', this._baseLayersService.getActiveCadastrLayersName().toString());
+      window.localStorage.setItem("MAP_STATE_ACTIVE_BASEMAP", this.BaseLayersService.getActiveBaseLayerName());
+      window.localStorage.setItem('MAP_STATE_VISIBLE_CAD_LAYERS', this.BaseLayersService.getActiveCadastrLayersName().toString());
       return null;
     }
     window.addEventListener("beforeunload", (e) => saveMapState());
@@ -37,10 +38,10 @@ export class LayerComponent implements AfterViewInit {
   setBaseLayerOnInit() {
     const baseMapName = window.localStorage.getItem('MAP_STATE_ACTIVE_BASEMAP');
     if (baseMapName) {
-      const baseLayerFromMapState = this._baseLayersService.getBaseLayers().filter(baseLayer => baseLayer.name === baseMapName);
-      if (baseLayerFromMapState.length) this._baseLayersService.changeActiveBaseLayer(baseLayerFromMapState.pop().name);
+      const baseLayerFromMapState = this.BaseLayersService.getBaseLayers().filter(baseLayer => baseLayer.name === baseMapName);
+      if (baseLayerFromMapState.length) this.BaseLayersService.changeActiveBaseLayer(baseLayerFromMapState.pop().name);
     } else {
-      this._baseLayersService.changeActiveBaseLayer('Open Street Map');
+      this.BaseLayersService.changeActiveBaseLayer('Open Street Map');
     }
   }
 
@@ -48,11 +49,11 @@ export class LayerComponent implements AfterViewInit {
     const cadlayersName = window.localStorage.getItem('MAP_STATE_VISIBLE_CAD_LAYERS');
     if (cadlayersName) {
       cadlayersName.split(',').map(item => {
-        let array = this._baseLayersService.getCadastrOverLayersNames();
+        let array = this.BaseLayersService.getCadastrOverLayersNames();
         for (let i = 0; i < array.length; i++) {
           if (item === array[i]) {
-            this._baseLayersService.getCadastrOverLayerByName(item).visible = true;
-            this._baseLayersService.addCadLayerToMap(item)
+            this.BaseLayersService.getCadastrOverLayerByName(item).visible = true;
+            this.BaseLayersService.addCadLayerToMap(item)
           };
         }
       })
@@ -60,9 +61,9 @@ export class LayerComponent implements AfterViewInit {
   }
 
   transformMaterial = (event) => this.isActive = !this.isActive;
-  changeBaseMapLayer = (name) => this._baseLayersService.changeActiveBaseLayer(name);
+  changeBaseMapLayer = (name) => this.BaseLayersService.changeActiveBaseLayer(name);
 
   cadastrOverLayerChecked(e, item) {
-    e.checked ? this._baseLayersService.addCadLayerToMap(item.name) : this._baseLayersService.removeCadLayerFromMap(item.name);
+    e.checked ? this.BaseLayersService.addCadLayerToMap(item.name) : this.BaseLayersService.removeCadLayerFromMap(item.name);
   }
 }

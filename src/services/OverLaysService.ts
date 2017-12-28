@@ -1,16 +1,16 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { SelectedFeatureService } from "./SelectedFeatureService";
-
-
+import { MapService } from './MapService';
+import { TDMap } from '../../external/TDMap.min.js';
 @Injectable()
 export class OverLaysService {
-    public map: any;
     public mainLayer: any;
     public baseMainLayerOptions: any;
 
     constructor(
         public _selectedFeatureService: SelectedFeatureService,
+        public MapService: MapService,
         public _http: HttpClient
     ) {
         this.baseMainLayerOptions = {
@@ -47,27 +47,16 @@ export class OverLaysService {
         };
     }
 
-    setMap = (map: any) => (this.map = map);
-    subscribeLayerClick = feature =>
-        this._selectedFeatureService.updateFeatureForInfo(feature);
-
     addLayerToMap() {
         if (this.mainLayer) {
-            this.mainLayer.off("click", this.subscribeLayerClick);
             this.mainLayer.remove();
             this.mainLayer = null;
         }
 
-
         this.mainLayer = new TDMap.Service.GeoJSONService(
             this.baseMainLayerOptions
         );
-        this.mainLayer.addTo(this.map);
-        this.mainLayer.on("click", this.subscribeLayerClick);
-
-        //this.mainLayer.on('ERROR', function (e) {
-        //    that.showToast(e.message);
-        //});
+        this.mainLayer.addTo(this.MapService.getMap());
     }
 
     refreshFilteredIds(arrayOfId) {
