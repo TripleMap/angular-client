@@ -1,7 +1,6 @@
 import { Component, ElementRef } from "@angular/core";
 
 import { MapService } from '../../../services/MapService';
-import { TDMap } from '../../../../external/TDMap.min.js';
 @Component({
   selector: "measure-controls",
   templateUrl: "./measure.component.html",

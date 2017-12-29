@@ -5,6 +5,8 @@ interface NodeModule {
 }
 
 declare var L: any;
+declare var TDMap: any;
+declare var TDMapManager: any;
 declare var $: any;
 declare var d3: any;
 //http://peter.grman.at/how-to-write-typescript-definition-files/

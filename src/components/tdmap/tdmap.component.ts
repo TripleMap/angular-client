@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, OnInit } from "@angular/core";
-import { MapService } from "../../../services/MapService";
+import { MapService } from "../../services/MapService";
 import { HttpParams, HttpClient } from "@angular/common/http";
 
 // прикрутить хэш строки в браузере

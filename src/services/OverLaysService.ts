@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { SelectedFeatureService } from "./SelectedFeatureService";
-import { MapService } from './MapService';
-import { TDMap } from '../../external/TDMap.min.js';
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
+
 @Injectable()
 export class OverLaysService {
     public mainLayer: any;
@@ -10,26 +10,8 @@ export class OverLaysService {
 
     constructor(
         public _selectedFeatureService: SelectedFeatureService,
-        public MapService: MapService,
         public _http: HttpClient
     ) {
-        this.baseMainLayerOptions = {
-            maxZoom: 24,
-            minZoom: 10,
-            dataUrl: "api/parcels/GetFeatures",
-            styled: false,
-            labeled: false,
-            selectable: true,
-            style: {
-                weight: 1.04,
-                color: "#1B5E20",
-                fillColor: "#388E3C",
-                dashArray: "",
-                opacity: 1.0,
-                fillOpacity: 0.4,
-                zIndex: 600
-            }
-        };
         this.changeProtoTDMapGetPromise();
     }
 
@@ -47,16 +29,30 @@ export class OverLaysService {
         };
     }
 
-    addLayerToMap() {
+    addLayerToMap(map) {
         if (this.mainLayer) {
             this.mainLayer.remove();
             this.mainLayer = null;
         }
 
-        this.mainLayer = new TDMap.Service.GeoJSONService(
-            this.baseMainLayerOptions
-        );
-        this.mainLayer.addTo(this.MapService.getMap());
+        this.mainLayer = new TDMap.Service.GeoJSONService({
+            maxZoom: 24,
+            minZoom: 10,
+            dataUrl: "api/parcels/GetFeatures",
+            styled: false,
+            labeled: false,
+            selectable: true,
+            style: {
+                weight: 1.04,
+                color: "#1B5E20",
+                fillColor: "#388E3C",
+                dashArray: "",
+                opacity: 1.0,
+                fillOpacity: 0.4,
+                zIndex: 600
+            }
+        });
+        this.mainLayer.addTo(map);
     }
 
     refreshFilteredIds(arrayOfId) {

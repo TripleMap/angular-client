@@ -46,7 +46,8 @@ import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 import { PkkTypeAheadFactory } from "../publicCadastral/PublicCadastralHub";
 
 // mapComponents
-import { TdmapComponent } from "../components/mapComponents/tdmap/tdmap.component";
+import { TdmapComponent } from "../components/tdmap/tdmap.component";
+import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
 import { LayerComponent } from "../components/mapComponents/layer/layer.component";
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
 import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
@@ -54,7 +55,7 @@ import { SearchAutocompleteComponent } from "../components/search-autocomplete/s
 import { FilterGeometryComponent } from "../components/filter-geometry/filter-geometry.component";
 import { FilterGeometryFirstLineComponent } from "../components/filter-geometry/filter-geometry-first-line/filter-geometry-first-line.component";
 import { FilterGeometryResultListComponent } from "../components/filter-geometry/filter-geometry-result-list/filter-geometry-result-list.component";
-import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
+
 
 
 //covalent

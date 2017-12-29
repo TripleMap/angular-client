@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { MapService } from './MapService';
-import { TDMap } from '../../external/TDMap.min.js';
 // вынести опции слоев за пределы конструктора (JSON)
 
 @Injectable() export class BaseLayersService {
