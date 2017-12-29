@@ -42,6 +42,9 @@ export class OverLaysService {
             styled: false,
             labeled: false,
             selectable: true,
+            selectionOptions: {
+                multiple: false
+            },
             style: {
                 weight: 1.04,
                 color: "#1B5E20",
