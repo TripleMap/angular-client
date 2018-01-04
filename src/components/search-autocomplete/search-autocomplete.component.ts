@@ -72,6 +72,7 @@ export class SearchAutocompleteComponent implements OnInit {
 		this.MapService.TDMapManager.updateMapPosition(
 			L.Projection.SphericalMercator.unproject(L.point(cadData.center.x, cadData.center.y)), 16
 		);
+		new this.MapService.TDMap.Tools.PulseMarker(L.Projection.SphericalMercator.unproject(L.point(cadData.center.x, cadData.center.y)), { fillColor: '#1976d2', color: '#1976d2',timeout:7000}).addTo(this.MapService.getMap())
 	};
 
 	clearAutocomplete = () => this.pkkCtrl.setValue('');
