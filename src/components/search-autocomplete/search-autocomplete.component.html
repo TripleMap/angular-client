@@ -13,7 +13,7 @@
     <mat-form-field style="width:60px;">
         <mat-select placeholder="" [(ngModel)]="activeSearchProvider" name="food">
             <mat-option *ngFor="let provider of seachProviders" [value]="provider">
-                {{provider.displayName}}
+                {{provider}}
             </mat-option>
         </mat-select>
     </mat-form-field>

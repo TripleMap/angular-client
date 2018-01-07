@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { SelectedFeatureService } from "./SelectedFeatureService";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 @Injectable()
 export class OverLaysService {

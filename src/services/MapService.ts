@@ -7,7 +7,8 @@ import { OverLaysService } from "./OverLaysService";
 export class MapService {
     public TDMap: any;
     public TDMapManager: any;
-    constructor(public OverLaysService: OverLaysService) {}
+    public mapReady= new BehaviorSubject<any>(false);
+    constructor(public OverLaysService: OverLaysService) {   }
 
     createLeafletMap(mapElementId) {
         this.TDMap = TDMap;
@@ -20,6 +21,7 @@ export class MapService {
             memorize: true
         });
         this.OverLaysService.addLayerToMap(this.TDMapManager._map);
+        this.mapReady.next(true);
     }
 
     getMap = () => this.TDMapManager._map;

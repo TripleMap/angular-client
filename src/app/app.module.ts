@@ -43,8 +43,6 @@ import { OverLaysService } from "../services/OverLaysService";
 import { SelectedFeatureService } from "../services/SelectedFeatureService";
 import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 
-import { PkkTypeAheadFactory } from "../publicCadastral/PublicCadastralHub";
-
 // mapComponents
 import { TdmapComponent } from "../components/tdmap/tdmap.component";
 import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
@@ -112,7 +110,6 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule } from "@covalent/
     BaseLayersService,
     OverLaysService,
     SelectedFeatureService,
-    PkkTypeAheadFactory,
     FilterGeometryAdapter
   ],
   bootstrap: [AppComponent]

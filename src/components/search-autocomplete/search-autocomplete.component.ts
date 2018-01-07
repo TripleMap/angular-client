@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, ViewChild, OnInit } from "@angular/core";
 import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FormControl, Validators } from "@angular/forms";
 import { Subscription } from "rxjs/Subscription";
@@ -13,7 +13,6 @@ import "rxjs/add/observable/of";
 import "rxjs/add/operator/catch";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/startWith";
-import { PkkTypeAheadFactory } from "../../publicCadastral/PublicCadastralHub";
 import { MapService } from "../../services/MapService";
 
 @Component({
@@ -24,55 +23,53 @@ import { MapService } from "../../services/MapService";
 export class SearchAutocompleteComponent implements OnInit {
 	pkkCtrl: FormControl;
 	filteredPkkObject: Observable<any[]>;
-	seachProviders: any[] = [];
+	seachProviders: any[] = ['ЗУ', 'ОКС'];
 	activeSearchProvider: any;
 	matAutocomplete: any;
+	cadastralTools:any;
 	public activeMediaQuery = "";
 	constructor(
-		public _pkkTypeAheadFactory: PkkTypeAheadFactory,
 		public MapService: MapService,
 		public media: ObservableMedia
 	) {
 		media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
 		this.pkkCtrl = new FormControl();
+
+	
 		this.filteredPkkObject = this.pkkCtrl.valueChanges
 			.debounceTime(300)
 			.distinctUntilChanged()
-			.switchMap((term: string) => term.length > 5 ? this.activeSearchProvider.getTypeAheadData(term) : Observable.of<any>('filter'))
+			.switchMap((term: string) => term.length > 1 ? this.cadastralTools.getTypeAheadFeatures(term, 10, this.activeSearchProvider === 'ЗУ' ? 'PARCEL' : 'OKS') : Observable.of<any>('filter'))
 			.map((data: any) => data.results && data.results.length > 0 ? data.results : data === 'filter' ? [] : [{ value: "Ничего не найдено", type: "warn" }])
-			.catch(e => {
-				return e.status === 500 ? Observable.of<any>([{
+			.catch(e => e.status === 500 ? Observable.of<any>([{
 					value: "Не удалось получить данные",
 					type: "warn"
 				}]) : Observable.of<any>([{ value: "Ошибка запроса", type: "warn" }])
-			});
+			);
 	}
 
 	ngOnInit() {
-		this.seachProviders.push(this._pkkTypeAheadFactory.createPkkTypeAhead(1, 10, "ЗУ"));
-		this.seachProviders.push(this._pkkTypeAheadFactory.createPkkTypeAhead(5, 10, "ОКС"));
-		this.activeSearchProvider = this.seachProviders[0];
-	}
-
-	clearBeforeRequest(term) {
-
+		this.MapService.mapReady.subscribe(mapReady => {
+			if(!mapReady) return;
+			this.activeSearchProvider = this.seachProviders[0];	
+			this.cadastralTools = new TDMap.CadastralUtils.CadastralSearchDataService(this.MapService.getMap())
+		});
 	}
 
 	minimalLength = (term: string) => (term && term.length < 6 ? "" : term);
 	forceSeacheCadObject(cadObj) {
 		if (!cadObj) return;
-		this.activeSearchProvider
-			.getFeatureData(cadObj.value)
-			.subscribe(cadData => this.setViewOnCadData(cadData));
+		this.cadastralTools.getFeatureByCadastralNumber(cadObj.value, this.activeSearchProvider === 'ЗУ' ? 'PARCEL' : 'OKS')
+		.subscribe(cadData => this.setViewOnCadData(cadData));
 	}
 
-	setViewOnCadData = cadData => {
-		if (!cadData) return;
-		if (!cadData.center) return;
+	setViewOnCadData = cadObjGeoJSON => {
+		if (!cadObjGeoJSON || !cadObjGeoJSON.geometry) return;
 		this.MapService.TDMapManager.updateMapPosition(
-			L.Projection.SphericalMercator.unproject(L.point(cadData.center.x, cadData.center.y)), 16
+			L.latLng(cadObjGeoJSON.geometry.coordinates[1],cadObjGeoJSON.geometry.coordinates[0]), 16
 		);
-		new this.MapService.TDMap.Tools.PulseMarker(L.Projection.SphericalMercator.unproject(L.point(cadData.center.x, cadData.center.y)), { fillColor: '#1976d2', color: '#1976d2',timeout:7000}).addTo(this.MapService.getMap())
+		new this.MapService.TDMap.Tools.PulseMarker(L.latLng(cadObjGeoJSON.geometry.coordinates[1],cadObjGeoJSON.geometry.coordinates[0]), { fillColor: '#1976d2', color: '#1976d2',timeout:7000})
+		.addTo(this.MapService.getMap())
 	};
 
 	clearAutocomplete = () => this.pkkCtrl.setValue('');

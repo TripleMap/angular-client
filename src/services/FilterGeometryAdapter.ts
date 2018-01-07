@@ -3,9 +3,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { BaseLayersService } from "./BaseLayersService";
 import { OverLaysService } from "./OverLaysService";
 
-import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
 @Injectable()
 export class FilterGeometryAdapter {
 	public mainFlow: Subject<any>;
