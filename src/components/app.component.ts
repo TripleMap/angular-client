@@ -9,8 +9,9 @@ import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 })
 export class AppComponent implements AfterViewInit {
 	public activeMediaQuery = "";
-	public isActive: boolean = false;
-	public atributePaneActive: boolean = false;
+	public isFilterSidenavActive: boolean = false;
+	public isTDMapPanelSidenavActive: boolean = false;
+
 	constructor(
 		public iconRegistry: MatIconRegistry,
 		public changeDetectorRef: ChangeDetectorRef,
@@ -24,11 +25,11 @@ export class AppComponent implements AfterViewInit {
 		this.changeDetectorRef.detectChanges();
 	}
 
-	toggleSideNav(): void {
-		this.isActive = !this.isActive;
+	toggleFilterSideNav(): void {
+		this.isFilterSidenavActive = !this.isFilterSidenavActive;
 	}
-	tabsChange(event):void{
-		this.atributePaneActive = event? true : false;
-		console.log(event);
+
+	toggleTDMapPanelSideNav():void{
+		this.isTDMapPanelSidenavActive = !this.isTDMapPanelSidenavActive;
 	}
 }

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from "@angular/core";
+import { Component, AfterViewInit, Output, EventEmitter} from "@angular/core";
 import { OverLaysService } from "../../services/OverLaysService";
 
 @Component({
@@ -12,6 +12,10 @@ export class TdMapPanelComponent implements AfterViewInit {
 	public multiple: boolean = true;
 	public sortBy: string = 'id';
 	public visibleFeatures: any[];
+
+	@Output()
+  	closeTdmapPanelSidenav: EventEmitter<string> = new EventEmitter<string>();
+
 	constructor(public _overLaysService: OverLaysService) {
 	}
 
@@ -21,4 +25,8 @@ export class TdMapPanelComponent implements AfterViewInit {
 			console.log(data)
 		});
 	}
+
+	toggleSideNav() {
+    	this.closeTdmapPanelSidenav.emit('close-tdmap-panel-sidenav');
+  	}
 }
