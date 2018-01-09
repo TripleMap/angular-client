@@ -7,12 +7,18 @@ import { OverLaysService } from "../../services/OverLaysService";
 	styleUrls: ["./td-map-panel.component.css"]
 })
 export class TdMapPanelComponent implements AfterViewInit {
-	constructor(public _overLaysService: OverLaysService) {}
+	public selectedRows: any[] = [];
+	public selectable: boolean = true;
+	public multiple: boolean = true;
+	public sortBy: string = 'id';
+	public visibleFeatures: any[];
+	constructor(public _overLaysService: OverLaysService) {
+	}
 
 	ngAfterViewInit() {
-		console.log(this._overLaysService.mainLayer);
-		this._overLaysService.mainLayer.featuresFlow.subscribe(data =>
-			data
-		);
+		this._overLaysService.mainLayer.featuresFlow.subscribe(data =>{
+			this.visibleFeatures = data;
+			console.log(data)
+		});
 	}
 }

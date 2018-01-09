@@ -20,7 +20,8 @@
         "styles": [
             "styles.css",
             "theme.scss",
-            "./assets/tdmap.css"
+            "./assets/tdmap.css",
+            "../node_modules/@covalent/core/common/platform.scss"
         ],
         "scripts": [
             "../node_modules/hammerjs/hammer.min.js",

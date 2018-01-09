@@ -1,4 +1,6 @@
 @import "~@angular/material/theming";
+
+@import '~@covalent/core/theming/all-theme';
 @include mat-core();
 
 $mat-orange-custom: (
@@ -41,13 +43,14 @@ $warn: mat-palette($mat-red, 600);
 $theme: mat-light-theme($primary, $accent, $warn);
 
 @include angular-material-theme($theme);
-
+@include covalent-theme($theme);
 .dark-theme {
 	$dark-primary: mat-palette($mat-blue, 700);
 	$dark-accent: mat-palette($mat-orange-custom, A700, A100, A400);
 	$dark-warn: mat-palette($mat-red, 600);
 	$dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
 	@include angular-material-theme($dark-theme);
+	@include covalent-theme($dark-theme);
 }
 
 .light-theme {
@@ -56,6 +59,7 @@ $theme: mat-light-theme($primary, $accent, $warn);
 	$light-warn: mat-palette($mat-red, 600);
 	$light-theme: mat-light-theme($light-primary, $light-accent, $light-warn);
 	@include angular-material-theme($light-theme);
+	@include covalent-theme($light-theme);
 }
 
 

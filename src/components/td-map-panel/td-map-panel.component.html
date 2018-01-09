@@ -1,15 +1,36 @@
-<td-data-table
-  #dataTable
-  [data]="filteredData"
-  [columns]="columns"
-  [selectable]="selectable"
-  [clickable]="clickable"
-  [multiple]="multiple"
-  [sortable]="true"
-  [sortBy]="sortBy"
-  [(ngModel)]="selectedRows"
-  [sortOrder]="sortOrder"
-  (sortChange)="sort($event)"
-  (rowClick)="showAlert($event)"
-  [style.height.px]="200">
+<div>
+<span  class="push-left-sm">
+    <span class="mat-title">Title here</span>
+</span>
+<span class="push-left-sm">
+    <span *ngIf="(selectable && !selectedRows.length) || !selectable" class="mat-title">Title here</span>
+<span *ngIf="selectedRows.length && selectable" class="mat-body-1">0 item(s) selected</span>
+</span>
+</div>
+<mat-divider></mat-divider>
+<td-data-table #dataTable 
+  [data]="visibleFeatures"
+  [columns]="columns" 
+  [selectable]="selectable" 
+  [clickable]="clickable" 
+  [multiple]="multiple" 
+  [sortable]="true" 
+  [(ngModel)]="selectedRows" 
+[style.height.px]="200">
 </td-data-table>
+
+
+
+
+
+<td-paging-bar #pagingBar [pageSize]="pageSize" [total]="filteredTotal" (change)="page($event)">
+  <span hide-xs>Rows per page:</span>
+  <mat-select [style.width.px]="50" [(ngModel)]="pageSize">
+    <mat-option *ngFor="let size of [50,100,200,500]" [value]="size">
+      {{size}}
+    </mat-option>
+  </mat-select>
+  {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
+</td-paging-bar>
+
+

@@ -10,7 +10,7 @@ import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 export class AppComponent implements AfterViewInit {
 	public activeMediaQuery = "";
 	public isActive: boolean = false;
-
+	public atributePaneActive: boolean = false;
 	constructor(
 		public iconRegistry: MatIconRegistry,
 		public changeDetectorRef: ChangeDetectorRef,
@@ -26,5 +26,9 @@ export class AppComponent implements AfterViewInit {
 
 	toggleSideNav(): void {
 		this.isActive = !this.isActive;
+	}
+	tabsChange(event):void{
+		this.atributePaneActive = event? true : false;
+		console.log(event);
 	}
 }

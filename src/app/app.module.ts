@@ -57,8 +57,7 @@ import { FilterGeometryResultListComponent } from "../components/filter-geometry
 
 
 //covalent
-import { CovalentVirtualScrollModule, CovalentDataTableModule } from "@covalent/core";
-
+import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingModule } from "@covalent/core";
 @NgModule({
   declarations: [
     AppComponent,
@@ -97,7 +96,8 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule } from "@covalent/
     MatCardModule,
     MatTabsModule,
     CovalentVirtualScrollModule,
-    CovalentDataTableModule
+    CovalentDataTableModule,
+    CovalentPagingModule
   ],
   providers: [
     {
