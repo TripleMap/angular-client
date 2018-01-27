@@ -13,7 +13,7 @@
             </mat-toolbar-row>
         </mat-toolbar>
         <mat-accordion>
-            <mat-expansion-panel  [expanded]="true">
+            <mat-expansion-panel [expanded]="true">
                 <mat-expansion-panel-header>
                     <mat-panel-title>
                         Базовые слои
@@ -51,6 +51,9 @@
                         Геометрия
                     </mat-panel-title>
                 </mat-expansion-panel-header>
+                <div fxLayout="column">
+                    <mat-checkbox *ngFor="let overlayLayer of overlayLayers" (change)="changeOverLayLayer(overlayLayer)" [(ngModel)]="overlayLayer.visible">{{overlayLayer.labelName}}</mat-checkbox>
+                </div>
             </mat-expansion-panel>
         </mat-accordion>
     </div>

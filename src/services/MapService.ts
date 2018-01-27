@@ -1,14 +1,13 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { HttpClient } from "@angular/common/http";
-import { OverLaysService } from "./OverLaysService";
 
 @Injectable()
 export class MapService {
     public TDMap: any;
     public TDMapManager: any;
-    public mapReady= new BehaviorSubject<any>(false);
-    constructor(public OverLaysService: OverLaysService) {   }
+    public mapReady = new BehaviorSubject<any>(false);
+    constructor() { }
 
     createLeafletMap(mapElementId) {
         this.TDMap = TDMap;
@@ -20,7 +19,7 @@ export class MapService {
             zoomControl: false,
             memorize: true
         });
-        this.OverLaysService.addLayerToMap(this.TDMapManager._map);
+        window.TDMapManager = this.TDMapManager;
         this.mapReady.next(true);
     }
 

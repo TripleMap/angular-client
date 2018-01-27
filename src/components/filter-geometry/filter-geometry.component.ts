@@ -18,7 +18,7 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   @ViewChild(FilterGeometryFirstLineComponent) firstLine: FilterGeometryFirstLineComponent;
   @Output()
   closesidenav: EventEmitter<string> = new EventEmitter<string>();
-  
+
   constructor(public _filterGeometryAdapter: FilterGeometryAdapter, public media: ObservableMedia) {
     this.isFiltersActive = true;
     this.isResultPaneAvalible = false;

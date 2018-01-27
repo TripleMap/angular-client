@@ -3,16 +3,31 @@
 @import '~material-design-icons/iconfont/material-icons.css';
 @import '~mdi/css/materialdesignicons.min.css';
 @import '~leaflet/dist/leaflet.css';
-
 html,
 body {
     margin: 0;
     overflow: hidden;
 }
-.td-layout-nav-content{
-	overflow: hidden !important;
+
+.td-layout-nav-content {
+    overflow: hidden !important;
 }
 
-.sidenav-container > div.mat-drawer-shown {
-	visibility: hidden;
+.sidenav-container>div.mat-drawer-shown {
+    visibility: hidden;
+}
+
+.gutter-header {
+    width: 8px;
+    height: 48px;
+    margin-left: auto;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: e-resize;
+}
+
+.mdi:before,
+.mdi-set {
+    display: inline-block;
+    font-family: "Material Design Icons";
+    font-size: 24px;
 }

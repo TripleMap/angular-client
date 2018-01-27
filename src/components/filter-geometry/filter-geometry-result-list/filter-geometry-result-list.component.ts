@@ -12,12 +12,18 @@ import { OverLaysService } from "../../../services/OverLaysService";
 export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	@Input() isActive: boolean;
 	public filteredList: any[];
+	public activeFilterLayer: { id: string; labelName: string; visible: boolean; };
+	public avaliableFilterLayers: { id: string; labelName: string; visible: boolean; }[];
 	constructor(
 		public _filterGeometryAdapter: FilterGeometryAdapter,
 		public MapService: MapService,
 		public _selectedFeatureService: SelectedFeatureService,
-		public _overLaysService: OverLaysService
-	) {}
+		public OverLaysService: OverLaysService
+	) {
+		// TEMP
+		this.avaliableFilterLayers = this.OverLaysService.getLayerIdsAndLabelNames();
+		this.activeFilterLayer = this.avaliableFilterLayers[0];
+	}
 
 	ngOnInit() {
 		this._filterGeometryAdapter.filteredObjects.subscribe(data => {
@@ -31,16 +37,12 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 
 	showItemOnMap(item) {
 		let onLoadData = () => {
-			this._selectedFeatureService.setTempFeatureAndStyleId(
-				this._overLaysService.getFeatureById(item.zu_id)
-			);
+			this.OverLaysService.setTempSelectedFeature(this.activeFilterLayer.id, item.id);
 		};
 		let onmoveEnd = () => {
 			this.MapService.getMap().once("layer:load", onLoadData);
 		};
 		this.MapService.getMap().once("moveend", onmoveEnd);
-		this.MapService.TDMapManager
-			.updateMapPosition(L.Projection.SphericalMercator.unproject(
-				L.point(item.center.x, item.center.y)), 16);
+		this.MapService.TDMapManager.updateMapPosition(L.Projection.SphericalMercator.unproject(L.point(item.center.x, item.center.y)), 16);
 	}
 }

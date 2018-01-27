@@ -4,6 +4,11 @@ interface NodeModule {
   id: string;
 }
 
+
+interface Window {
+  TDMapManager: any;
+}
+
 declare var L: any;
 declare var TDMap: any;
 declare var TDMapManager: any;

@@ -34,7 +34,10 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { MatCardModule } from "@angular/material/card";
 import { MatTabsModule } from '@angular/material/tabs';
-
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
+import { MatRadioModule } from '@angular/material/radio';
 // services
 import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService";
 import { MapService } from "../services/MapService";
@@ -46,6 +49,7 @@ import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 // mapComponents
 import { TdmapComponent } from "../components/tdmap/tdmap.component";
 import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
+import { TDMApPanelMatPaginatorIntl } from '../components/td-map-panel/td-map-panel.paginator';
 import { LayerComponent } from "../components/mapComponents/layer/layer.component";
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
 import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
@@ -53,11 +57,12 @@ import { SearchAutocompleteComponent } from "../components/search-autocomplete/s
 import { FilterGeometryComponent } from "../components/filter-geometry/filter-geometry.component";
 import { FilterGeometryFirstLineComponent } from "../components/filter-geometry/filter-geometry-first-line/filter-geometry-first-line.component";
 import { FilterGeometryResultListComponent } from "../components/filter-geometry/filter-geometry-result-list/filter-geometry-result-list.component";
-
+import { SpatialFilterComponent } from '../components/filter-geometry/spatial-filter/spatial-filter.component';
 
 
 //covalent
 import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingModule } from "@covalent/core";
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -69,7 +74,8 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingMod
     FilterGeometryComponent,
     FilterGeometryFirstLineComponent,
     FilterGeometryResultListComponent,
-    TdMapPanelComponent
+    TdMapPanelComponent,
+    SpatialFilterComponent
   ],
   imports: [
     BrowserModule,
@@ -95,6 +101,10 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingMod
     MatSelectModule,
     MatCardModule,
     MatTabsModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatRadioModule,
     CovalentVirtualScrollModule,
     CovalentDataTableModule,
     CovalentPagingModule
@@ -105,6 +115,7 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingMod
       useClass: ApiHTTPInterceptorService,
       multi: true
     },
+    { provide: MatPaginatorIntl, useClass: TDMApPanelMatPaginatorIntl },
     MatIconRegistry,
     MapService,
     BaseLayersService,
@@ -114,4 +125,4 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingMod
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

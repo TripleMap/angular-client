@@ -1,27 +1,42 @@
-<mat-toolbar color="primary" class="toolbar" fxLayout="row" fxLayoutAlign="space-between center">
-        <h1 class="filter-toolbar-label">Атрибутивная таблица</h1>
-        <button mat-button (click)="toggleSideNav()" style="margin-left:auto;"><mat-icon>arrow_forward</mat-icon></button>
+<mat-toolbar color="primary" class="toolbar" fxLayout="row" fxLayoutAlign="space-between center" class="dark-theme">
+    <h1 class="filter-toolbar-label">Атрибутивная таблица</h1>
+    <mat-form-field style="width: 240px;margin-left:auto;">
+        <mat-select [formControl]="inspectLayerAttributeTable">
+            <mat-optgroup label="слой">
+                <mat-option *ngFor="let avaliableLayer of avaliableLayers" [value]="avaliableLayer.id" [disabled]="!avaliableLayer.visible">{{avaliableLayer.labelName}}</mat-option>
+            </mat-optgroup>
+        </mat-select>
+    </mat-form-field>
+
+
+    <button mat-button (click)="toggleSideNav()"><mat-icon>arrow_forward</mat-icon></button>
 </mat-toolbar>
 <mat-divider></mat-divider>
-<td-data-table #dataTable 
-[data]="visibleFeatures" 
-[columns]="columns" 
-[selectable]="selectable" 
-[clickable]="clickable" 
-[multiple]="multiple" 
-[sortable]="true" 
-[sortOrder]="sortOrder"
-[(ngModel)]="selectedRows">
-</td-data-table>
+<div class="example-container mat-elevation-z8 light-theme" style="height:calc(100% - 64px)" *ngIf="activeLayer && activeLayer.visible">
+    <mat-table class="attribute-table" #table [dataSource]="activeLayer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort">
+        <ng-container matColumnDef="select">
+            <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
+                <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="activeLayer.selection.hasValue() && isAllSelected()" [indeterminate]="activeLayer.selection.hasValue() && !isAllSelected()"></mat-checkbox>
+            </mat-header-cell>
+            <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
+                <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? activeLayer.selection.toggle(row.id) : null" [checked]="activeLayer.selection.isSelected(row.id)"></mat-checkbox>
+            </mat-cell>
+        </ng-container>
 
+        <ng-container *ngFor="let column of activeLayer.columns" matColumnDef="{{column.name}}">
+            <mat-header-cell *matHeaderCellDef mat-sort-header [style.width]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): ''">
+                {{column.label}}
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element" [style.width]="column.rowWidth"> {{element[column.name]}} </mat-cell>
+        </ng-container>
 
-<td-paging-bar #pagingBar [pageSize]="pageSize">
-  <span *ngIf="selectedRows.length && selectable" class="mat-body-1">{{selectedRows.length}} объектов выбрано</span>
-  <span hide-xs style="margin-left: auto;">Rows per page:</span>
-  <mat-select [style.width.px]="50" [(ngModel)]="pageSize">
-    <mat-option *ngFor="let size of [10,20,50,100]" [value]="size">
-      {{size}}
-    </mat-option>
-  </mat-select>
-  {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
-</td-paging-bar>
+        <mat-header-row *matHeaderRowDef="activeLayer.displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: activeLayer.displayedColumns;"></mat-row>
+    </mat-table>
+    <div class="bottom-table-elements">
+        <label class="selected-elements-counter">
+            Выбрано элементов: {{activeLayer.selection.selected.length}} 
+        </label>
+        <mat-paginator #paginatorVisibleFeaturesPerPage [length]="activeLayer.total" [pageSizeOptions]="[100, 250, 1000]"></mat-paginator>
+    </div>
+</div>

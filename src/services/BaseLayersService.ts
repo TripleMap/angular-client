@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-
 import { MapService } from './MapService';
 // вынести опции слоев за пределы конструктора (JSON)
 

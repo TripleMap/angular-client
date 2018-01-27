@@ -1,0 +1,10 @@
+<div>
+    <button class="spatial-filter-poligon" mat-fab [color]="spatialFilterPoligonIsActive ? 'accent' : 'primary'" (click)="startPolygonSpatialFilter($event)">
+    <mat-icon *ngIf="!spatialFilterPoligonIsActive" fontSet="mdi" fontIcon="mdi-vector-polygon"></mat-icon>
+    <mat-icon *ngIf="spatialFilterPoligonIsActive" fontSet="mdi" fontIcon="mdi-close"></mat-icon>
+  </button>
+    <button class="spatial-filter-circle" mat-fab [color]="spatialFilterCircleIsActive ? 'accent' : 'primary'" (click)="startCircleSpatialFilter($event)">
+      <mat-icon *ngIf="!spatialFilterCircleIsActive" fontSet="mdi" fontIcon="mdi-vector-circle-variant"></mat-icon>
+      <mat-icon *ngIf="spatialFilterCircleIsActive" fontSet="mdi" fontIcon="mdi-close"></mat-icon>
+  </button>
+</div>
