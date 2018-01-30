@@ -59,9 +59,12 @@ import { FilterGeometryFirstLineComponent } from "../components/filter-geometry/
 import { FilterGeometryResultListComponent } from "../components/filter-geometry/filter-geometry-result-list/filter-geometry-result-list.component";
 import { SpatialFilterComponent } from '../components/filter-geometry/spatial-filter/spatial-filter.component';
 
-
 //covalent
 import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingModule } from "@covalent/core";
+
+
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { GutterDirective } from './gutter.directive';
 
 @NgModule({
   declarations: [
@@ -75,7 +78,8 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingMod
     FilterGeometryFirstLineComponent,
     FilterGeometryResultListComponent,
     TdMapPanelComponent,
-    SpatialFilterComponent
+    SpatialFilterComponent,
+    GutterDirective,
   ],
   imports: [
     BrowserModule,
@@ -107,7 +111,8 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingMod
     MatRadioModule,
     CovalentVirtualScrollModule,
     CovalentDataTableModule,
-    CovalentPagingModule
+    CovalentPagingModule,
+    NgxDatatableModule
   ],
   providers: [
     {

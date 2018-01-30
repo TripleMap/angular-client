@@ -3,6 +3,8 @@
 @import '~material-design-icons/iconfont/material-icons.css';
 @import '~mdi/css/materialdesignicons.min.css';
 @import '~leaflet/dist/leaflet.css';
+@import '~@swimlane/ngx-datatable/release/themes/material.css';
+@import '~@swimlane/ngx-datatable/release/assets/icons.css';
 html,
 body {
     margin: 0;

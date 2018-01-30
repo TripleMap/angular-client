@@ -1,4 +1,4 @@
-import { Component, Output, Input, EventEmitter, ViewChild, OnChanges, ElementRef } from "@angular/core";
+import { Component, Output, Input, EventEmitter, ViewChild, ViewChildren, OnChanges, ElementRef } from "@angular/core";
 import { FormControl } from '@angular/forms';
 import { HttpParams, HttpClient } from "@angular/common/http";
 import { OverLaysService } from "../../services/OverLaysService";
@@ -34,6 +34,9 @@ export class TdMapPanelComponent {
 	@ViewChild('paginatorVisibleFeaturesPerPage') paginatorVisibleFeaturesPerPage: MatPaginator;
 	@ViewChild('sortVisibleFeaturesPerPage') sortVisibleFeaturesPerPage: MatSort;
 
+	@ViewChild('parcels') parcels: MatPaginator;
+	@ViewChildren('matHeaderCellDef', { read: ElementRef }) matHeaderCellDef: any;
+	@ViewChildren('tables') tables: any;
 	public isResizing: boolean = false;
 	public activeLayer: AvaliableLayer;
 	public avaliableLayers: AvaliableLayer[];
@@ -45,13 +48,12 @@ export class TdMapPanelComponent {
 		public MapService: MapService,
 		private elementRef: ElementRef
 	) {
-
 		this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item: AvaliableLayer) => {
 			item.attributes = [];
 			item.columns = [];
 			item.displayedColumns = [];
 			item.total = 0;
-			item.selection = new SelectionModel(true, []);
+			item.selection = new SelectionModel();
 			item.visibleFeaturesPerPage = new MatTableDataSource();
 			return item;
 		});
@@ -63,7 +65,11 @@ export class TdMapPanelComponent {
 
 		this.inspectLayerAttributeTable.valueChanges.subscribe(avaliableLayerId => {
 			this.activeLayer = this.avaliableLayers.filter(item => item.id === avaliableLayerId ? item : false)[0];
-			console.log(this.activeLayer.visibleFeaturesPerPage._updateChangeSubscription());
+
+			if (this.activeLayer) {
+				this.activeLayer.visibleFeaturesPerPage.paginator = this.paginatorVisibleFeaturesPerPage;
+				this.activeLayer.visibleFeaturesPerPage.sort = this.sortVisibleFeaturesPerPage;
+			}
 		});
 
 		this.OverLaysService.visibleLayers.subscribe(layerIdsUpdate => {
@@ -105,12 +111,13 @@ export class TdMapPanelComponent {
 			this.avaliableLayers.map(layer => {
 				this.getColumnDataForLayer(layer);
 			});
-			console.log(this.activeLayer.visibleFeaturesPerPage);
 			this.activeLayer.visibleFeaturesPerPage.paginator = this.paginatorVisibleFeaturesPerPage;
 			this.activeLayer.visibleFeaturesPerPage.sort = this.sortVisibleFeaturesPerPage;
 		}
 	};
-
+	changeColumnSize(column, size) {
+		column.rowWidth = size;
+	}
 	getColumnNamesForLayer(layer) {
 		this.http.get(layer.schemaInfo).subscribe((data: { properties: object; }) => {
 			let columns = [];
@@ -197,21 +204,31 @@ export class TdMapPanelComponent {
 
 	toggleSideNav = () => this.closeTdmapPanelSidenav.emit('close-tdmap-panel-sidenav');
 	isAllSelected = () => this.activeLayer.selection.selected.length === this.activeLayer.visibleFeaturesPerPage.data.length;
-	masterToggle = () => this.isAllSelected() ? this.activeLayer.selection.clear() : this.activeLayer.visibleFeaturesPerPage.data.forEach(row => this.activeLayer.selection.select(row));
+	masterToggle = () => this.isAllSelected() ? this.activeLayer.selection.clear() : this.activeLayer.visibleFeaturesPerPage.data.forEach(row => this.activeLayer.selection.select(row.id));
 
 
 	addGutters(layer) {
 		let self = this;
 		let lastDownX = 0;
-		let nativeElement = this.elementRef.nativeElement
-		let headerElement = nativeElement.getElementsByClassName('mat-header-cell');
+		let headerElements = this.matHeaderCellDef._results;
 		const stopSortOnResize = (e) => {
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
 		}
-		for (let i = 0; i < headerElement.length; i++) {
-			const element = headerElement[i];
+		for (let i = 0; i < headerElements.length; i++) {
+			let shouldAdd = true;
+			const element = headerElements[i].nativeElement;
+
+			for (let elementIndex = 0; elementIndex < element.children.length; elementIndex++) {
+				const el = element.children[elementIndex];
+				if (el.className === 'gutter-header') {
+					shouldAdd = false;
+				}
+			}
+			if (!shouldAdd) {
+				return;
+			}
 			let gutter = document.createElement('div');
 			gutter.classList.add('gutter-header')
 			element.appendChild(gutter);
