@@ -29,6 +29,7 @@ export class GutterDirective {
 
       const onMouseMove = mouseMoveEvent => {
         if (!isResizing) return;
+        if (elementWidth - (mouseDownEvent.clientX - mouseMoveEvent.x + 16) < 100) return;
         this.changeColumnSize.emit(elementWidth - (mouseDownEvent.clientX - mouseMoveEvent.x + 16));
       }
 

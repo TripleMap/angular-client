@@ -50,10 +50,11 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .attribute-table {
-    max-height: calc(100vh - 120px);
+    height: calc(100vh - 121px);
     overflow-y: auto;
 }
 

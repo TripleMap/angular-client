@@ -7,21 +7,20 @@
             </mat-optgroup>
         </mat-select>
     </mat-form-field>
-
-
     <button mat-button (click)="toggleSideNav()"><mat-icon>arrow_forward</mat-icon></button>
 </mat-toolbar>
-<mat-divider></mat-divider>
-<div *ngIf="activeLayer && activeLayer.visible" class="mat-elevation-z8 light-theme">
-    <div *ngFor="let layer of avaliableLayers">
+
+<div *ngIf="activeLayer && activeLayer.visible" class="mat-elevation-z8 light-theme" style="height:calc(100% - 64px)">
+    <ng-container *ngFor="let layer of avaliableLayers">
         <ng-container *ngIf="layer.id === activeLayer.id">
             <mat-table class="attribute-table" #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort">
+
                 <ng-container matColumnDef="select">
                     <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
-                        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="layer.selection.hasValue() && isAllSelected()" [indeterminate]="layer.selection.hasValue() && !isAllSelected()"></mat-checkbox>
+                        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="layer.selectedFeatures.hasValue() && isAllSelected()" [indeterminate]="layer.selectedFeatures.hasValue() && !isAllSelected()"></mat-checkbox>
                     </mat-header-cell>
                     <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
-                        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? layer.selection.toggle(row.id) : null" [checked]="layer.selection.isSelected(row.id)"></mat-checkbox>
+                        <mat-checkbox ((click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)"></mat-checkbox>
                     </mat-cell>
                 </ng-container>
 
@@ -29,16 +28,16 @@
                     <mat-header-cell *matHeaderCellDef mat-sort-header [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): ''" gutter (changeColumnSize)="changeColumnSize(column, $event)">
                         <div> {{column.label}}</div>
                     </mat-header-cell>
-                    <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48"> {{element[column.name]}} </mat-cell>
+                    <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48"> {{element[column.name]}} </mat-cell>
                 </ng-container>
 
                 <mat-header-row *matHeaderRowDef="layer.displayedColumns"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: layer.displayedColumns;"></mat-row> G
+                <mat-row *matRowDef="let row; columns: layer.displayedColumns;"></mat-row>
             </mat-table>
             <div class="bottom-table-elements">
-                <label class="selected-elements-counter">Выбрано элементов: {{layer.selection.selected.length}}</label>
+                <label class="selected-elements-counter">Выбрано элементов: {{layer.selectedFeatures.selected.length}}</label>
                 <mat-paginator #paginatorVisibleFeaturesPerPage [length]="layer.total" [pageSizeOptions]="[25, 50, 100]"></mat-paginator>
             </div>
         </ng-container>
-    </div>
+    </ng-container>
 </div>
