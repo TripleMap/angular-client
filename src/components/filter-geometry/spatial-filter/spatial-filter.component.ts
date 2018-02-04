@@ -31,14 +31,7 @@ export class SpatialFilterComponent implements OnInit {
     if (this.spatialFilterPoligonIsActive) {
       this.spatialFilterTools = new TDMap.Tools.SpatialFilter(this.MapService.getMap());
       this.spatialFilterTools.startPolygonSpatialFilter();
-      this.spatialFilterTools.map.on('spatialfilter:bounds', e => {
-        this.FilterGeometryAdapter.mainFlow.next({
-          spatialFilter: {
-            type: "bounds",
-            geometry: e[0].map(item => `${item[0]} ${item[1]}`).join(',')
-          }
-        });
-      });
+      this.spatialFilterTools.map.on('spatialfilter:bounds', this.subscribeOnSpatialFilterBounds, this);
     }
   }
 
@@ -54,17 +47,7 @@ export class SpatialFilterComponent implements OnInit {
     if (this.spatialFilterCircleIsActive) {
       this.spatialFilterTools = new TDMap.Tools.SpatialFilter(this.MapService.getMap());
       this.spatialFilterTools.startCircleSpatialFilter();
-      this.spatialFilterTools.map.on('spatialfilter:circle', e => {
-        this.FilterGeometryAdapter.mainFlow.next({
-          spatialFilter: {
-            type: "circle",
-            geometry: {
-              radius: e.radius.toFixed(2).toString(),
-              point: `${e.centerPoint.lng} ${e.centerPoint.lat}`
-            }
-          }
-        });
-      });
+      this.spatialFilterTools.map.on('spatialfilter:circle', this.subscribeOnSpatialFilterCircle, this);
     }
   }
 
@@ -73,7 +56,31 @@ export class SpatialFilterComponent implements OnInit {
     if (this.spatialFilterTools) {
       this.spatialFilterTools.abortDrawing();
       this.spatialFilterTools.map.fireEvent('spatialfilter:stop');
+      this.spatialFilterTools.map.off('spatialfilter:bounds', this.subscribeOnSpatialFilterBounds);
+      this.spatialFilterTools.map.off('spatialfilter:circle', this.subscribeOnSpatialFilterCircle);
       this.FilterGeometryAdapter.mainFlow.next({ spatialFilter: null })
     }
+  }
+
+  subscribeOnSpatialFilterBounds(e) {
+    this.FilterGeometryAdapter.mainFlow.next({
+      spatialFilter: {
+        type: "bounds",
+        geometry: e[0].map(item => `${item[0]} ${item[1]}`).join(',')
+      }
+    });
+  }
+
+  subscribeOnSpatialFilterCircle(e) {
+    console.log(e);
+    this.FilterGeometryAdapter.mainFlow.next({
+      spatialFilter: {
+        type: "circle",
+        geometry: {
+          radius: e.radius.toFixed(2).toString(),
+          point: `${e.centerPoint.lng} ${e.centerPoint.lat}`
+        }
+      }
+    });
   }
 }

@@ -19,18 +19,24 @@ export class FilterGeometryAdapter {
 	}
 
 	updateLayerFilters = requestParams => {
+		console.log(requestParams);
 		this._http
-			.post("api/parcels/GetFeaturesByFilters", { params: requestParams })
+			.get("api/parcels/GetFeaturesByFilters", { params: requestParams })
 			.subscribe(data => this.filteredObjects.next(data));
 	};
 
 
 	concatenateAllFilters = filters => {
+		let params = new HttpParams()
 		for (let key in filters) {
 			this.filters[key] = filters[key];
 		}
 
-		return this.filters;
+		for (let key in this.filters) {
+			params = params.set(key, this.filters[key]);
+		}
+
+		return params;
 	};
 
 	clearData = () => this.filteredObjects.next([]);
