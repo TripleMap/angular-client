@@ -19,7 +19,6 @@ export class FilterGeometryAdapter {
 	}
 
 	updateLayerFilters = requestParams => {
-		console.log(requestParams);
 		this._http
 			.get("api/parcels/GetFeaturesByFilters", { params: requestParams })
 			.subscribe(data => this.filteredObjects.next(data));
@@ -33,7 +32,7 @@ export class FilterGeometryAdapter {
 		}
 
 		for (let key in this.filters) {
-			params = params.set(key, this.filters[key]);
+			params = params.set(key, JSON.stringify(this.filters[key]));
 		}
 
 		return params;
