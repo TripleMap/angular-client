@@ -6,7 +6,6 @@ import {
 	Validators
 } from "@angular/forms";
 
-import { SelectedFeatureService } from "../../../services/SelectedFeatureService";
 import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
 import "rxjs/add/operator/filter";
 
@@ -20,7 +19,6 @@ export class FilterGeometryFirstLineComponent implements AfterViewInit {
 	public squareUnits: { ru: string; eng: string }[];
 	@Input() isActive: boolean;
 	constructor(
-		public _selectedFeatureService: SelectedFeatureService,
 		public _filterGeometryAdapter: FilterGeometryAdapter,
 		public fb: FormBuilder
 	) {

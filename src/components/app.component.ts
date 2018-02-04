@@ -10,7 +10,7 @@ import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 export class AppComponent implements AfterViewInit {
 	public activeMediaQuery = "";
 	public isFilterSidenavActive: boolean = false;
-	public isTDMapPanelSidenavActive: boolean = false;
+	public isAttributeTableActive: boolean = false;
 
 	constructor(
 		public iconRegistry: MatIconRegistry,
@@ -29,7 +29,7 @@ export class AppComponent implements AfterViewInit {
 		this.isFilterSidenavActive = !this.isFilterSidenavActive;
 	}
 
-	toggleTDMapPanelSideNav():void{
-		this.isTDMapPanelSidenavActive = !this.isTDMapPanelSidenavActive;
+	toggleTDMapPanelSideNav(): void {
+		this.isAttributeTableActive = !this.isAttributeTableActive;
 	}
 }

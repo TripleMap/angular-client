@@ -1,26 +1,23 @@
 <mat-sidenav-container class="sidenav-container">
     <mat-sidenav [opened]="isFilterSidenavActive" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ?'push': 'side'">
+
         <filter-geometry (closesidenav)="toggleFilterSideNav()"></filter-geometry>
     </mat-sidenav>
     <mat-sidenav-content class="overflow-hidden">
         <mat-toolbar color="primary" class="toolbar">
-            <button mat-icon-button (click)="toggleFilterSideNav()">
-        <mat-icon>search</mat-icon>
-      </button>
-            <app-search-autocomplete [style.width]="(activeMediaQuery === 'xs') ? '100%' : '340px'"></app-search-autocomplete>
-            <td-map></td-map>
-            <div class="td-map-actions light-theme">
-                <layer-selection></layer-selection>
-                <zoom-controls [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></zoom-controls>
-                <measure-controls [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></measure-controls>
-                <spatial-filter [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></spatial-filter>
+            <button mat-icon-button (click)="toggleFilterSideNav()"><mat-icon>search</mat-icon></button>
+            <div>
+                <app-search-autocomplete [style.width]="(activeMediaQuery === 'xs') ? '100%' : '340px'"></app-search-autocomplete>
             </div>
-            <button mat-button (click)="toggleTDMapPanelSideNav()" style='margin-left:auto;'>
-        Атрибутивные данные
-      </button>
+            <button mat-button (click)="toggleTDMapPanelSideNav()" style='margin-left:auto;'>Атрибутивные данные</button>
         </mat-toolbar>
+
+        <main-grid-panel [isAttributeTableActive]="isAttributeTableActive"></main-grid-panel>
+        <div class="td-map-actions light-theme">
+            <layer-selection></layer-selection>
+            <zoom-controls [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></zoom-controls>
+            <measure-controls [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></measure-controls>
+            <spatial-filter [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></spatial-filter>
+        </div>
     </mat-sidenav-content>
-    <mat-sidenav position="end" [opened]="isTDMapPanelSidenavActive" [mode]="'push'" [style.width]="'100%'">
-        <td-map-panel class="dark-theme" [tdMapPanel]="isTDMapPanelSidenavActive" (closeTdmapPanelSidenav)="toggleTDMapPanelSideNav()"></td-map-panel>
-    </mat-sidenav>
 </mat-sidenav-container>

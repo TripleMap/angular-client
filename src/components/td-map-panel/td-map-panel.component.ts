@@ -1,4 +1,4 @@
-import { Component, Output, Input, EventEmitter, ViewChild, ChangeDetectionStrategy, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, Output, Input, EventEmitter, ViewChild, OnChanges, SimpleChanges, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl } from '@angular/forms';
 import { HttpParams, HttpClient } from "@angular/common/http";
 import { OverLaysService } from "../../services/OverLaysService";
@@ -25,23 +25,28 @@ interface AvaliableLayer {
 	styleUrls: ["./td-map-panel.component.css"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TdMapPanelComponent {
+export class TdMapPanelComponent implements AfterViewInit {
 	@Input() public tdMapPanel: boolean;
 	@Output() public closeTdmapPanelSidenav: EventEmitter<string> = new EventEmitter<string>();
 
 	@ViewChild(MatSort) sort: MatSort;
 	@ViewChild('paginatorVisibleFeaturesPerPage') paginatorVisibleFeaturesPerPage: MatPaginator;
 	@ViewChild('sortVisibleFeaturesPerPage') sortVisibleFeaturesPerPage: MatSort;
-
+	@ViewChild('table') table;
 	public activeLayer: AvaliableLayer;
 	public avaliableLayers: AvaliableLayer[];
 	public inspectLayerAttributeTable = new FormControl();
+	public trackByFn = (index, item) => item.id;
+
 
 	constructor(
 		public OverLaysService: OverLaysService,
 		public http: HttpClient,
-		public MapService: MapService
-	) {
+		public MapService: MapService,
+		public ChangeDetectorRef: ChangeDetectorRef
+	) { }
+
+	ngAfterViewInit() {
 		this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item: AvaliableLayer) => {
 			item.visibleFeaturesPerPage = new MatTableDataSource();
 			item.selectedFeatures = new SelectionModel(true);
@@ -55,31 +60,45 @@ export class TdMapPanelComponent {
 		this.avaliableLayers.map(layer => this.getColumnNamesForLayer(layer));
 
 		this.inspectLayerAttributeTable.valueChanges.subscribe(avaliableLayerId => {
-			this.activeLayer = this.avaliableLayers.filter(item => item.id === avaliableLayerId ? item : false)[0];
-			this.getColumnDataForLayer(this.activeLayer);
+			if (avaliableLayerId && avaliableLayerId !== 'None') {
+				this.activeLayer = this.avaliableLayers.filter(item => item.id === avaliableLayerId ? item : false)[0];
+				this.getColumnDataForLayer(this.activeLayer, false);
+			}
 		});
 
 		this.OverLaysService.visibleLayers.subscribe(layerIdsUpdate => {
-			if (!layerIdsUpdate.length) return;
-
 			let shouldUpdate = true;
+			if (!layerIdsUpdate.length) {
+				this.inspectLayerAttributeTable.setValue('None');
+				this.activeLayer = null;
+				shouldUpdate = false;
+			}
+			this.avaliableLayers.map(item => layerIdsUpdate.indexOf(item.id) !== -1 ? item.visible = true : item.visible = false);
 			for (let i = 0; i < layerIdsUpdate.length; i++) {
 				if (this.activeLayer && layerIdsUpdate[i] === this.activeLayer.id) shouldUpdate = false;
-				this.avaliableLayers.map(item => {
-					if (layerIdsUpdate[i] === item.id) item.visible = true;
-				})
 			}
-			if (layerIdsUpdate.length && shouldUpdate) this.inspectLayerAttributeTable.setValue(this.avaliableLayers[0].id);
+
+			if (shouldUpdate) this.inspectLayerAttributeTable.setValue(layerIdsUpdate[0]);
 		});
+
+		//Also
+
+		const map = this.MapService.getMap();
+		map.on('moveend', (e) => {
+			if (this.activeLayer) {
+				this.getColumnDataForLayer(this.activeLayer, true);
+			}
+		})
+
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.tdMapPanel && this.activeLayer) {
-			this.getColumnDataForLayer(this.activeLayer);
+			this.getColumnDataForLayer(this.activeLayer, false);
 		}
 	}
 
-	getColumnDataForLayer(layer) {
+	getColumnDataForLayer(layer, force) {
 		let nw = this.MapService.getMap().getBounds().getNorthWest();
 		let se = this.MapService.getMap().getBounds().getSouthEast();
 		let params = new HttpParams().set('bbox', [nw.lng, se.lat, se.lng, nw.lat].toString());
@@ -88,6 +107,10 @@ export class TdMapPanelComponent {
 			layer.visibleFeaturesPerPage.data = data;
 			layer.visibleFeaturesPerPage.paginator = this.paginatorVisibleFeaturesPerPage;
 			layer.visibleFeaturesPerPage.sort = this.sortVisibleFeaturesPerPage;
+			setTimeout(() => {
+				this.ChangeDetectorRef.detectChanges();
+			}, 100);
+
 		});
 	}
 
@@ -105,6 +128,7 @@ export class TdMapPanelComponent {
 					layer.displayedColumns.push(key);
 				}
 			}
+			this.ChangeDetectorRef.detectChanges();
 		});
 	}
 
@@ -121,6 +145,7 @@ export class TdMapPanelComponent {
 		this.isAllSelected() ?
 			this.activeLayer.selectedFeatures.clear() :
 			this.activeLayer.visibleFeaturesPerPage.data.forEach(row => this.activeLayer.selectedFeatures.select(row.id));
+		this.ChangeDetectorRef.detectChanges();
 	}
 
 	subscribeMapLayersOnFeatureSelectionsChange(layer) {
@@ -143,6 +168,7 @@ export class TdMapPanelComponent {
 					}
 				});
 			}
+			this.ChangeDetectorRef.detectChanges();
 		});
 	}
 
@@ -164,6 +190,8 @@ export class TdMapPanelComponent {
 					mapLayer.selections.removeSelectionLayer(feature);
 				}
 			})
+
 		});
+		this.ChangeDetectorRef.detectChanges();
 	}
 }

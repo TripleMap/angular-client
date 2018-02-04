@@ -10,13 +10,12 @@ import { MapService } from "../../services/MapService";
     styleUrls: ["./tdmap.component.css"],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TdmapComponent implements AfterViewInit, OnInit {
-    constructor(public _mapService: MapService, public zone: NgZone) { }
-
-    ngOnInit() {
-    }
+export class TdmapComponent implements AfterViewInit {
+    constructor(public MapService: MapService, public zone: NgZone) { }
 
     ngAfterViewInit() {
-        this.zone.runOutsideAngular(() => this._mapService.createLeafletMap("map"))
+        this.zone.runOutsideAngular(() => this.MapService.createLeafletMap("map"));
+        const map = this.MapService.getMap()
+        setTimeout(map.invalidateSize.bind(map), 0)
     }
 }

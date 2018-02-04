@@ -1,19 +1,17 @@
-<mat-toolbar color="primary" class="toolbar" fxLayout="row" fxLayoutAlign="space-between center" class="dark-theme">
-    <h1 class="filter-toolbar-label">Атрибутивная таблица</h1>
+<div color="white" class="toolbar header-table-elements" fxLayout="row" fxLayoutAlign="space-between center">
+    <label *ngIf="activeLayer" class="selected-elements-counter">Выбрано элементов: {{  activeLayer.selectedFeatures.selected.length }}</label>
     <mat-form-field style="width: 240px;margin-left:auto;">
         <mat-select [formControl]="inspectLayerAttributeTable">
-            <mat-optgroup label="слой">
-                <mat-option *ngFor="let avaliableLayer of avaliableLayers" [value]="avaliableLayer.id" [disabled]="!avaliableLayer.visible">{{avaliableLayer.labelName}}</mat-option>
-            </mat-optgroup>
+            <mat-option *ngIf="!activeLayer" value="None">Нет активных слоев</mat-option>
+            <mat-option *ngFor="let avaliableLayer of avaliableLayers" [value]="avaliableLayer.id" [disabled]="!avaliableLayer.visible">{{avaliableLayer.labelName}} </mat-option>
         </mat-select>
     </mat-form-field>
-    <button mat-button (click)="toggleSideNav()"><mat-icon>arrow_forward</mat-icon></button>
-</mat-toolbar>
+</div>
 
-<div *ngIf="activeLayer && activeLayer.visible" class="mat-elevation-z8 light-theme" style="height:calc(100% - 64px)">
+<div *ngIf="activeLayer && activeLayer.visible" class="light-theme table-wrapper">
     <ng-container *ngFor="let layer of avaliableLayers">
         <ng-container *ngIf="layer.id === activeLayer.id">
-            <mat-table class="attribute-table" #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort">
+            <mat-table class="attribute-table" #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort" [trackBy]="trackByFn">
 
                 <ng-container matColumnDef="select">
                     <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
@@ -35,7 +33,6 @@
                 <mat-row *matRowDef="let row; columns: layer.displayedColumns;"></mat-row>
             </mat-table>
             <div class="bottom-table-elements">
-                <label class="selected-elements-counter">Выбрано элементов: {{layer.selectedFeatures.selected.length}}</label>
                 <mat-paginator #paginatorVisibleFeaturesPerPage [length]="layer.total" [pageSizeOptions]="[25, 50, 100]"></mat-paginator>
             </div>
         </ng-container>

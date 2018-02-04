@@ -19,18 +19,13 @@ measure-controls {
     z-index: 100;
 }
 
-td-map {
+main-grid-panel {
     position: fixed;
-    height: 100%;
+    height: calc(100% - 64px);
     width: 100%;
     z-index: 1;
     left: 0;
     top: 64px;
-}
-
-td-map-panel {
-    height: 100%;
-    width: 100%;
 }
 
 spatial-filter {

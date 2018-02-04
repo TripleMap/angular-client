@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { HttpClient } from "@angular/common/http";
 
+
 @Injectable()
 export class MapService {
     public TDMap: any;
@@ -11,14 +12,16 @@ export class MapService {
 
     createLeafletMap(mapElementId) {
         this.TDMap = TDMap;
-        this.TDMapManager = new TDMapManager({
-            mapDivId: "map",
+        const mapOptions = {
             center: [60, 30],
             zoom: 12,
             editable: true,
-            zoomControl: false,
+            zoomControl: false
+        };
+        const managerOptions = {
             memorize: true
-        });
+        }
+        this.TDMapManager = new TDMapManager("map", mapOptions, managerOptions);
         window.TDMapManager = this.TDMapManager;
         this.mapReady.next(true);
     }

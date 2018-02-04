@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import { MapService } from '../../../services/MapService';
+
+import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
 @Component({
   selector: 'spatial-filter',
   templateUrl: './spatial-filter.component.html',
@@ -12,7 +14,7 @@ export class SpatialFilterComponent implements OnInit {
   public spatialFilterGeometry: { type: string; geometry: any; };
   public spatialFilterTools: any;
 
-  constructor(public MapService: MapService) { }
+  constructor(public MapService: MapService, public FilterGeometryAdapter: FilterGeometryAdapter, ) { }
 
   ngOnInit() {
   }
@@ -20,8 +22,6 @@ export class SpatialFilterComponent implements OnInit {
   startPolygonSpatialFilter() {
     this.spatialFilterPoligonIsActive = !this.spatialFilterPoligonIsActive;
     this.spatialFilterCircleIsActive = false;
-
-    this.spatialFilterGeometry = null;
     this.stopSpatialFilter();
     if (this.spatialFilterTools) {
       this.spatialFilterTools.abortDrawing();
@@ -32,10 +32,12 @@ export class SpatialFilterComponent implements OnInit {
       this.spatialFilterTools = new TDMap.Tools.SpatialFilter(this.MapService.getMap());
       this.spatialFilterTools.startPolygonSpatialFilter();
       this.spatialFilterTools.map.on('spatialfilter:bounds', e => {
-        this.spatialFilterGeometry = {
-          type: "bounds",
-          geometry: e[0].map(item => `${item[0]} ${item[1]}`).join(',')
-        };
+        this.FilterGeometryAdapter.mainFlow.next({
+          spatialFilter: {
+            type: "bounds",
+            geometry: e[0].map(item => `${item[0]} ${item[1]}`).join(',')
+          }
+        });
       });
     }
   }
@@ -43,7 +45,6 @@ export class SpatialFilterComponent implements OnInit {
   startCircleSpatialFilter() {
     this.spatialFilterCircleIsActive = !this.spatialFilterCircleIsActive;
     this.spatialFilterPoligonIsActive = false;
-    this.spatialFilterGeometry = null;
     this.stopSpatialFilter();
     if (this.spatialFilterTools) {
       this.spatialFilterTools.abortDrawing();
@@ -54,22 +55,25 @@ export class SpatialFilterComponent implements OnInit {
       this.spatialFilterTools = new TDMap.Tools.SpatialFilter(this.MapService.getMap());
       this.spatialFilterTools.startCircleSpatialFilter();
       this.spatialFilterTools.map.on('spatialfilter:circle', e => {
-        this.spatialFilterGeometry = {
-          type: "circle",
-          geometry: {
-            radius: e.radius.toFixed(2).toString(),
-            point: `${e.centerPoint.lng} ${e.centerPoint.lat}`
+        this.FilterGeometryAdapter.mainFlow.next({
+          spatialFilter: {
+            type: "circle",
+            geometry: {
+              radius: e.radius.toFixed(2).toString(),
+              point: `${e.centerPoint.lng} ${e.centerPoint.lat}`
+            }
           }
-        };
+        });
       });
     }
   }
 
+
   stopSpatialFilter() {
     if (this.spatialFilterTools) {
-      this.spatialFilterGeometry = null;
       this.spatialFilterTools.abortDrawing();
       this.spatialFilterTools.map.fireEvent('spatialfilter:stop');
+      this.FilterGeometryAdapter.mainFlow.next({ spatialFilter: null })
     }
   }
 }

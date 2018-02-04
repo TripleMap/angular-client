@@ -18,7 +18,6 @@ import {
   MatIconRegistry,
   MatTooltipModule
 } from "@angular/material";
-
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -38,6 +37,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatRadioModule } from '@angular/material/radio';
+
 // services
 import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService";
 import { MapService } from "../services/MapService";
@@ -47,6 +47,8 @@ import { SelectedFeatureService } from "../services/SelectedFeatureService";
 import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 
 // mapComponents
+
+import { MainGridPanelComponent } from '../components/main-grid-panel/main-grid-panel.component';
 import { TdmapComponent } from "../components/tdmap/tdmap.component";
 import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
 import { TDMApPanelMatPaginatorIntl } from '../components/td-map-panel/td-map-panel.paginator';
@@ -63,10 +65,25 @@ import { SpatialFilterComponent } from '../components/filter-geometry/spatial-fi
 import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingModule } from "@covalent/core";
 
 
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { GutterDirective } from './gutter.directive';
+import { GutterDirective } from '../directives/gutter.directive';
+import { GridsterModule } from 'angular-gridster2';
+
 
 @NgModule({
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiHTTPInterceptorService,
+      multi: true
+    },
+    { provide: MatPaginatorIntl, useClass: TDMApPanelMatPaginatorIntl },
+    MatIconRegistry,
+    MapService,
+    BaseLayersService,
+    OverLaysService,
+    SelectedFeatureService,
+    FilterGeometryAdapter
+  ],
   declarations: [
     AppComponent,
     TdmapComponent,
@@ -80,6 +97,7 @@ import { GutterDirective } from './gutter.directive';
     TdMapPanelComponent,
     SpatialFilterComponent,
     GutterDirective,
+    MainGridPanelComponent
   ],
   imports: [
     BrowserModule,
@@ -112,22 +130,9 @@ import { GutterDirective } from './gutter.directive';
     CovalentVirtualScrollModule,
     CovalentDataTableModule,
     CovalentPagingModule,
-    NgxDatatableModule
+    GridsterModule
   ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ApiHTTPInterceptorService,
-      multi: true
-    },
-    { provide: MatPaginatorIntl, useClass: TDMApPanelMatPaginatorIntl },
-    MatIconRegistry,
-    MapService,
-    BaseLayersService,
-    OverLaysService,
-    SelectedFeatureService,
-    FilterGeometryAdapter
-  ],
+
   bootstrap: [AppComponent]
 })
 export class AppModule { }

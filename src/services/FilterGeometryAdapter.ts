@@ -20,7 +20,7 @@ export class FilterGeometryAdapter {
 
 	updateLayerFilters = requestParams => {
 		this._http
-			.post("api/zusklads/filtered", { params: requestParams })
+			.post("api/parcels/GetFeaturesByFilters", { params: requestParams })
 			.subscribe(data => this.filteredObjects.next(data));
 	};
 
