@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams, HttpHeaders } from "@angular/common/http";
 import { BaseLayersService } from "./BaseLayersService";
 import { OverLaysService } from "./OverLaysService";
 
@@ -19,6 +19,8 @@ export class FilterGeometryAdapter {
 	}
 
 	updateLayerFilters = requestParams => {
+
+
 		this._http
 			.get("api/parcels/GetFeaturesByFilters", { params: requestParams })
 			.subscribe(data => this.filteredObjects.next(data));
