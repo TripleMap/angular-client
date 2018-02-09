@@ -9,6 +9,7 @@
 import {
   AfterContentChecked,
   AfterContentInit,
+  Renderer2,
   Attribute,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -27,9 +28,9 @@ import {
   QueryList,
   TrackByFunction,
   ViewChild,
+  ViewChildren,
   ViewContainerRef,
   ViewEncapsulation,
-  Renderer2
 } from '@angular/core';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { CdkCellOutlet, CdkCellOutletRowContext, CdkHeaderRowDef, CdkRowDef } from './row';
@@ -220,15 +221,13 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
   constructor(private readonly _differs: IterableDiffers,
     private readonly _changeDetectorRef: ChangeDetectorRef,
     public elementRef: ElementRef,
-    @Attribute('role') role: string,
     public renderer: Renderer2,
-  ) {
+    @Attribute('role') role: string) {
     if (!role) {
       elementRef.nativeElement.setAttribute('role', 'grid');
     }
   }
-  public scrollbarWidth: number;
-  public scrollbarHeight: number;
+
   ngOnInit() {
     // TODO(andrewseguin): Setup a listener for scrolling, emit the calculated view to viewChange
     this._dataDiffer = this._differs.find([]).create(this._trackByFn);
@@ -238,48 +237,7 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
     if (this._headerRowDef) {
       this._headerRowDefChanged = true;
     }
-
-    // ===============================================================================================
   }
-
-
-  ngAfterContentInit() {
-    let scrollAbleElement = document.createElement('div');
-    scrollAbleElement.classList.add('scrollable-element')
-    this.elementRef.nativeElement.appendChild(scrollAbleElement);
-    this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
-    this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;
-    this.addParentEventHandlers(this.elementRef.nativeElement);
-  }
-
-  private disposeScrollHandler: () => void | undefined;
-  private disposeResizeHandler: () => void | undefined;
-
-  private addParentEventHandlers(parentScroll: Element | Window) {
-    this.removeParentEventHandlers();
-    if (parentScroll) {
-      this.disposeScrollHandler = this.renderer.listen(parentScroll, 'scroll', this.refreshHandler);
-      if (parentScroll instanceof Window) {
-        this.disposeScrollHandler = this.renderer.listen('window', 'resize', this.refreshHandler);
-      }
-
-    }
-  }
-
-  private removeParentEventHandlers() {
-    if (this.disposeScrollHandler) {
-      this.disposeScrollHandler();
-      this.disposeScrollHandler = undefined;
-    }
-    if (this.disposeResizeHandler) {
-      this.disposeResizeHandler();
-      this.disposeResizeHandler = undefined;
-    }
-  }
-
-  private refreshHandler = () => {
-    this.renderRows(true);
-  };
 
   ngAfterContentChecked() {
     // Cache the row and column definitions gathered by ContentChildren and programmatic injection.
@@ -318,6 +276,49 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
     }
   }
 
+
+
+  ngAfterContentInit() {
+    let scrollAbleElement = document.createElement('div');
+    scrollAbleElement.classList.add('scrollable-element')
+    this.elementRef.nativeElement.appendChild(scrollAbleElement);
+    this.addParentEventHandlers(this.elementRef.nativeElement);
+  }
+
+  private disposeScrollHandler: () => void | undefined;
+  private disposeResizeHandler: () => void | undefined;
+
+  private addParentEventHandlers(parentScroll: Element | Window) {
+    this.removeParentEventHandlers();
+    if (parentScroll) {
+      this.disposeScrollHandler = this.renderer.listen(parentScroll, 'scroll', this.refreshHandler);
+      if (parentScroll instanceof Window) {
+        this.disposeScrollHandler = this.renderer.listen('window', 'resize', this.refreshHandler);
+      }
+
+    }
+  }
+
+  private removeParentEventHandlers() {
+    if (this.disposeScrollHandler) {
+      this.disposeScrollHandler();
+      this.disposeScrollHandler = undefined;
+    }
+    if (this.disposeResizeHandler) {
+      this.disposeResizeHandler();
+      this.disposeResizeHandler = undefined;
+    }
+  }
+  private scrollDirectionDown: boolean;
+  private previousScrollPosition: number = 0;
+
+  private refreshHandler = (e) => {
+    this.scrollDirectionDown = this.elementRef.nativeElement.scrollTop > this.previousScrollPosition;
+    this.previousScrollPosition = this.elementRef.nativeElement.scrollTop;
+    this.renderRows(true);
+  };
+
+
   /**
    * Renders rows based on the table's latest set of data, which was either provided directly as an
    * input or retrieved through an Observable stream (directly or from a DataSource).
@@ -328,14 +329,15 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
    * each time the provided Observable stream emits a new data array. Otherwise if your data is
    * an array, this function will need to be called to render any changes.
    */
-  renderRows(onScroll) {
-    let scrollAbleElement = this.elementRef.nativeElement.getElementsByClassName('scrollable-element')[0];
-    let len = this._data.length;
-    let rowHeight = 33;
-    let h = len * rowHeight;
-    let availableItemsCounter = Math.ceil(this.elementRef.nativeElement.clientHeight / rowHeight);
 
-    scrollAbleElement.style.height = `${h}px`;
+  renderRows(onScroll) {
+
+    let rowHeight = 33;
+    let dataDeigth = this._data.length * rowHeight;
+    let scrollAbleElement = this.elementRef.nativeElement.getElementsByClassName('scrollable-element')[0];
+    scrollAbleElement.style.height = `${dataDeigth}px`;
+    let firstElementIndex = Math.ceil((this.elementRef.nativeElement.scrollTop + 33) / 33) - 2;
+    let lastElementIndex = Math.ceil(this.elementRef.nativeElement.clientHeight / 33) + firstElementIndex + 5;
     const viewContainer = this._rowPlaceholder.viewContainer;
 
     if (!onScroll) {
@@ -343,16 +345,15 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
       if (!changes) { return; }
       changes.forEachOperation(
         (record: IterableChangeRecord<T>, adjustedPreviousIndex: number, currentIndex: number) => {
-          console.log(currentIndex)
-          if (record.previousIndex == null) {
-            if (currentIndex <= availableItemsCounter) {
+          if (currentIndex <= lastElementIndex && currentIndex >= firstElementIndex) {
+            if (record.previousIndex == null) {
               this._insertRow(record.item, currentIndex);
+            } else if (currentIndex == null) {
+              viewContainer.remove(adjustedPreviousIndex);
+            } else {
+              const view = <RowViewRef<T>>viewContainer.get(adjustedPreviousIndex);
+              viewContainer.move(view!, currentIndex);
             }
-          } else if (currentIndex == null) {
-            viewContainer.remove(adjustedPreviousIndex);
-          } else {
-            const view = <RowViewRef<T>>viewContainer.get(adjustedPreviousIndex);
-            viewContainer.move(view!, currentIndex);
           }
         });
 
@@ -361,25 +362,24 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
 
       // Update rows that did not get added/removed/moved but may have had their identity changed,
       // e.g. if trackBy matched data on some property but the actual data reference changed.
-
       changes.forEachIdentityChange((record: IterableChangeRecord<T>) => {
-        if (record.currentIndex <= availableItemsCounter) {
+        let currentIndex = record.currentIndex;
+        if (currentIndex <= lastElementIndex && currentIndex >= firstElementIndex) {
           const rowView = <RowViewRef<T>>viewContainer.get(record.currentIndex!);
           if (rowView) {
+            console.log(rowView)
             rowView.context.$implicit = record.item;
           }
         }
       });
 
     } else {
-      let firtAvaliableItemIndex = Math.ceil(this.elementRef.nativeElement.scrollTop / rowHeight) - 2;
-      let availableItemsCounter = Math.ceil(this.elementRef.nativeElement.clientHeight / rowHeight);
-
-      let availableLastIndex = firtAvaliableItemIndex + availableItemsCounter + 2;
-
+      console.log(this._dataDiffer)
       this._dataDiffer.forEachItem(record => {
+        let currentIndex = record.currentIndex;
 
-        if (!(firtAvaliableItemIndex <= record.currentIndex && record.currentIndex <= availableLastIndex)) {
+        if (!(currentIndex <= lastElementIndex && currentIndex >= firstElementIndex)) {
+
           for (let i = viewContainer._embeddedViews.length - 1; i >= 0; i--) {
             let element = viewContainer._embeddedViews[i];
             if (element.context.$implicit.id === record.item.id) {
@@ -389,31 +389,30 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
         }
       });
       this._changeDetectorRef.detectChanges();
+
       this._dataDiffer.forEachItem(record => {
-        console.log(record.currentIndex)
-        if (firtAvaliableItemIndex <= record.currentIndex && record.currentIndex <= availableLastIndex) {
+        if ((record.currentIndex <= lastElementIndex && record.currentIndex >= firstElementIndex)) {
           let shouldAdd = true;
-          for (let i = 0; i < viewContainer._embeddedViews.length; i++) {
+
+          for (let i = viewContainer._embeddedViews.length - 1; i >= 0; i--) {
             let element = viewContainer._embeddedViews[i];
             if (element.context.$implicit.id === record.item.id) {
               shouldAdd = false;
             }
           }
-
           if (shouldAdd) this._insertRow(record.item, record.currentIndex);
         }
       });
 
-      console.log(this.elementRef.nativeElement.scrollTop)
-      for (let i = 0; i < viewContainer._embeddedViews.length; i++) {
-        let element = viewContainer._embeddedViews[i];
-        element.nodes[0].renderElement.style.position = 'absolute';
-        element.nodes[0].renderElement.style.top = `${this.elementRef.nativeElement.scrollTop + rowHeight * i + 33}px`
-      }
-
     }
+    let delta = this.elementRef.nativeElement.scrollTop < 33 ? 1 : 0;
 
-
+    let elements = this.elementRef.nativeElement.getElementsByTagName('cdk-row');
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+      element.style.top = `${(firstElementIndex + i + 1 + delta) * rowHeight}px`;
+    }
+    this._changeDetectorRef.detectChanges();
   }
 
   /**
@@ -483,7 +482,7 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
         this._dataDiffer.diff([]);
 
         this._rowPlaceholder.viewContainer.clear();
-        this.renderRows(false);
+        this.renderRows();
       }
     });
 
@@ -548,7 +547,7 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
       .pipe(takeUntil(this._onDestroy))
       .subscribe(data => {
         this._data = data;
-        this.renderRows(false);
+        this.renderRows();
       });
   }
 
@@ -607,8 +606,10 @@ export class CdkTable<T> implements CollectionViewer, OnInit, AfterContentChecke
 
     // TODO(andrewseguin): add some code to enforce that exactly one
     //   CdkCellOutlet was instantiated as a result  of `createEmbeddedView`.
-    this._rowPlaceholder.viewContainer.createEmbeddedView(row.template, context, index);
 
+    let reindex = (this.scrollDirectionDown || !this.scrollDirectionDown) && this.previousScrollPosition ? undefined : index;
+    console.log(reindex)
+    this._rowPlaceholder.viewContainer.createEmbeddedView(row.template, context, reindex);
     this._getCellTemplatesForRow(row).forEach(cell => {
       if (CdkCellOutlet.mostRecentCellOutlet) {
         CdkCellOutlet.mostRecentCellOutlet._viewContainer
