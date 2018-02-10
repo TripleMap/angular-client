@@ -19,10 +19,8 @@ export class FilterGeometryAdapter {
 	}
 
 	updateLayerFilters = requestParams => {
-
-
 		this._http
-			.get("api/parcels/GetFeaturesByFilters", { params: requestParams })
+			.post("api/parcels/GetFeaturesByFilters", requestParams)
 			.subscribe(data => this.filteredObjects.next(data));
 	};
 
@@ -34,10 +32,14 @@ export class FilterGeometryAdapter {
 		}
 
 		for (let key in this.filters) {
-			params = params.set(key, JSON.stringify(this.filters[key]));
+			if (key === 'spatialFilter') {
+				params = params.set(key, JSON.stringify(this.filters[key]));
+			} else {
+				params = params.set(key, this.filters[key]);
+			}
 		}
 
-		return params;
+		return this.filters;
 	};
 
 	clearData = () => this.filteredObjects.next([]);

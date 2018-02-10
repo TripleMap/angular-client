@@ -43,7 +43,7 @@ import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService
 import { MapService } from "../services/MapService";
 import { BaseLayersService } from "../services/BaseLayersService";
 import { OverLaysService } from "../services/OverLaysService";
-import { SelectedFeatureService } from "../services/SelectedFeatureService";
+import { SelectionLayersService } from "../services/SelectionLayersService";
 import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 
 // mapComponents
@@ -81,7 +81,7 @@ import { GridsterModule } from 'angular-gridster2';
     MapService,
     BaseLayersService,
     OverLaysService,
-    SelectedFeatureService,
+    SelectionLayersService,
     FilterGeometryAdapter
   ],
   declarations: [

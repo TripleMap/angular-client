@@ -2,14 +2,12 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
-import { SelectedFeatureService } from "./SelectedFeatureService";
 import { MapService } from './MapService';
 @Injectable()
 export class OverLaysService {
     public visibleLayers = new BehaviorSubject<any>([]);
     public layers: any[];
     constructor(
-        public _selectedFeatureService: SelectedFeatureService,
         public _http: HttpClient,
         public MapService: MapService
     ) {
@@ -136,12 +134,12 @@ export class OverLaysService {
         const layer = this.getLayerById(layerId);
         let feature;
         layer.eachLayer(layer => {
-            if (layer.feture.properties.id === featureId) {
+            if (layer.feature.properties.id === featureId) {
                 feature = layer
             }
-        })
-        if (layer.selection) {
-            layer.selection.setTempFeature(feature);
+        });
+        if (layer.selections) {
+            layer.selections.setTempFeature(feature);
         }
     }
 }

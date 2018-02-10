@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnDestroy, Output, EventEmitter } from "@angular/core";
+import { Component, ViewChild, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
 import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FilterGeometryFirstLineComponent } from './filter-geometry-first-line/filter-geometry-first-line.component';
@@ -8,7 +8,8 @@ import { FilterGeometryFirstLineComponent } from './filter-geometry-first-line/f
 @Component({
   selector: "filter-geometry",
   templateUrl: "./filter-geometry.component.html",
-  styleUrls: ["./filter-geometry.component.css"]
+  styleUrls: ["./filter-geometry.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterGeometryComponent implements OnInit, OnDestroy {
   isFiltersActive: boolean;
@@ -19,7 +20,7 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   @Output()
   closesidenav: EventEmitter<string> = new EventEmitter<string>();
 
-  constructor(public _filterGeometryAdapter: FilterGeometryAdapter, public media: ObservableMedia) {
+  constructor(public _filterGeometryAdapter: FilterGeometryAdapter, public media: ObservableMedia, public changeDetectorRef: ChangeDetectorRef) {
     this.isFiltersActive = true;
     this.isResultPaneAvalible = false;
     media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
@@ -38,6 +39,7 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   toogleAvaliableResultPane = data => {
     this.isResultPaneAvalible = data && data.length > 0;
     this.isResultPaneCounts = data && data.length > 0 ? data.length : null;
+    this.changeDetectorRef.detectChanges();
   };
 
   clearFilters() {

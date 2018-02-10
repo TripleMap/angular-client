@@ -72,7 +72,6 @@ export class SpatialFilterComponent implements OnInit {
   }
 
   subscribeOnSpatialFilterCircle(e) {
-    console.log(e);
     this.FilterGeometryAdapter.mainFlow.next({
       spatialFilter: {
         type: "circle",

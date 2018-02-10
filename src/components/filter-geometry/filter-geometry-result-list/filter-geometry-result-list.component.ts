@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, Input } from "@angular/core";
 import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
 import { Observable } from "rxjs/Observable";
 import { MapService } from "../../../services/MapService";
-import { SelectedFeatureService } from "../../../services/SelectedFeatureService";
 import { OverLaysService } from "../../../services/OverLaysService";
 @Component({
 	selector: "filter-geometry-result-list",
@@ -17,7 +16,6 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	constructor(
 		public _filterGeometryAdapter: FilterGeometryAdapter,
 		public MapService: MapService,
-		public _selectedFeatureService: SelectedFeatureService,
 		public OverLaysService: OverLaysService
 	) {
 		// TEMP
