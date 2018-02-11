@@ -3,6 +3,7 @@ import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
 import { Observable } from "rxjs/Observable";
 import { MapService } from "../../../services/MapService";
 import { OverLaysService } from "../../../services/OverLaysService";
+import { Subscription } from 'rxjs/Subscription'
 @Component({
 	selector: "filter-geometry-result-list",
 	templateUrl: "./filter-geometry-result-list.component.html",
@@ -13,8 +14,9 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	public filteredList: any[];
 	public activeFilterLayer: { id: string; labelName: string; visible: boolean; };
 	public avaliableFilterLayers: { id: string; labelName: string; visible: boolean; }[];
+	public filterSubscriber: Subscription;
 	constructor(
-		public _filterGeometryAdapter: FilterGeometryAdapter,
+		public filterGeometryAdapter: FilterGeometryAdapter,
 		public MapService: MapService,
 		public OverLaysService: OverLaysService
 	) {
@@ -24,13 +26,13 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-		this._filterGeometryAdapter.filteredObjects.subscribe(data => {
+		this.filterSubscriber = this.filterGeometryAdapter.filteredObjects.subscribe(data => {
 			this.filteredList = data;
 		});
 	}
 
 	ngOnDestroy() {
-		this._filterGeometryAdapter.filteredObjects.unsubscribe();
+		this.filterSubscriber.unsubscribe();
 	}
 
 	showItemOnMap(item) {

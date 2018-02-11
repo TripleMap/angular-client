@@ -1,16 +1,19 @@
 .filter-result-card {
-    height: calc(100% - 24px);
-    padding: 0 0 16px 8px;
+    height: 100%;
+    padding: 0 0 0 8px;
     min-height: 160px;
 }
 
 .filter-result-card_actions {
-    padding-left: 16px;
     width: 100%;
     border-top: 1px solid rgba(0, 0, 0, 0.12);
+    left: -8px;
+    position: relative;
+    padding-right: 0px !important;
+    padding-left: 8px;
 }
 
 .filter-result-card_list {
-    height: calc(100% - 36px);
+    height: calc(100% - 58px);
     padding-top: 8px;
 }

@@ -1,18 +1,22 @@
 <mat-toolbar color="primary" class="toolbar" fxLayout="row" fxLayoutAlign="space-between center">
-    <div fxLayout="row">
-        <button *ngIf="activeMediaQuery === 'xs'" mat-icon-button (click)="toggleSideNav()">
+    <div fxLayout="row" *ngIf="activeMediaQuery === 'xs'">
+        <button mat-icon-button (click)="toggleSideNav()">
             <mat-icon>keyboard_backspace</mat-icon>
-            </button>
-        <h1 class="filter-toolbar-label">Фильтрация</h1>
+        </button>
     </div>
+    <mat-form-field class="filter-layer-select dark-theme">
+        <mat-select placeholder="слой фильтрации" [formControl]="filterLayerFormControl">
+            <mat-option *ngFor="let layer of avaliableLayers" [value]="layer.id">{{ layer.labelName }} </mat-option>
+        </mat-select>
+    </mat-form-field>
     <button mat-icon-button (click)="clearFilters()">
-    <mat-icon>cached</mat-icon>
-  </button>
+        <mat-icon>cached</mat-icon>
+    </button>
 </mat-toolbar>
 <div class="filter-wrapper" fxLayout="column">
     <filter-geometry-first-line [isActive]="isFiltersActive"></filter-geometry-first-line>
     <button class='filter-pane-toggler' mat-raised-button [color]="isResultPaneAvalible ? 'accent' : 'primary'" (click)="changeFilterOrResultPane()">
-    {{ isFiltersActive ? 'Показать результаты': 'Назад к фильтрам'}} {{isResultPaneCounts && isFiltersActive? '(' + isResultPaneCounts + ')' : '' }}
-  </button>
+        {{ isFiltersActive ? 'Показать результаты': 'Назад к фильтрам'}} {{isResultPaneCounts && isFiltersActive? '(' + isResultPaneCounts + ')' : '' }}
+    </button>
     <filter-geometry-result-list [ngClass]="isFiltersActive ?'collapsed':'expanded'" [isActive]="!isFiltersActive"></filter-geometry-result-list>
 </div>

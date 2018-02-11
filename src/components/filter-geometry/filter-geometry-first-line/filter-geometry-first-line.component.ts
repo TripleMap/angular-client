@@ -47,7 +47,7 @@ export class FilterGeometryFirstLineComponent implements AfterViewInit {
 
 	ngAfterViewInit(): void {
 		this.firstLine.valueChanges
-			.debounceTime(300)
+			.debounceTime(500)
 			.distinctUntilChanged()
 			.filter(this.isValidForm)
 			.map(this.pipeFiltersToNumber)

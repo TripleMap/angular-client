@@ -74,8 +74,9 @@ export class OverLaysService {
             maxZoom: 24,
             minZoom: 12,
             dataUrl: "api/parcels/GetFeatures",
-            featureInfo: "api/parcels/GetFeaturesInfo",
-            schemaInfo: "api/parcels/GetSchema",
+            featureInfoUrl: "api/parcels/GetFeaturesInfo",
+            schemaInfoUrl: "api/parcels/GetSchema",
+            featureFilterUrl: 'api/parcels/GetFeaturesByFilters',
             styled: false,
             labeled: false,
             selectable: true,
@@ -99,8 +100,9 @@ export class OverLaysService {
             maxZoom: 24,
             minZoom: 12,
             dataUrl: "api/parcelsnext/GetFeatures",
-            featureInfo: "api/parcelsnext/GetFeaturesInfo",
-            schemaInfo: "api/parcelsnext/GetSchema",
+            featureInfoUrl: "api/parcelsnext/GetFeaturesInfo",
+            schemaInfoUrl: "api/parcelsnext/GetSchema",
+            featureFilterUrl: 'api/parcelsnext/GetFeaturesByFilters',
             styled: false,
             labeled: false,
             selectable: true,
@@ -124,9 +126,24 @@ export class OverLaysService {
         return filterLayers.length ? filterLayers[0] : null;
     };
 
-    getLayerIdsAndLabelNames = () => this.layers.map(item => ({ id: item.options.id, labelName: item.options.labelName, visible: item.options.visible }));
-    getLayersIdsLabelNamesAndHttpOptions = () => this.layers.map(item => ({ id: item.options.id, labelName: item.options.labelName, visible: item.options.visible, featureInfo: item.options.featureInfo, schemaInfo: item.options.schemaInfo }))
-    getActiveOverlayLayersId = () => this.layers.filter(item => item.options.visible ? item : false).map(item => item.options.id);
+    getLayerIdsAndLabelNames = () => this.layers.map(item => ({
+        id: item.options.id,
+        labelName: item.options.labelName,
+        visible: item.options.visible
+    }));
+
+    getLayersIdsLabelNamesAndHttpOptions = () => this.layers.map(item => ({
+        id: item.options.id,
+        labelName: item.options.labelName,
+        visible: item.options.visible,
+        featureInfoUrl: item.options.featureInfoUrl,
+        schemaInfoUrl: item.options.schemaInfoUrl,
+        featureFilterUrl: item.options.featureFilterUrl
+    }))
+
+    getActiveOverlayLayersId = () => this.layers.filter(item => item.options.visible ? item : false)
+        .map(item => item.options.id);
+
     getActiveOverlayLayersIdsAndLabelNames = () => this.layers.filter(item => item.options.visible ? item : false)
         .map(item => ({ id: item.options.id, labelName: item.options.labelName, visible: item.options.visible }));
 

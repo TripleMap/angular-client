@@ -4,7 +4,8 @@
 
 .attribute-table {
     height: calc(100% - 121px);
-    overflow-y: auto;
+    overflow: auto;
+    position: relative;
 }
 
 .visible-features-data-table {

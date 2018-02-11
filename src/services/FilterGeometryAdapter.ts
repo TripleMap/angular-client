@@ -9,6 +9,8 @@ export class FilterGeometryAdapter {
 	public mainFlow: Subject<any>;
 	public filteredObjects: Subject<any>;
 	public filters: object;
+	public filteredLayer: any;
+
 	constructor(public _http: HttpClient) {
 		this.mainFlow = new Subject();
 		this.filters = {};
@@ -16,11 +18,12 @@ export class FilterGeometryAdapter {
 		this.mainFlow
 			.map(this.concatenateAllFilters)
 			.subscribe(this.updateLayerFilters);
+
 	}
 
 	updateLayerFilters = requestParams => {
 		this._http
-			.post("api/parcels/GetFeaturesByFilters", requestParams)
+			.post(this.filteredLayer.featureFilterUrl, requestParams)
 			.subscribe(data => this.filteredObjects.next(data));
 	};
 
@@ -43,4 +46,8 @@ export class FilterGeometryAdapter {
 	};
 
 	clearData = () => this.filteredObjects.next([]);
+
+	setFilteredLayer(layer) {
+		this.filteredLayer = layer;
+	}
 }
