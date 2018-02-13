@@ -18,6 +18,7 @@ interface AvaliableLayer {
 	visibleFeaturesPerPage: any;
 	featureInfoUrl: string;
 	schemaInfoUrl: string;
+	featureFilterUrl:string;
 	data: any;
 }
 

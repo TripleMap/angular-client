@@ -7,8 +7,9 @@ interface AvaliableSelectionLayer {
     labelName: string;
     visible: boolean;
     selectedFeatures: any;
-    featureInfo: string;
-    schemaInfo: string;
+    featureInfoUrl: string;
+    schemaInfoUrl: string;
+    featureFilterUrl: string;
 }
 
 @Injectable() export class SelectionLayersService {
