@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 import { MapService } from './MapService';
+
 @Injectable()
 export class OverLaysService {
     public visibleLayers = new BehaviorSubject<any>([]);
@@ -49,11 +50,18 @@ export class OverLaysService {
         layer.updateLabels();
     };
 
-    removeFilteredIds = (layerId, arrayOfId) => {
+    removeFilteredIds = (layerId) => {
         const layer = this.getLayerById(layerId);
         layer.removeFilteredIds();
         layer.updateLabels();
     };
+
+    removeFilteredIdForAllLayers = () => {
+        this.layers.map(layer => {
+            layer.removeFilteredIds();
+            layer.updateLabels();
+        });
+    }
 
     getFeatureById = (layerId, id) => {
         const layer = this.getLayerById(layerId);

@@ -6,7 +6,7 @@
     </div>
     <mat-form-field class="filter-layer-select dark-theme">
         <mat-select placeholder="слой фильтрации" [formControl]="filterLayerFormControl">
-            <mat-option *ngFor="let layer of avaliableLayers" [value]="layer.id">{{ layer.labelName }} </mat-option>
+            <mat-option *ngFor="let layer of avaliableLayers" [value]="layer">{{ layer.labelName }} </mat-option>
         </mat-select>
     </mat-form-field>
     <button mat-icon-button (click)="clearFilters()">

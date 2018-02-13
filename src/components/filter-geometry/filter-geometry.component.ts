@@ -2,10 +2,11 @@ import { Component, ViewChild, OnInit, OnDestroy, AfterViewInit, Output, EventEm
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
 import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FilterGeometryFirstLineComponent } from './filter-geometry-first-line/filter-geometry-first-line.component';
+import { FilterGeometryResultListComponent } from './filter-geometry-result-list/filter-geometry-result-list.component';
 import { OverLaysService } from "../../services/OverLaysService";
 import { Subscription } from 'rxjs/Subscription';
 import { FormControl } from '@angular/forms'
-// Track by Id
+
 
 @Component({
   selector: "filter-geometry",
@@ -24,8 +25,9 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   public mediaSubscription: Subscription;
   public filterLayerFormControl = new FormControl();
   @Output() closesidenav: EventEmitter<string> = new EventEmitter<string>();
-  @ViewChild(FilterGeometryFirstLineComponent) firstLine: FilterGeometryFirstLineComponent;
 
+  @ViewChild(FilterGeometryFirstLineComponent) firstLine: FilterGeometryFirstLineComponent;
+  @ViewChild(FilterGeometryResultListComponent) resultPane: FilterGeometryResultListComponent;
   constructor(
     public OverLaysService: OverLaysService,
     public _filterGeometryAdapter: FilterGeometryAdapter,
@@ -41,22 +43,32 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
 
   ngAfterViewInit() {
     this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions();
-    this.filterLayerFormControlSubscriber = this.filterLayerFormControl.valueChanges.subscribe(avaliableLayerId => { });
+    this.filterLayerFormControlSubscriber = this.filterLayerFormControl.valueChanges.subscribe(avaliableLayer => {
+      this._filterGeometryAdapter.setFilteredLayer(avaliableLayer);
+      this.resultPane.setResultListLayer(avaliableLayer.id);
+    });
+    this.filterLayerFormControl.setValue(this.avaliableLayers[0])
   }
 
   changeFilterOrResultPane() {
     this.isFiltersActive = !this.isFiltersActive;
   }
 
-  toogleAvaliableResultPane = data => {
-    this.isResultPaneAvalible = data && data.length > 0;
-    this.isResultPaneCounts = data && data.length > 0 ? data.length : null;
+  toogleAvaliableResultPane = (layerIdAndData) => {
+    this.isResultPaneAvalible = layerIdAndData.data && layerIdAndData.data.length > 0;
+    this.isResultPaneCounts = layerIdAndData.data && layerIdAndData.data.length > 0 ? layerIdAndData.data.length : null;
     this.changeDetectorRef.detectChanges();
+    if (layerIdAndData.data) {
+      this.OverLaysService.refreshFilteredIds(this.filterLayerFormControl.value.id, layerIdAndData.data.map(item => item.id))
+    } else {
+      this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
+    }
   };
 
   clearFilters() {
     this._filterGeometryAdapter.clearData();
     this.firstLine.clearForm();
+    this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
   }
 
   ngOnDestroy() {

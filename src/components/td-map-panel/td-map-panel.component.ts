@@ -18,8 +18,9 @@ interface AvaliableLayer {
 	visibleFeaturesPerPage: any;
 	featureInfoUrl: string;
 	schemaInfoUrl: string;
-	featureFilterUrl:string;
+	featureFilterUrl: string;
 	data: any;
+	filteredList: any[];
 }
 
 @Component({
@@ -39,15 +40,15 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	public inspectLayerAttributeTable = new FormControl();
 	public trackByFn = (index, item) => item.id;
 
-	public subscriptions: {};
-	public filteredList: any[];
+	public subscriptions: object = {};
+
 	constructor(
 		public OverLaysService: OverLaysService,
 		public http: HttpClient,
 		public MapService: MapService,
 		public FilterGeometryAdapter: FilterGeometryAdapter,
 		public changeDetectorRef: ChangeDetectorRef
-	) { this.subscriptions = {}; }
+	) { }
 
 	ngAfterViewInit() {
 		this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item: AvaliableLayer) => {
@@ -76,8 +77,8 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 				scrollElement.classList.add('table-sroll-wrapper');
 				this.table.first.nativeElement.appendChild(scrollElement);
 			}
-
 		});
+
 		this.subscriptions[`OverLaysService_visibleLayers`] = inspectLayerAttributeTableSubscriber;
 
 		let visibleSubscriber = this.OverLaysService.visibleLayers.subscribe(layerIdsUpdate => {
@@ -99,11 +100,13 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		});
 		this.subscriptions[`OverLaysService_visibleLayers`] = visibleSubscriber;
 
-		const map = this.MapService.getMap();
-		map.on('moveend', this.subscribeOnMapMoved, this);
+		// const map = this.MapService.getMap();
+		// map.on('moveend', this.subscribeOnMapMoved, this);
 
-		let filterSubscriber = this.FilterGeometryAdapter.filteredObjects.subscribe(data => {
-			this.filteredList = data;
+		let filterSubscriber = this.FilterGeometryAdapter.filteredObjects.subscribe(layerIdAndData => {
+			let inspectLayer = this.avaliableLayers.filter(layer => layer.id === layerIdAndData.layerId ? layer : false)[0]
+			inspectLayer.filteredList = layerIdAndData.data ? layerIdAndData.data.map(item => item.id) : [];
+			this.onFilterListSubscriberNext(inspectLayer, false);
 		});
 		this.subscriptions[`filterSubscriber`] = filterSubscriber;
 	}
@@ -138,49 +141,80 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	}
 
 	loadDataVirtualScroll(layer, data) {
-		if (!this.table.first) return;
-		let tableRef = this.table.first.nativeElement
-		const tableViewHeight = tableRef.offsetHeight
-		const tableScrollHeight = tableRef.scrollHeight
+		if (!this.table.first || !data) return;
+		let filteredData;
+		if (layer.filteredList && layer.filteredList.length) {
+			filteredData = data.map(item => {
+				layer.filteredList.indexOf(item.id) === -1 ? item.filteFlag = true : item.filteFlag = false;
+				return item
+			});
+		} else {
+			filteredData = data;
+		}
+
+		let tableRef = this.table.first.nativeElement;
+		const tableViewHeight = tableRef.offsetHeight;
+		const tableScrollHeight = tableRef.scrollHeight;
 		const scrollLocation = tableRef.scrollTop;
 		let rowHeigth = 48;
 		let elementPreView = Math.ceil(tableViewHeight / rowHeigth) + 3;
-		let firstElement = Math.ceil(scrollLocation / rowHeigth)
+		let firstElement = Math.floor(scrollLocation / rowHeigth);
 
 		let scrollElement = tableRef.getElementsByClassName('table-sroll-wrapper')[0];
-		scrollElement.style.height = data.length * rowHeigth + 'px';
+		scrollElement.style.height = filteredData.length * rowHeigth + 'px';
 
 		layer.data = data;
-		layer.total = data.length;
-		layer.visibleFeaturesPerPage.data = data.slice(firstElement, firstElement + elementPreView);
+		layer.total = filteredData.length;
+		layer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
 		layer.visibleFeaturesPerPage.sort = this.sortVisibleFeaturesPerPage;
-		this.changeDetectorRef.detectChanges();
-		let delta = scrollLocation > 48 ? 1 : 0;
+		this.changeDetectorRef.markForCheck();
+		let delta = scrollLocation > 56 ? 1 : 0;
 		let matRows = tableRef.getElementsByTagName('mat-row');
 		for (let i = 0; i < matRows.length; i++) {
 			matRows[i].style.position = 'absolute';
 			matRows[i].style.zIndex = 0;
-			matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`
+			matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`;
+		}
+	}
+
+	onFilterListSubscriberNext(layer, onScroll) {
+		let tableRef = this.table.first.nativeElement;
+		let inspectLayer = layer || this.activeLayer;
+		let data = inspectLayer.data;
+		if (!tableRef || !inspectLayer || !data) return;
+
+		let filteredData;
+		if (layer.filteredList && layer.filteredList.length) {
+			filteredData = data.map(item => {
+				layer.filteredList.indexOf(item.id) === -1 ? item.filteFlag = true : item.filteFlag = false;
+				return item
+			});
+		} else {
+			filteredData = data;
+		}
+		const tableViewHeight = tableRef.offsetHeight;
+		const tableScrollHeight = tableRef.scrollHeight;
+		const scrollLocation = tableRef.scrollTop;
+		let rowHeigth = 48;
+		if (!onScroll) {
+			let scrollElement = tableRef.getElementsByClassName('table-sroll-wrapper')[0];
+			scrollElement.style.height = filteredData.length * rowHeigth + 'px';
+		}
+		let elementPreView = Math.ceil(tableViewHeight / rowHeigth) + 3;
+		let firstElement = Math.floor(scrollLocation / rowHeigth);
+		inspectLayer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
+		let delta = scrollLocation > 56 ? 1 : 0;
+		this.changeDetectorRef.detectChanges();
+		let matRows = tableRef.getElementsByTagName('mat-row');
+		for (let i = 0; i < matRows.length; i++) {
+			matRows[i].style.position = 'absolute';
+			matRows[i].style.zIndex = 0;
+			matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`;
 		}
 	}
 
 	onTableScroll(e, layer) {
-		if (!e.target) return;
-		const tableViewHeight = e.target.offsetHeight // viewport: ~500px
-		const tableScrollHeight = e.target.scrollHeight // length of all table
-		const scrollLocation = e.target.scrollTop; // how far user scrolled
-		let rowHeigth = 48;
-		let elementPreView = Math.ceil(tableViewHeight / rowHeigth) + 3;
-		let firstElement = Math.ceil(scrollLocation / rowHeigth);
-		layer.visibleFeaturesPerPage.data = layer.data.slice(firstElement, firstElement + elementPreView);
-		let delta = scrollLocation > 48 ? 1 : 0;
-		this.changeDetectorRef.detectChanges();
-		let matRows = e.target.getElementsByTagName('mat-row');
-		for (let i = 0; i < matRows.length; i++) {
-			matRows[i].style.position = 'absolute';
-			matRows[i].style.zIndex = 0;
-			matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`
-		}
+		this.onFilterListSubscriberNext(layer, true);
 	}
 
 
@@ -198,21 +232,25 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 					layer.displayedColumns.push(key);
 				}
 			}
-			this.changeDetectorRef.detectChanges();
+			this.changeDetectorRef.markForCheck();
 		});
 	}
 
 	changeColumnSize = (column, size) => column.rowWidth = size;
 	toggleSideNav = () => this.closeTdmapPanelSidenav.emit('close-tdmap-panel-sidenav');
 	isAllSelected() {
-		if (!this.activeLayer.selectedFeatures.selected.length) return false;
-		let isAllFeaturesOnCurrentViewSelected = true;
-		for (let i = 0, len = this.activeLayer.data.length; i < len; i++) {
-			if (this.activeLayer.selectedFeatures.selected.indexOf(this.activeLayer.data[i].id) === -1) {
-				isAllFeaturesOnCurrentViewSelected = false;
-			}
-		}
-		return isAllFeaturesOnCurrentViewSelected;
+		const numSelected = this.activeLayer.selectedFeatures.selected.length;
+		const numRows = this.activeLayer.data.length;
+		return numSelected == numRows;
+
+		// if (!this.activeLayer.selectedFeatures.selected.length) return false;
+		// let isAllFeaturesOnCurrentViewSelected = true;
+		// for (let i = 0, len = this.activeLayer.data.length; i < len; i++) {
+		// 	if (this.activeLayer.selectedFeatures.selected.indexOf(this.activeLayer.data[i].id) === -1) {
+		// 		isAllFeaturesOnCurrentViewSelected = false;
+		// 	}
+		// }
+		// return isAllFeaturesOnCurrentViewSelected;
 	}
 
 	masterToggle() {
@@ -225,7 +263,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		} else {
 			this.activeLayer.data.forEach(row => this.activeLayer.selectedFeatures.select(row.id));
 		}
-		this.changeDetectorRef.detectChanges();
+		this.changeDetectorRef.markForCheck();
 	}
 
 	subscribeMapLayersOnFeatureSelectionsChange(layer) {
@@ -236,18 +274,18 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			if (featureSelectionsEvent.added && featureSelectionsEvent.added.length) {
 				featureSelectionsEvent.added.map(feature => {
 					if (!layer.selectedFeatures.isSelected(feature.feature.properties.id)) {
-						layer.selectedFeatures.select(feature.feature.properties.id)
+						layer.selectedFeatures.select(feature.feature.properties.id);
 					}
 				});
 			}
 			if (featureSelectionsEvent.removed && featureSelectionsEvent.removed.length) {
 				featureSelectionsEvent.removed.map(feature => {
 					if (layer.selectedFeatures.isSelected(feature.feature.properties.id)) {
-						layer.selectedFeatures.deselect(feature.feature.properties.id)
+						layer.selectedFeatures.deselect(feature.feature.properties.id);
 					}
 				});
 			}
-			this.changeDetectorRef.detectChanges();
+			this.changeDetectorRef.markForCheck();
 		});
 		this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = subscriber;
 	}
@@ -269,8 +307,8 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 				if (feature.feature && feature.feature.properties && feature.feature.properties.id === item) {
 					mapLayer.selections.removeSelectionLayer(feature);
 				}
-			})
+			});
 		});
-		this.changeDetectorRef.detectChanges();
+		this.changeDetectorRef.markForCheck();
 	}
 }

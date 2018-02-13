@@ -1,37 +1,44 @@
 <div color="white" class="toolbar header-table-elements" fxLayout="row" fxLayoutAlign="space-between center">
-    <label *ngIf="activeLayer" class="selected-elements-counter">Выбрано объектов: {{  activeLayer.selectedFeatures.selected.length }}</label>
-    <mat-form-field style="width: 240px;margin-left:auto;">
-        <mat-select [formControl]="inspectLayerAttributeTable">
-            <mat-option *ngIf="!activeLayer" value="None">Нет активных слоев</mat-option>
-            <mat-option *ngFor="let avaliableLayer of avaliableLayers" [value]="avaliableLayer.id" [disabled]="!avaliableLayer.visible">{{avaliableLayer.labelName}} </mat-option>
-        </mat-select>
-    </mat-form-field>
+  <label *ngIf="activeLayer" class="selected-elements-counter">Выбрано объектов: {{ activeLayer.selectedFeatures.selected.length }}</label>
+  <mat-form-field style="width: 240px;margin-left:auto;">
+    <mat-select [formControl]="inspectLayerAttributeTable">
+      <mat-option *ngIf="!activeLayer" value="None">Нет активных слоев</mat-option>
+      <mat-option *ngFor="let avaliableLayer of avaliableLayers" [value]="avaliableLayer.id" [disabled]="!avaliableLayer.visible">{{avaliableLayer.labelName}} </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 
 <div *ngIf="activeLayer && activeLayer.visible" class="light-theme table-wrapper">
-    <ng-container *ngFor="let layer of avaliableLayers">
-        <ng-container *ngIf="layer.id === activeLayer.id">
-            <mat-table class="attribute-table" #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort" [trackBy]="trackByFn" (scroll)="onTableScroll($event, layer)">
+  <ng-container *ngFor="let layer of avaliableLayers">
+    <ng-container *ngIf="layer.id === activeLayer.id">
+      <mat-table class="attribute-table" #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort"
+        [trackBy]="trackByFn" (scroll)="onTableScroll($event, layer)">
 
-                <ng-container matColumnDef="select">
-                    <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
-                        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="layer.selectedFeatures.hasValue() && isAllSelected()" [indeterminate]="layer.selectedFeatures.hasValue() && !isAllSelected()"></mat-checkbox>
-                    </mat-header-cell>
-                    <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
-                        <mat-checkbox ((click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)"></mat-checkbox>
-                    </mat-cell>
-                </ng-container>
-
-                <ng-container *ngFor="let column of layer.columns" matColumnDef="{{column.name}}">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): ''" gutter (changeColumnSize)="changeColumnSize(column, $event)">
-                        <div> {{column.label}}</div>
-                    </mat-header-cell>
-                    <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48"> {{element[column.name]}} </mat-cell>
-                </ng-container>
-
-                <mat-header-row *matHeaderRowDef="layer.displayedColumns"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: layer.displayedColumns;"></mat-row>
-            </mat-table>
+        <ng-container matColumnDef="select">
+          <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="layer.selectedFeatures.hasValue() && isAllSelected()"
+              [indeterminate]="layer.selectedFeatures.hasValue() && !isAllSelected()"></mat-checkbox>
+          </mat-header-cell>
+          <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
+            <mat-checkbox ((click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)"
+              [disabled]="row.filteFlag"></mat-checkbox>
+          </mat-cell>
         </ng-container>
+
+        <ng-container *ngFor="let column of layer.columns" matColumnDef="{{column.name}}">
+          <mat-header-cell *matHeaderCellDef mat-sort-header [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): ''"
+            gutter (changeColumnSize)="changeColumnSize(column, $event)">
+            <div> {{column.label}}</div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48"
+            [ngClass]="{'filter-flag': element.filteFlag }">
+            {{element[column.name]}}
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="layer.displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: layer.displayedColumns;"></mat-row>
+      </mat-table>
     </ng-container>
+  </ng-container>
 </div>
