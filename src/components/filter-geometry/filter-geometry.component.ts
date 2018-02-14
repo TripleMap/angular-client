@@ -55,10 +55,10 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   }
 
   toogleAvaliableResultPane = (layerIdAndData) => {
-    this.isResultPaneAvalible = layerIdAndData.data && layerIdAndData.data.length > 0;
-    this.isResultPaneCounts = layerIdAndData.data && layerIdAndData.data.length > 0 ? layerIdAndData.data.length : null;
+    this.isResultPaneAvalible = layerIdAndData && layerIdAndData.data && layerIdAndData.data.length > 0;
+    this.isResultPaneCounts = layerIdAndData && layerIdAndData.data && layerIdAndData.data.length > 0 ? layerIdAndData.data.length : null;
     this.changeDetectorRef.detectChanges();
-    if (layerIdAndData.data) {
+    if (layerIdAndData && layerIdAndData.data) {
       this.OverLaysService.refreshFilteredIds(this.filterLayerFormControl.value.id, layerIdAndData.data.map(item => item.id))
     } else {
       this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);

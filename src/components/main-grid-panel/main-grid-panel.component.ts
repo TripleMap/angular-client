@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, AfterViewInit, ChangeDetectorRef, OnChanges } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, AfterViewInit, ChangeDetectorRef, OnChanges, ViewChild } from '@angular/core';
 import {
   CompactType,
   DisplayGrid,
@@ -10,6 +10,8 @@ import {
 } from 'angular-gridster2';
 
 import { MapService } from "../../services/MapService";
+
+import { TdMapPanelComponent } from '../td-map-panel/td-map-panel.component'
 @Component({
   selector: 'main-grid-panel',
   templateUrl: './main-grid-panel.component.html',
@@ -19,9 +21,10 @@ import { MapService } from "../../services/MapService";
 export class MainGridPanelComponent implements AfterViewInit {
   @Input()
   isAttributeTableActive: boolean;
+  @ViewChild(TdMapPanelComponent) TdMapPanelComponent: TdMapPanelComponent;
 
-  options: GridsterConfig;
-  gridItems: Array<GridsterItem> = [];
+  public options: GridsterConfig;
+  public gridItems: Array<GridsterItem> = [];
 
   constructor(public MapService: MapService, public ChangeDetectorRef: ChangeDetectorRef) {
     this.options = {
@@ -91,6 +94,11 @@ export class MainGridPanelComponent implements AfterViewInit {
     if (item.id === 'tdmmap') {
       const map = this.MapService.getMap();
       setTimeout(map.invalidateSize.bind(map), 100);
+    }
+    if (item.id === 'attributeTable') {
+      if (this.TdMapPanelComponent.activeLayer) {
+        this.TdMapPanelComponent.onFilterListSubscriberNext(this.TdMapPanelComponent.activeLayer, true);
+      }
     }
   }
   ngAfterViewInit() {

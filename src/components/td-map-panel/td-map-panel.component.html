@@ -21,7 +21,7 @@
           </mat-header-cell>
           <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
             <mat-checkbox ((click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)"
-              [disabled]="row.filteFlag"></mat-checkbox>
+              [disabled]="row.filteFlag" disableRipple="true"></mat-checkbox>
           </mat-cell>
         </ng-container>
 

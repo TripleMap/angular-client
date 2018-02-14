@@ -1,4 +1,4 @@
-import { Component, Output, Input, EventEmitter, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChildren } from "@angular/core";
+import { Component, Output, Input, EventEmitter, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChildren, NgZone } from "@angular/core";
 import { FormControl } from '@angular/forms';
 import { HttpParams, HttpClient } from "@angular/common/http";
 import { OverLaysService } from "../../services/OverLaysService";
@@ -7,6 +7,12 @@ import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
 
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
+import { Subject } from 'rxjs/subject'
+import { Observable } from 'rxjs/observable'
+import 'rxjs/add/operator/debounceTime.js';
+import { Subscriber } from "rxjs/Subscriber";
+
+
 interface AvaliableLayer {
 	id: string;
 	labelName: string;
@@ -41,14 +47,22 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	public trackByFn = (index, item) => item.id;
 
 	public subscriptions: object = {};
-
+	public changeDetectionOnserver: Observable<any>;
+	public changeDetectionTick: any;
+	public subscriberChangeDetectionTick: any;
 	constructor(
 		public OverLaysService: OverLaysService,
 		public http: HttpClient,
 		public MapService: MapService,
 		public FilterGeometryAdapter: FilterGeometryAdapter,
-		public changeDetectorRef: ChangeDetectorRef
-	) { }
+		public changeDetectorRef: ChangeDetectorRef,
+		public zone: NgZone
+	) {
+		this.changeDetectionTick = new Subject()
+		this.subscriberChangeDetectionTick = this.changeDetectionTick.asObservable().debounceTime(100).subscribe(data => {
+			this.changeDetectorRef.detectChanges();
+		});
+	}
 
 	ngAfterViewInit() {
 		this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item: AvaliableLayer) => {
@@ -109,6 +123,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			this.onFilterListSubscriberNext(inspectLayer, false);
 		});
 		this.subscriptions[`filterSubscriber`] = filterSubscriber;
+
 	}
 
 	subscribeOnMapMoved(e) {
@@ -157,7 +172,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		const tableScrollHeight = tableRef.scrollHeight;
 		const scrollLocation = tableRef.scrollTop;
 		let rowHeigth = 48;
-		let elementPreView = Math.ceil(tableViewHeight / rowHeigth) + 3;
+		let elementPreView = Math.ceil(tableViewHeight / rowHeigth);
 		let firstElement = Math.floor(scrollLocation / rowHeigth);
 
 		let scrollElement = tableRef.getElementsByClassName('table-sroll-wrapper')[0];
@@ -167,7 +182,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		layer.total = filteredData.length;
 		layer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
 		layer.visibleFeaturesPerPage.sort = this.sortVisibleFeaturesPerPage;
-		this.changeDetectorRef.markForCheck();
+
 		let delta = scrollLocation > 56 ? 1 : 0;
 		let matRows = tableRef.getElementsByTagName('mat-row');
 		for (let i = 0; i < matRows.length; i++) {
@@ -200,11 +215,11 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			let scrollElement = tableRef.getElementsByClassName('table-sroll-wrapper')[0];
 			scrollElement.style.height = filteredData.length * rowHeigth + 'px';
 		}
-		let elementPreView = Math.ceil(tableViewHeight / rowHeigth) + 3;
+		let elementPreView = Math.ceil(tableViewHeight / rowHeigth);
 		let firstElement = Math.floor(scrollLocation / rowHeigth);
 		inspectLayer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
 		let delta = scrollLocation > 56 ? 1 : 0;
-		this.changeDetectorRef.detectChanges();
+		this.changeDetectorRef.markForCheck();
 		let matRows = tableRef.getElementsByTagName('mat-row');
 		for (let i = 0; i < matRows.length; i++) {
 			matRows[i].style.position = 'absolute';
@@ -239,9 +254,14 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	changeColumnSize = (column, size) => column.rowWidth = size;
 	toggleSideNav = () => this.closeTdmapPanelSidenav.emit('close-tdmap-panel-sidenav');
 	isAllSelected() {
-		const numSelected = this.activeLayer.selectedFeatures.selected.length;
-		const numRows = this.activeLayer.data.length;
-		return numSelected == numRows;
+		if (!this.activeLayer) {
+			return false;
+		} else {
+			const numSelected = this.activeLayer.selectedFeatures.selected.length;
+			const numRows = this.activeLayer.data.length;
+			return numSelected == numRows;
+		}
+
 
 		// if (!this.activeLayer.selectedFeatures.selected.length) return false;
 		// let isAllFeaturesOnCurrentViewSelected = true;
@@ -257,58 +277,39 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		if (this.isAllSelected()) {
 			this.activeLayer.selectedFeatures.clear();
 			const maplayer = this.OverLaysService.getLayerById(this.activeLayer.id);
-			if (maplayer && maplayer.selections) {
-				maplayer.selections.clearSelections();
-			}
+			if (maplayer && maplayer.options.selectable) maplayer.clearSelections();
 		} else {
-			this.activeLayer.data.forEach(row => this.activeLayer.selectedFeatures.select(row.id));
+
+			this.zone.runOutsideAngular(
+				() => {
+					let i, len = this.activeLayer.data.length
+					for (let i = 0; i < len; i++) {
+						this.activeLayer.selectedFeatures.select(this.activeLayer.data[i].id);
+					}
+				}
+			)
+
 		}
-		this.changeDetectorRef.markForCheck();
+		this.changeDetectionTick.next(0);
 	}
 
 	subscribeMapLayersOnFeatureSelectionsChange(layer) {
-		const maplayer = this.OverLaysService.getLayerById(layer.id);
-		if (!maplayer && !maplayer.selections) return;
 
-		let subscriber = maplayer.selections.changeSelection.subscribe(featureSelectionsEvent => {
-			if (featureSelectionsEvent.added && featureSelectionsEvent.added.length) {
-				featureSelectionsEvent.added.map(feature => {
-					if (!layer.selectedFeatures.isSelected(feature.feature.properties.id)) {
-						layer.selectedFeatures.select(feature.feature.properties.id);
-					}
-				});
-			}
-			if (featureSelectionsEvent.removed && featureSelectionsEvent.removed.length) {
-				featureSelectionsEvent.removed.map(feature => {
-					if (layer.selectedFeatures.isSelected(feature.feature.properties.id)) {
-						layer.selectedFeatures.deselect(feature.feature.properties.id);
-					}
-				});
-			}
-			this.changeDetectorRef.markForCheck();
+		const maplayer = this.OverLaysService.getLayerById(layer.id);
+		if (!maplayer && !maplayer.options.selectable) return;
+
+		let subscriber = maplayer.changeSelection.subscribe(featureSelectionsEvent => {
+			featureSelectionsEvent.added.map(featureId => { if (!layer.selectedFeatures.isSelected(featureId)) { layer.selectedFeatures.select(featureId); this.changeDetectionTick.next(0); } });
+			featureSelectionsEvent.removed.map(featureId => { if (layer.selectedFeatures.isSelected(featureId)) { layer.selectedFeatures.deselect(featureId); this.changeDetectionTick.next(1); } });
 		});
+
 		this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = subscriber;
 	}
 
 	updateMapLayerOnFeatureSelectionChange(selectionChangeDataEvent, layer) {
 		const mapLayer = this.OverLaysService.getLayerById(layer.id);
-		if (!mapLayer && !mapLayer.selections) return;
-
-		selectionChangeDataEvent.added.map(item => {
-			mapLayer.eachLayer(feature => {
-				if (!mapLayer.selections.isInSelections(feature) && feature.feature && feature.feature.properties && feature.feature.properties.id === item) {
-					mapLayer.selections.addSelections(feature, false, true);
-				}
-			});
-		});
-
-		selectionChangeDataEvent.removed.map(item => {
-			mapLayer.eachLayer(feature => {
-				if (feature.feature && feature.feature.properties && feature.feature.properties.id === item) {
-					mapLayer.selections.removeSelectionLayer(feature);
-				}
-			});
-		});
-		this.changeDetectorRef.markForCheck();
+		if (!mapLayer && !mapLayer.options.selectable) return;
+		selectionChangeDataEvent.added.map(item => { if (!mapLayer.isInSelections(item)) mapLayer.addSelections(item, false, true); });
+		selectionChangeDataEvent.removed.map(item => { if (mapLayer.isInSelections(item)) mapLayer.removeSelectionLayer(item); });
 	}
 }

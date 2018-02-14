@@ -20,14 +20,12 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 		public filterGeometryAdapter: FilterGeometryAdapter,
 		public MapService: MapService,
 		public OverLaysService: OverLaysService
-	) {
-		// TEMP
-		this.avaliableFilterLayers = this.OverLaysService.getLayerIdsAndLabelNames();
-	}
+	) { }
 
 	ngOnInit() {
+		this.avaliableFilterLayers = this.OverLaysService.getLayerIdsAndLabelNames();
 		this.filterSubscriber = this.filterGeometryAdapter.filteredObjects.subscribe(layerIdAndData => {
-			this.filteredList = layerIdAndData.data;
+			if (layerIdAndData) this.filteredList = layerIdAndData.data;
 		});
 	}
 
