@@ -12,7 +12,7 @@
   <ng-container *ngFor="let layer of avaliableLayers">
     <ng-container *ngIf="layer.id === activeLayer.id">
       <mat-table class="attribute-table" #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort"
-        [trackBy]="trackByFn" (scroll)="onTableScroll($event, layer)">
+        [trackBy]="trackByFn" (scroll)="onTableScroll($event, layer)" (matSortChange)="sortData($event, layer)">
 
         <ng-container matColumnDef="select">
           <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
@@ -26,13 +26,18 @@
         </ng-container>
 
         <ng-container *ngFor="let column of layer.columns" matColumnDef="{{column.name}}">
-          <mat-header-cell *matHeaderCellDef mat-sort-header [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): ''"
-            gutter (changeColumnSize)="changeColumnSize(column, $event)">
-            <div> {{column.label}}</div>
+          <mat-header-cell *matHeaderCellDef [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): ''"
+            gutter (changeColumnSize)="changeColumnSize(column, $event)" attributeDataTableFilter>
+            <attribute-data-table-filter [columnData]='column'>
+              <div> {{column.label}}</div>
+            </attribute-data-table-filter>
           </mat-header-cell>
           <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48"
             [ngClass]="{'filter-flag': element.filteFlag }">
-            {{element[column.name]}}
+            <div *ngIf="linkDetector(element[column.name])">
+              <a href="{{element[column.name]}}">{{element[column.name]}}</a>
+            </div>
+            <div *ngIf="!linkDetector(element[column.name])"> {{element[column.name]}} </div>
           </mat-cell>
         </ng-container>
 

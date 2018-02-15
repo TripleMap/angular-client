@@ -111,3 +111,7 @@
 .filter-flag {
   color: rgba(0, 0, 0, 0.12);
 }
+
+.filter-flag>div>a {
+  color: rgba(0, 0, 0, 0.12);
+}

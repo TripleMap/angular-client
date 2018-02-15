@@ -38,13 +38,13 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
     this.isFiltersActive = true;
     this.isResultPaneAvalible = false;
     this.mediaSubscription = this.media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
-    this.filterSubscription = this._filterGeometryAdapter.filteredObjects.subscribe(this.toogleAvaliableResultPane);
+    this.filterSubscription = this._filterGeometryAdapter.filteredLayerId.subscribe(this.toogleAvaliableResultPane);
   }
 
   ngAfterViewInit() {
     this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions();
     this.filterLayerFormControlSubscriber = this.filterLayerFormControl.valueChanges.subscribe(avaliableLayer => {
-      this._filterGeometryAdapter.setFilteredLayer(avaliableLayer);
+      this._filterGeometryAdapter.setFilteredLayer(avaliableLayer.id);
       this.resultPane.setResultListLayer(avaliableLayer.id);
     });
     this.filterLayerFormControl.setValue(this.avaliableLayers[0])
@@ -55,14 +55,22 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   }
 
   toogleAvaliableResultPane = (layerIdAndData) => {
-    this.isResultPaneAvalible = layerIdAndData && layerIdAndData.data && layerIdAndData.data.length > 0;
-    this.isResultPaneCounts = layerIdAndData && layerIdAndData.data && layerIdAndData.data.length > 0 ? layerIdAndData.data.length : null;
-    this.changeDetectorRef.detectChanges();
-    if (layerIdAndData && layerIdAndData.data) {
-      this.OverLaysService.refreshFilteredIds(this.filterLayerFormControl.value.id, layerIdAndData.data.map(item => item.id))
-    } else {
-      this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
+    let inspectLayer
+    if (layerIdAndData) {
+      inspectLayer = this.avaliableLayers.filter(item => (item.id === layerIdAndData.layerId) ? item : false)[0];
     }
+
+    this.isResultPaneAvalible = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0;
+    this.isResultPaneCounts = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0 ? inspectLayer.filteredList.length : null;
+
+    if (layerIdAndData && layerIdAndData.data) {
+      this.OverLaysService.refreshFilteredIds(this.filterLayerFormControl.value.id, inspectLayer.filteredList.map(item => item.id))
+    } else {
+      if (this.filterLayerFormControl.value && this.filterLayerFormControl.value.id) {
+        this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
+      }
+    }
+    this.changeDetectorRef.detectChanges();
   };
 
   clearFilters() {

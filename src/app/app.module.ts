@@ -37,6 +37,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatMenuModule } from '@angular/material/menu';
+
 
 // services
 import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService";
@@ -65,8 +67,9 @@ import { SpatialFilterComponent } from '../components/filter-geometry/spatial-fi
 import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingModule } from "@covalent/core";
 
 
-import { GutterDirective } from '../directives/gutter.directive';
+import { GutterDirective } from '../components/td-map-panel/gutter.directive';
 import { GridsterModule } from 'angular-gridster2';
+import { AttributeDataTableFilterComponent } from '../components/td-map-panel/attribute-data-table-filter/attribute-data-table-filter.component';
 
 
 @NgModule({
@@ -97,7 +100,8 @@ import { GridsterModule } from 'angular-gridster2';
     TdMapPanelComponent,
     SpatialFilterComponent,
     GutterDirective,
-    MainGridPanelComponent
+    MainGridPanelComponent,
+    AttributeDataTableFilterComponent
   ],
   imports: [
     BrowserModule,
@@ -130,7 +134,8 @@ import { GridsterModule } from 'angular-gridster2';
     CovalentVirtualScrollModule,
     CovalentDataTableModule,
     CovalentPagingModule,
-    GridsterModule
+    GridsterModule,
+    MatMenuModule
   ],
 
   bootstrap: [AppComponent]

@@ -5,13 +5,12 @@ import { OverLaysService } from "../../services/OverLaysService";
 import { MapService } from "../../services/MapService";
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
-
+import { _isNumberValue } from '@angular/cdk/coercion';
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
 import { Subject } from 'rxjs/subject'
 import { Observable } from 'rxjs/observable'
 import 'rxjs/add/operator/debounceTime.js';
 import { Subscriber } from "rxjs/Subscriber";
-
 
 interface AvaliableLayer {
 	id: string;
@@ -117,10 +116,11 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		// const map = this.MapService.getMap();
 		// map.on('moveend', this.subscribeOnMapMoved, this);
 
-		let filterSubscriber = this.FilterGeometryAdapter.filteredObjects.subscribe(layerIdAndData => {
-			let inspectLayer = this.avaliableLayers.filter(layer => layer.id === layerIdAndData.layerId ? layer : false)[0]
-			inspectLayer.filteredList = layerIdAndData.data ? layerIdAndData.data.map(item => item.id) : [];
-			this.onFilterListSubscriberNext(inspectLayer, false);
+		let filterSubscriber = this.FilterGeometryAdapter.filteredLayerId.subscribe(layerIdAndData => {
+			if (layerIdAndData && layerIdAndData.layerId) {
+				let inspectLayer = this.avaliableLayers.filter(layer => layer.id === layerIdAndData.layerId ? layer : false)[0]
+				this.onFilterListSubscriberNext(inspectLayer, false);
+			}
 		});
 		this.subscriptions[`filterSubscriber`] = filterSubscriber;
 
@@ -164,7 +164,10 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 				return item
 			});
 		} else {
-			filteredData = data;
+			filteredData = data.map(item => {
+				item.filteFlag = false;
+				return item
+			});
 		}
 
 		let tableRef = this.table.first.nativeElement;
@@ -182,7 +185,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		layer.total = filteredData.length;
 		layer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
 		layer.visibleFeaturesPerPage.sort = this.sortVisibleFeaturesPerPage;
-
+		this.changeDetectorRef.detectChanges();
 		let delta = scrollLocation > 56 ? 1 : 0;
 		let matRows = tableRef.getElementsByTagName('mat-row');
 		for (let i = 0; i < matRows.length; i++) {
@@ -197,7 +200,6 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		let inspectLayer = layer || this.activeLayer;
 		let data = inspectLayer.data;
 		if (!tableRef || !inspectLayer || !data) return;
-
 		let filteredData;
 		if (layer.filteredList && layer.filteredList.length) {
 			filteredData = data.map(item => {
@@ -205,7 +207,10 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 				return item
 			});
 		} else {
-			filteredData = data;
+			filteredData = data.map(item => {
+				item.filteFlag = false;
+				return item
+			});
 		}
 		const tableViewHeight = tableRef.offsetHeight;
 		const tableScrollHeight = tableRef.scrollHeight;
@@ -219,7 +224,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		let firstElement = Math.floor(scrollLocation / rowHeigth);
 		inspectLayer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
 		let delta = scrollLocation > 56 ? 1 : 0;
-		this.changeDetectorRef.markForCheck();
+		this.changeDetectorRef.detectChanges();
 		let matRows = tableRef.getElementsByTagName('mat-row');
 		for (let i = 0; i < matRows.length; i++) {
 			matRows[i].style.position = 'absolute';
@@ -242,7 +247,10 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 					layer.columns.push({
 						name: key,
 						label: data.properties[key].label || key,
-						rowWidth: 240
+						columnType: data.properties[key].columnType || 'findSimple',
+						columnValues: data.properties[key].values || null,
+						columnFilters: [],
+						rowWidth: 200
 					});
 					layer.displayedColumns.push(key);
 				}
@@ -279,16 +287,12 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			const maplayer = this.OverLaysService.getLayerById(this.activeLayer.id);
 			if (maplayer && maplayer.options.selectable) maplayer.clearSelections();
 		} else {
-
-			this.zone.runOutsideAngular(
-				() => {
-					let i, len = this.activeLayer.data.length
-					for (let i = 0; i < len; i++) {
-						this.activeLayer.selectedFeatures.select(this.activeLayer.data[i].id);
-					}
+			this.zone.runOutsideAngular(() => {
+				let i, len = this.activeLayer.data.length;
+				for (let i = 0; i < len; i++) {
+					this.activeLayer.selectedFeatures.select(this.activeLayer.data[i].id);
 				}
-			)
-
+			});
 		}
 		this.changeDetectionTick.next(0);
 	}
@@ -311,5 +315,52 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		if (!mapLayer && !mapLayer.options.selectable) return;
 		selectionChangeDataEvent.added.map(item => { if (!mapLayer.isInSelections(item)) mapLayer.addSelections(item, false, true); });
 		selectionChangeDataEvent.removed.map(item => { if (mapLayer.isInSelections(item)) mapLayer.removeSelectionLayer(item); });
+	}
+
+
+	linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
+
+	sortingDataAccessor = (data, sortHeaderId: string) => {
+		const value: any = data[sortHeaderId];
+		return _isNumberValue(value) ? Number(value) : value;
+	}
+
+	sortData(e, layer) {
+		const active = e.active;
+		const direction = e.direction;
+		let data = layer.data;
+		if (!active || direction == '') return;
+
+		data.sort((a, b) => {
+			let valueA = this.sortingDataAccessor(a, active);
+			let valueB = this.sortingDataAccessor(b, active);
+
+			// If both valueA and valueB exist (truthy), then compare the two. Otherwise, check if
+			// one value exists while the other doesn't. In this case, existing value should come first.
+			// This avoids inconsistent results when comparing values to undefined/null.
+			// If neither value exists, return 0 (equal).
+			let comparatorResult = 0;
+			if (valueA && valueB) {
+				// Check if one value is greater than the other; if equal, comparatorResult should remain 0.
+				if (valueA > valueB) {
+					comparatorResult = 1;
+				} else if (valueA < valueB) {
+					comparatorResult = -1;
+				}
+			} else if (valueA) {
+				comparatorResult = 1;
+			} else if (valueB) {
+				comparatorResult = -1;
+			}
+
+			return comparatorResult * (direction == 'asc' ? 1 : -1);
+		});
+
+		this.onFilterListSubscriberNext(layer, true);
+	}
+
+
+	addOrUpdateFilters() {
+
 	}
 }

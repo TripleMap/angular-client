@@ -3,7 +3,10 @@ import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
 import { Observable } from "rxjs/Observable";
 import { MapService } from "../../../services/MapService";
 import { OverLaysService } from "../../../services/OverLaysService";
-import { Subscription } from 'rxjs/Subscription'
+import { Subscription } from 'rxjs/Subscription';
+
+
+
 @Component({
 	selector: "filter-geometry-result-list",
 	templateUrl: "./filter-geometry-result-list.component.html",
@@ -13,7 +16,7 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	@Input() isActive: boolean;
 	public filteredList: any[];
 	public activeFilterLayerId: string;
-	public avaliableFilterLayers: { id: string; labelName: string; visible: boolean; }[];
+	public avaliableFilterLayers: any[];
 	public trackByFn = (index, item) => item.id;
 	public filterSubscriber: Subscription;
 	constructor(
@@ -23,9 +26,11 @@ export class FilterGeometryResultListComponent implements OnInit, OnDestroy {
 	) { }
 
 	ngOnInit() {
-		this.avaliableFilterLayers = this.OverLaysService.getLayerIdsAndLabelNames();
-		this.filterSubscriber = this.filterGeometryAdapter.filteredObjects.subscribe(layerIdAndData => {
-			if (layerIdAndData) this.filteredList = layerIdAndData.data;
+		this.avaliableFilterLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions();
+		this.filterSubscriber = this.filterGeometryAdapter.filteredLayerId.subscribe(layerIdAndData => {
+			if (layerIdAndData && layerIdAndData.data) {
+				this.filteredList = this.avaliableFilterLayers.filter(item => item.id === layerIdAndData.layerId ? item : false)[0].filteredList;
+			}
 		});
 	}
 

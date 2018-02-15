@@ -8,6 +8,7 @@ import { MapService } from './MapService';
 export class OverLaysService {
     public visibleLayers = new BehaviorSubject<any>([]);
     public layers: any[];
+    public layersIdsLabelNamesAndHttpOptions: any[];
     constructor(
         public _http: HttpClient,
         public MapService: MapService
@@ -23,7 +24,18 @@ export class OverLaysService {
 
             return this._http.get(url, { params });
         };
-        this.layers = this.constructOverlayers()
+        this.layers = this.constructOverlayers();
+
+        this.layersIdsLabelNamesAndHttpOptions = this.layers.map(item => ({
+            id: item.options.id,
+            labelName: item.options.labelName,
+            visible: item.options.visible,
+            featureInfoUrl: item.options.featureInfoUrl,
+            schemaInfoUrl: item.options.schemaInfoUrl,
+            featureFilterUrl: item.options.featureFilterUrl
+        }))
+
+
     };
 
     addLayerToMap(layerId) {
@@ -140,14 +152,7 @@ export class OverLaysService {
         visible: item.options.visible
     }));
 
-    getLayersIdsLabelNamesAndHttpOptions = () => this.layers.map(item => ({
-        id: item.options.id,
-        labelName: item.options.labelName,
-        visible: item.options.visible,
-        featureInfoUrl: item.options.featureInfoUrl,
-        schemaInfoUrl: item.options.schemaInfoUrl,
-        featureFilterUrl: item.options.featureFilterUrl
-    }))
+    getLayersIdsLabelNamesAndHttpOptions = () => this.layersIdsLabelNamesAndHttpOptions;
 
     getActiveOverlayLayersId = () => this.layers.filter(item => item.options.visible ? item : false)
         .map(item => item.options.id);
