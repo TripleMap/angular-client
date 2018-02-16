@@ -14,7 +14,7 @@
   </mat-form-field>
   <mat-form-field style="width:60px;" class="search-autocomplete-form">
     <mat-select placeholder="" [(ngModel)]="activeSearchProvider" name="food">
-      <mat-option *ngFor="let provider of seachProviders" [value]="provider">
+      <mat-option *ngFor="let provider of seachProviders" [value]="provider" style="font-size:14px;">
         {{provider}}
       </mat-option>
     </mat-select>

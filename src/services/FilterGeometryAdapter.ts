@@ -21,19 +21,18 @@ interface AvaliableLayer {
 	featureFilterUrl: string;
 	data: any;
 	filteredList: any[];
+	previousFilterParams: any;
 }
 
 @Injectable()
 export class FilterGeometryAdapter {
 	public mainFlow: Subject<any>;
 	public filteredLayerId: BehaviorSubject<any>;
-	public filters: object;
 	public filteredLayer: any;
 	public avaliableLayers: any;
 
 	constructor(public _http: HttpClient, public OverLaysService: OverLaysService) {
 		this.mainFlow = new Subject();
-		this.filters = {};
 		this.filteredLayerId = new BehaviorSubject(false);
 		this.mainFlow
 			.map(this.concatenateAllFilters)
@@ -41,28 +40,33 @@ export class FilterGeometryAdapter {
 			.subscribe(this.updateLayerFilters);
 
 		this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item: AvaliableLayer) => {
-			item.filteredList = [];
+			item.previousFilterParams = {}
+			item.filteredList = null;
 			return item;
 		});
 
-	}
+	};
 
 	updateLayerFilters = requestParams => {
 		this._http
 			.post(this.filteredLayer.featureFilterUrl, requestParams)
 			.subscribe((data: any[]) => {
-				if (this.filteredLayer) this.filteredLayer.filteredList = data;
-				this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });
+				if (this.filteredLayer) {
+					this.filteredLayer.filteredList = data;
+					this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });
+				}
 			});
 	};
 
 
 	concatenateAllFilters = filters => {
-		let params = new HttpParams()
-		for (let key in filters) {
-			this.filters[key] = filters[key];
+		if (!this.filteredLayer) {
+			return {};
 		}
-		return this.filters;
+		for (let key in filters) {
+			this.filteredLayer.previousFilterParams[key] = filters[key];
+		}
+		return this.filteredLayer.previousFilterParams;
 	};
 
 	clearData = () => {
@@ -72,16 +76,20 @@ export class FilterGeometryAdapter {
 
 	setFilteredLayer(layerId) {
 		this.filteredLayer = this.avaliableLayers.filter(item => item.id === layerId ? item : false)[0];
-	}
+	};
 
 	checkForEmptyFilters = () => {
-		let emptyCounter = Object.keys(this.filters).length
-		for (let key in this.filters) {
-			if ((key === 'survey' || key === 'segmented') && this.filters[key]) {
+		let emptyCounter = Object.keys(this.filteredLayer.previousFilterParams).length
+		for (let key in this.filteredLayer.previousFilterParams) {
+			if ((key === 'survey' || key === 'segmented') && this.filteredLayer.previousFilterParams[key]) {
 				emptyCounter--;
 			} else if (key === 'squareUnit') {
 				emptyCounter--;
-			} else if (!this.filters[key]) {
+			} else if (key === 'sideFilters') {
+				if (this.filteredLayer.previousFilterParams[key].length === 0) {
+					emptyCounter--;
+				}
+			} else if (!this.filteredLayer.previousFilterParams[key]) {
 				emptyCounter--;
 			}
 
@@ -91,5 +99,16 @@ export class FilterGeometryAdapter {
 		}
 
 		return emptyCounter !== 0;
-	}
+	};
+
+	concatenateTableFilters(columnData, filterValue, layer) {
+		if (layer.previousFilterParams) {
+			this._http
+				.post(this.filteredLayer.featureFilterUrl, layer.previousFilterParams)
+				.subscribe((data: any[]) => {
+					if (this.filteredLayer) this.filteredLayer.filteredList = data;
+					this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });
+				});
+		}
+	};
 }

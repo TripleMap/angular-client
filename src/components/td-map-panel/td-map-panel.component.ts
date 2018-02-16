@@ -26,7 +26,14 @@ interface AvaliableLayer {
 	featureFilterUrl: string;
 	data: any;
 	filteredList: any[];
+	tableFilterColumnsData: { column: string; values: any; }[];
 }
+
+
+
+//////  TO DO filteredList = null - нет фильтрации, [] - есть фильтрация
+
+
 
 @Component({
 	selector: "td-map-panel",
@@ -68,6 +75,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			item.visibleFeaturesPerPage = new MatTableDataSource();
 			item.selectedFeatures = new SelectionModel(true);
 			item.data = [];
+			item.tableFilterColumnsData = [];
 			let onChangeSelectedSubscriber = item.selectedFeatures.onChange.subscribe(data => {
 				this.updateMapLayerOnFeatureSelectionChange(data, item);
 			});
@@ -155,18 +163,34 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		});
 	}
 
+
+	compareOnFilterList(filteredList, data) {
+		let dictionary = {};
+		let filterIndex, filterLen = filteredList.length;
+		for (let filterIndex = 0; filterIndex < filterLen; filterIndex++) {
+			dictionary[filteredList[filterIndex].id] = 1;
+		}
+
+		let index, dataLen = data.length;
+
+		for (index = 0; index < dataLen; index++) {
+			dictionary[data[index].id] ? data[index].filteFlag = false : data[index].filteFlag = true;
+		}
+
+		return data;
+	}
+
+
 	loadDataVirtualScroll(layer, data) {
 		if (!this.table.first || !data) return;
-		let filteredData;
-		if (layer.filteredList && layer.filteredList.length) {
-			filteredData = data.map(item => {
-				layer.filteredList.indexOf(item.id) === -1 ? item.filteFlag = true : item.filteFlag = false;
-				return item
-			});
+		let filteredData; console.log(layer.filteredList)
+		if (layer.filteredList) {
+
+			filteredData = this.compareOnFilterList(layer.filteredList, data);
 		} else {
 			filteredData = data.map(item => {
 				item.filteFlag = false;
-				return item
+				return item;
 			});
 		}
 
@@ -201,15 +225,12 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		let data = inspectLayer.data;
 		if (!tableRef || !inspectLayer || !data) return;
 		let filteredData;
-		if (layer.filteredList && layer.filteredList.length) {
-			filteredData = data.map(item => {
-				layer.filteredList.indexOf(item.id) === -1 ? item.filteFlag = true : item.filteFlag = false;
-				return item
-			});
+		if (layer.filteredList) {
+			filteredData = this.compareOnFilterList(layer.filteredList, data)
 		} else {
 			filteredData = data.map(item => {
 				item.filteFlag = false;
-				return item
+				return item;
 			});
 		}
 		const tableViewHeight = tableRef.offsetHeight;
@@ -224,6 +245,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		let firstElement = Math.floor(scrollLocation / rowHeigth);
 		inspectLayer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
 		let delta = scrollLocation > 56 ? 1 : 0;
+
 		this.changeDetectorRef.detectChanges();
 		let matRows = tableRef.getElementsByTagName('mat-row');
 		for (let i = 0; i < matRows.length; i++) {
@@ -290,7 +312,9 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			this.zone.runOutsideAngular(() => {
 				let i, len = this.activeLayer.data.length;
 				for (let i = 0; i < len; i++) {
-					this.activeLayer.selectedFeatures.select(this.activeLayer.data[i].id);
+					if (!this.activeLayer.data[i].filteFlag) {
+						this.activeLayer.selectedFeatures.select(this.activeLayer.data[i].id);
+					}
 				}
 			});
 		}
@@ -334,14 +358,8 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		data.sort((a, b) => {
 			let valueA = this.sortingDataAccessor(a, active);
 			let valueB = this.sortingDataAccessor(b, active);
-
-			// If both valueA and valueB exist (truthy), then compare the two. Otherwise, check if
-			// one value exists while the other doesn't. In this case, existing value should come first.
-			// This avoids inconsistent results when comparing values to undefined/null.
-			// If neither value exists, return 0 (equal).
 			let comparatorResult = 0;
 			if (valueA && valueB) {
-				// Check if one value is greater than the other; if equal, comparatorResult should remain 0.
 				if (valueA > valueB) {
 					comparatorResult = 1;
 				} else if (valueA < valueB) {
@@ -360,7 +378,35 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	}
 
 
-	addOrUpdateFilters() {
+	onColumnFilterChange(e, layer) {
+		let valuesIsEmpty = false;
+		let isExist = false;
+		let index;
+		if (!e.values) {
+			valuesIsEmpty = true;
+		}
 
+		for (let i = 0; i < layer.tableFilterColumnsData.length; i++) {
+			if (layer.tableFilterColumnsData[i].column === e.columnData.name) {
+				isExist = true;
+				index = i;
+			}
+		}
+
+		if (isExist && !valuesIsEmpty) {
+			layer.tableFilterColumnsData[index].values = e.values
+		} else if (isExist && valuesIsEmpty) {
+			layer.tableFilterColumnsData.splice(index, 1);
+		} else if (!isExist && !valuesIsEmpty) {
+			layer.tableFilterColumnsData.push({
+				column: e.columnData.name,
+				values: e.values
+			});
+		}
+		this.FilterGeometryAdapter.setFilteredLayer(layer.id);
+		this.FilterGeometryAdapter.mainFlow.next({
+			sideFilters: layer.tableFilterColumnsData
+		})
+		console.log(layer.tableFilterColumnsData)
 	}
 }

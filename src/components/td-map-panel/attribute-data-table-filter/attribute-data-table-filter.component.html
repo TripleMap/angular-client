@@ -2,8 +2,29 @@
   <ng-content></ng-content>
 </div>
 <button mat-icon-button [matMenuTriggerFor]="menu">
-  <mat-icon fontSet="mdi" fontIcon="mdi-filter"></mat-icon>
+  <mat-icon fontSet="mdi" fontIcon="mdi-filter" color='accent' [color]="isActive? 'accent': 'primary'"></mat-icon>
 </button>
-<mat-menu #menu="matMenu">
-
+<mat-menu #menu="matMenu" direction="right">
+  <form [formGroup]="filterForm">
+    <ng-container *ngIf="columnData.columnType === 'findSimple' || columnData.columnType === 'findMany'|| columnData.columnType === 'findDate'">
+      <mat-form-field (click)="$event.stopPropagation()">
+        <input matInput placeholder="" formControlName="findSimple">
+      </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="columnData.columnType === 'findBoolean'">
+      <div fxLayout="column">
+        <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanTrue">да</mat-checkbox>
+        <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanFalse">нет</mat-checkbox>
+        <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanNull">нет значений</mat-checkbox>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="columnData.columnType === 'findNumber'">
+      <mat-form-field (click)="$event.stopPropagation()" style="width: 64px;">
+        <input matInput placeholder="от" formControlName="findNumberFrom">
+      </mat-form-field>
+      <mat-form-field (click)="$event.stopPropagation()" style="width: 64px;">
+        <input matInput placeholder="до" formControlName="findNumberTo">
+      </mat-form-field>
+    </ng-container>
+  </form>
 </mat-menu>

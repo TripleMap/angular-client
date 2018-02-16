@@ -20,7 +20,7 @@
               [indeterminate]="layer.selectedFeatures.hasValue() && !isAllSelected()"></mat-checkbox>
           </mat-header-cell>
           <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
-            <mat-checkbox ((click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)"
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)"
               [disabled]="row.filteFlag" disableRipple="true"></mat-checkbox>
           </mat-cell>
         </ng-container>
@@ -28,7 +28,7 @@
         <ng-container *ngFor="let column of layer.columns" matColumnDef="{{column.name}}">
           <mat-header-cell *matHeaderCellDef [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): ''"
             gutter (changeColumnSize)="changeColumnSize(column, $event)" attributeDataTableFilter>
-            <attribute-data-table-filter [columnData]='column'>
+            <attribute-data-table-filter [columnData]='column' [filterDataLayer]="layer" (filterChange)="onColumnFilterChange($event, layer)">
               <div> {{column.label}}</div>
             </attribute-data-table-filter>
           </mat-header-cell>

@@ -4,3 +4,7 @@ attribute-data-table-filter {
   justify-content: space-between;
   align-items: center;
 }
+
+.mat-menu-content {
+  padding: 4px 16px !important;
+}

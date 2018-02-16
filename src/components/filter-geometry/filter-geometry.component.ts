@@ -32,7 +32,8 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
     public OverLaysService: OverLaysService,
     public _filterGeometryAdapter: FilterGeometryAdapter,
     public media: ObservableMedia,
-    public changeDetectorRef: ChangeDetectorRef) { }
+    public changeDetectorRef: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
     this.isFiltersActive = true;
@@ -62,7 +63,6 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
 
     this.isResultPaneAvalible = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0;
     this.isResultPaneCounts = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0 ? inspectLayer.filteredList.length : null;
-
     if (layerIdAndData && layerIdAndData.data) {
       this.OverLaysService.refreshFilteredIds(this.filterLayerFormControl.value.id, inspectLayer.filteredList.map(item => item.id))
     } else {
