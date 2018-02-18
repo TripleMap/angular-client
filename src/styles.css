@@ -37,3 +37,12 @@ body {
 .filter-result-card_list>div {
     width: calc(100% - 16px);
 }
+
+.mat-menu-display-columns {
+    overflow: hidden !important;
+}
+
+.mat-menu-display-columns>div {
+    display: flex;
+    flex-direction: column;
+}

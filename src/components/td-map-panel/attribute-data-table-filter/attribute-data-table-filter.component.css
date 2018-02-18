@@ -1,10 +1,10 @@
 attribute-data-table-filter {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.mat-menu-content {
-  padding: 4px 16px !important;
+.attribute-data-table-filter-mat-menu-content {
+    padding: 4px 16px !important;
 }

@@ -272,7 +272,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 						columnType: data.properties[key].columnType || 'findSimple',
 						columnValues: data.properties[key].values || null,
 						columnFilters: [],
-						rowWidth: 200
+						rowWidth: data.properties[key].columnType === 'findBoolean' ? 140 : 200
 					});
 					layer.displayedColumns.push(key);
 				}
@@ -406,7 +406,30 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		this.FilterGeometryAdapter.setFilteredLayer(layer.id);
 		this.FilterGeometryAdapter.mainFlow.next({
 			sideFilters: layer.tableFilterColumnsData
-		})
-		console.log(layer.tableFilterColumnsData)
+		});
+	}
+
+	hideOrShowColumns(columnName, layer) {
+		if (!layer) return;
+		let index;
+		for (index = 0; index < layer.columns.length; index++) {
+			if (columnName === layer.columns[index].name) {
+				break;
+			}
+		}
+		if (index === undefined) return;
+		index++;
+
+		if (layer.displayedColumns.indexOf(columnName) === -1) {
+			layer.displayedColumns.splice(index, 0, columnName);
+		} else {
+			layer.displayedColumns.splice(layer.displayedColumns.indexOf(columnName), 1);
+		}
+
+		this.changeDetectorRef.detectChanges();
+	}
+
+	columnIsVisible(columnName) {
+		return this.activeLayer.displayedColumns.filter(item => columnName === item ? item : false)[0];
 	}
 }
