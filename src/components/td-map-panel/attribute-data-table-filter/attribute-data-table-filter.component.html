@@ -1,54 +1,54 @@
 <div mat-sort-header>
-  <ng-content></ng-content>
+    <ng-content></ng-content>
 </div>
 <button mat-icon-button [matMenuTriggerFor]="menu">
   <mat-icon fontSet="mdi" fontIcon="mdi-filter" color='accent' [color]="isActive? 'accent': ''"></mat-icon>
 </button>
 <mat-menu #menu="matMenu" class="attribute-data-table-filter-mat-menu-content">
-  <form [formGroup]="filterForm" style="display: flex;flex-direction: column;">
-    <ng-container *ngIf="columnData.columnType === 'findSimple' || columnData.columnType === 'findDate'">
-      <mat-form-field (click)="$event.stopPropagation()" style="flex:1;">
-        <input matInput placeholder="" formControlName="findSimple">
-      </mat-form-field>
-      <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findSimpleNull">нет значений</mat-checkbox>
-    </ng-container>
-    <ng-container *ngIf="columnData.columnType === 'findBoolean'">
-      <div fxLayout="column" style="flex:1;">
-        <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanTrue">да</mat-checkbox>
-        <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanFalse">нет</mat-checkbox>
-        <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanNull">нет значений</mat-checkbox>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="columnData.columnType === 'findNumber'">
-      <div style="flex:1;display:flex; flex-direction:row">
-        <mat-form-field (click)="$event.stopPropagation()" style="flex:0.5; width:128px;">
-          <input matInput placeholder="от" formControlName="findNumberFrom">
-        </mat-form-field>
-        <mat-form-field (click)="$event.stopPropagation()" style="flex:0.5;margin-left:8px;width:128px;">
-          <input matInput placeholder="до" formControlName="findNumberTo">
-        </mat-form-field>
-      </div>
-      <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findNumberNull">нет значений</mat-checkbox>
-    </ng-container>
-    <ng-container *ngIf="columnData.columnType === 'findMany'">
-      <mat-form-field style="flex:1;">
-        <mat-select formControlName="findMany" class="attribute-fiter-select" multiple="true">
-          <mat-option *ngFor="let currentProperty of columnData.currentProperties" [value]="currentProperty">
-            {{ currentProperty.description }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findManyNull">нет значений</mat-checkbox>
-    </ng-container>
-    <ng-container *ngIf="columnData.columnType === 'findOne'">
-      <mat-form-field style="flex:1;">
-        <mat-select formControlName="findOne" class="attribute-fiter-select" multiple="false">
-          <mat-option *ngFor="let currentProperty of columnData.currentProperties" [value]="currentProperty">
-            {{ currentProperty.description }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findOneNull">нет значений</mat-checkbox>
-    </ng-container>
-  </form>
+    <form [formGroup]="filterForm" style="display: flex;flex-direction: column;">
+        <ng-container *ngIf="columnData.columnType === 'findSimple' || columnData.columnType === 'findDate'">
+            <mat-form-field (click)="$event.stopPropagation()" style="flex:1;">
+                <input matInput placeholder="" formControlName="findSimple">
+            </mat-form-field>
+            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findSimpleNull">нет значений</mat-checkbox>
+        </ng-container>
+        <ng-container *ngIf="columnData.columnType === 'findBoolean'">
+            <div fxLayout="column" style="flex:1;">
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanTrue">да</mat-checkbox>
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanFalse">нет</mat-checkbox>
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanNull">нет значений</mat-checkbox>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="columnData.columnType === 'findNumber'">
+            <div style="flex:1;display:flex; flex-direction:row">
+                <mat-form-field (click)="$event.stopPropagation()" style="flex:0.5; width:128px;">
+                    <input matInput placeholder="от" formControlName="findNumberFrom">
+                </mat-form-field>
+                <mat-form-field (click)="$event.stopPropagation()" style="flex:0.5;margin-left:8px;width:128px;">
+                    <input matInput placeholder="до" formControlName="findNumberTo">
+                </mat-form-field>
+            </div>
+            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findNumberNull">нет значений</mat-checkbox>
+        </ng-container>
+        <ng-container *ngIf="columnData.columnType === 'findMany'">
+            <mat-form-field style="flex:1;">
+                <mat-select formControlName="findMany" class="attribute-fiter-select" multiple="true">
+                    <mat-option *ngFor="let currentProperty of columnData.currentProperties" [value]="currentProperty">
+                        {{ currentProperty.description }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findManyNull">нет значений</mat-checkbox>
+        </ng-container>
+        <ng-container *ngIf="columnData.columnType === 'findOne'">
+            <mat-form-field style="flex:1;">
+                <mat-select formControlName="findOne" class="attribute-fiter-select" multiple="false">
+                    <mat-option *ngFor="let currentProperty of columnData.currentProperties" [value]="currentProperty">
+                        {{ currentProperty.description }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findOneNull">нет значений</mat-checkbox>
+        </ng-container>
+    </form>
 </mat-menu>

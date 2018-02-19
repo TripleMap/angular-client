@@ -27,11 +27,13 @@ interface AvaliableLayer {
 	data: any;
 	filteredList: any[];
 	tableFilterColumnsData: { column: string; values: any; }[];
+	showOnlyFiltered: boolean;
+	showOnlySelected: boolean;
 }
 
 
 
-//////  TO DO filteredList = null - нет фильтрации, [] - есть фильтрация
+//////  TO DO onScroll left/right не перерендеривать список
 
 
 
@@ -75,6 +77,8 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			item.visibleFeaturesPerPage = new MatTableDataSource();
 			item.selectedFeatures = new SelectionModel(true);
 			item.data = [];
+			item.showOnlyFiltered = true;
+			item.showOnlySelected = false;
 			item.tableFilterColumnsData = [];
 			let onChangeSelectedSubscriber = item.selectedFeatures.onChange.subscribe(data => {
 				this.updateMapLayerOnFeatureSelectionChange(data, item);
@@ -164,20 +168,30 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	}
 
 
-	compareOnFilterList(filteredList, data) {
+	compareOnFilterList(layer, data) {
 		let dictionary = {};
-		let filterIndex, filterLen = filteredList.length;
+		let filterIndex, filterLen = layer.filteredList.length;
 		for (let filterIndex = 0; filterIndex < filterLen; filterIndex++) {
-			dictionary[filteredList[filterIndex].id] = 1;
+			dictionary[layer.filteredList[filterIndex].id] = 1;
 		}
 
-		let index, dataLen = data.length;
-
-		for (index = 0; index < dataLen; index++) {
-			dictionary[data[index].id] ? data[index].filteFlag = false : data[index].filteFlag = true;
+		let index, dataLen = data.length, result = [];
+		if (layer.showOnlyFiltered) {
+			for (index = 0; index < dataLen; index++) {
+				if (dictionary[data[index].id]) {
+					data[index].filteFlag = false;
+					result.push(data[index]);
+				} else {
+					data[index].filteFlag = true;
+				}
+			}
+		} else {
+			for (index = 0; index < dataLen; index++) {
+				dictionary[data[index].id] ? data[index].filteFlag = false : data[index].filteFlag = true;
+			}
+			result = data;
 		}
-
-		return data;
+		return result;
 	}
 
 
@@ -185,8 +199,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		if (!this.table.first || !data) return;
 		let filteredData;
 		if (layer.filteredList) {
-
-			filteredData = this.compareOnFilterList(layer.filteredList, data);
+			filteredData = this.compareOnFilterList(layer, data);
 		} else {
 			filteredData = data.map(item => {
 				item.filteFlag = false;
@@ -226,7 +239,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		if (!tableRef || !inspectLayer || !data) return;
 		let filteredData;
 		if (layer.filteredList) {
-			filteredData = this.compareOnFilterList(layer.filteredList, data)
+			filteredData = this.compareOnFilterList(layer, data)
 		} else {
 			filteredData = data.map(item => {
 				item.filteFlag = false;
@@ -259,6 +272,9 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		this.onFilterListSubscriberNext(layer, true);
 	}
 
+	onShowFilteredOrSelectionChange(e, layer) {
+		this.onFilterListSubscriberNext(layer, true);
+	}
 
 	getColumnNamesForLayer(layer) {
 		this.http.get(layer.schemaInfoUrl).subscribe((data: { properties: object; }) => {

@@ -79,8 +79,8 @@ export class AttributeDataTableFilterComponent implements OnInit {
 
   pipeFiltersToNumberOrNull = filters => {
     if (this.columnData.columnType === 'findNumber') {
-      filters.findNumberFrom = filters.findNumberFrom ? Number(filters.findNumberFrom.replace(",", ".")) : null;
-      filters.findNumberTo = filters.findNumberTo ? Number(filters.findNumberTo.replace(",", ".")) : null;
+      filters.findNumberFrom = filters.findNumberFrom && filters.findNumberFrom !== 0 ? Number(filters.findNumberFrom.replace(",", ".")) : null;
+      filters.findNumberTo = filters.findNumberTo && filters.findNumberTo !== 0 ? Number(filters.findNumberTo.replace(",", ".")) : null;
     }
     if (this.columnData.columnType === 'findSimple') {
       filters.findSimple = filters.findSimple ? filters.findSimple.length ? filters.findSimple : null : null;
@@ -145,7 +145,7 @@ export class AttributeDataTableFilterComponent implements OnInit {
         }
         break;
       case 'findNumber':
-        if (filterValue.findNumberFrom || filterValue.findNumberTo || filterValue.findNumberNull) {
+        if ((filterValue.findNumberFrom >= 0 && filterValue.findNumberFrom !== null) || (filterValue.findNumberTo >= 0 && filterValue.findNumberTo !== null) || filterValue.findNumberNull) {
           filterValues = {
             values: {
               from: filterValue.findNumberFrom,
