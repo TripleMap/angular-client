@@ -183,7 +183,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 
 	loadDataVirtualScroll(layer, data) {
 		if (!this.table.first || !data) return;
-		let filteredData; console.log(layer.filteredList)
+		let filteredData;
 		if (layer.filteredList) {
 
 			filteredData = this.compareOnFilterList(layer.filteredList, data);
@@ -271,6 +271,8 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 						label: data.properties[key].label || key,
 						columnType: data.properties[key].columnType || 'findSimple',
 						columnValues: data.properties[key].values || null,
+						avaliableProperties: data.properties[key].avaliableProperties || null,
+						currentProperties: data.properties[key].currentProperties || null,
 						columnFilters: [],
 						rowWidth: data.properties[key].columnType === 'findBoolean' ? 140 : 200
 					});
@@ -382,7 +384,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		let valuesIsEmpty = false;
 		let isExist = false;
 		let index;
-		if (!e.values) {
+		if (!e.filterValues) {
 			valuesIsEmpty = true;
 		}
 
@@ -394,13 +396,13 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		}
 
 		if (isExist && !valuesIsEmpty) {
-			layer.tableFilterColumnsData[index].values = e.values
+			layer.tableFilterColumnsData[index].values = e.filterValues
 		} else if (isExist && valuesIsEmpty) {
 			layer.tableFilterColumnsData.splice(index, 1);
 		} else if (!isExist && !valuesIsEmpty) {
 			layer.tableFilterColumnsData.push({
 				column: e.columnData.name,
-				values: e.values
+				values: e.filterValues
 			});
 		}
 		this.FilterGeometryAdapter.setFilteredLayer(layer.id);

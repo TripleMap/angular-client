@@ -35,6 +35,7 @@ export class AttributeDataTableFilterComponent implements OnInit {
     if (this.columnData.columnType === 'findSimple') {
       this.filterForm = this.fb.group({
         findSimple: '',
+        findSimpleNull: false
       });
     } else if (this.columnData.columnType === 'findBoolean') {
       this.filterForm = this.fb.group({
@@ -45,15 +46,23 @@ export class AttributeDataTableFilterComponent implements OnInit {
     } else if (this.columnData.columnType === 'findNumber') {
       this.filterForm = this.fb.group({
         findNumberFrom: [null, [Validators.min(0), Validators.pattern("^[0-9]{1,7}([,.][0-9]{0,7})?$")]],
-        findNumberTo: [null, [Validators.min(0), Validators.pattern("^[0-9]{1,7}([,.][0-9]{0,7})?$")]]
+        findNumberTo: [null, [Validators.min(0), Validators.pattern("^[0-9]{1,7}([,.][0-9]{0,7})?$")]],
+        findNumberNull: false
       });
     } else if (this.columnData.columnType === 'findDate') {
       this.filterForm = this.fb.group({
         findSimple: '',
+        findSimpleNull: false
       });
     } else if (this.columnData.columnType === 'findMany') {
       this.filterForm = this.fb.group({
-        findSimple: '',
+        findMany: null,
+        findManyNull: false
+      });
+    } else if (this.columnData.columnType === 'findOne') {
+      this.filterForm = this.fb.group({
+        findOne: null,
+        findOneNull: false
       });
     }
 
@@ -63,12 +72,12 @@ export class AttributeDataTableFilterComponent implements OnInit {
       .debounceTime(500)
       .distinctUntilChanged()
       .filter(this.isValidForm)
-      .map(this.pipeFiltersToNumber)
+      .map(this.pipeFiltersToNumberOrNull)
       .subscribe(this.filterData.bind(this));
 
   }
 
-  pipeFiltersToNumber = filters => {
+  pipeFiltersToNumberOrNull = filters => {
     if (this.columnData.columnType === 'findNumber') {
       filters.findNumberFrom = filters.findNumberFrom ? Number(filters.findNumberFrom.replace(",", ".")) : null;
       filters.findNumberTo = filters.findNumberTo ? Number(filters.findNumberTo.replace(",", ".")) : null;
@@ -76,6 +85,14 @@ export class AttributeDataTableFilterComponent implements OnInit {
     if (this.columnData.columnType === 'findSimple') {
       filters.findSimple = filters.findSimple ? filters.findSimple.length ? filters.findSimple : null : null;
     }
+    if (this.columnData.columnType === 'findMany') {
+      filters.findMany = filters.findMany ? filters.findMany.length ? filters.findMany : null : null;
+    }
+
+    if (this.columnData.columnType === 'findOne') {
+      filters.findOne = filters.findOne ? filters.findOne.length ? filters.findOne : null : null;
+    }
+
     return filters;
   }
 
@@ -84,47 +101,79 @@ export class AttributeDataTableFilterComponent implements OnInit {
   clearForm(): void {
     if (this.columnData.columnType === 'findSimple') {
       this.filterForm.get('findSimple').setValue('');
+      this.filterForm.get('findSimpleNull').setValue(false);
     } else if (this.columnData.columnType === 'findBoolean') {
       this.filterForm.get('findBooleanTrue').setValue(false);
       this.filterForm.get('findBooleanFalse').setValue(false);
-      this.filterForm.get('findBooleanNull').setValue(null);
+      this.filterForm.get('findBooleanNull').setValue(false);
     } else if (this.columnData.columnType === 'findNumber') {
       this.filterForm.get('findNumberFrom').setValue(null);
       this.filterForm.get('findNumberTo').setValue(null);
+      this.filterForm.get('findNumberNull').setValue(null);
+    } else if (this.columnData.columnType === 'findMany') {
+      this.filterForm.get('findMany').setValue(null);
+      this.filterForm.get('findManyNull').setValue(false);
+    } else if (this.columnData.columnType === 'findOne') {
+      this.filterForm.get('findOne').setValue(null);
+      this.filterForm.get('findOneNull').setValue(false);
     }
     this.isActive = false;
   }
 
   filterData(filterValue) {
-    let values;
-    if (this.columnData.columnType === 'findSimple' || this.columnData.columnType === 'findDate' || this.columnData.columnType === 'findMany') {
-      values = filterValue.findSimple;
-      values ? this.isActive = true : this.isActive = false;
-    } else if (this.columnData.columnType === 'findBoolean') {
-      if (!filterValue.findBooleanTrue && !filterValue.findBooleanFalse && !filterValue.findBooleanNull) {
-        values = null;
-        this.isActive = false;
-      } else {
-        values = {
-          yes: filterValue.findBooleanTrue,
-          no: filterValue.findBooleanFalse,
-          noop: filterValue.findBooleanNull
-        };
-        this.isActive = true;
-      }
-    } else if (this.columnData.columnType === 'findNumber') {
-      if (!filterValue.findBooleanTrue && !filterValue.findBooleanFalse && !filterValue.findBooleanNull) {
-        values = null;
-        this.isActive = false;
-      } else {
-        values = {
-          from: filterValue.findNumberFrom,
-          to: filterValue.findNumberTo
-        };
-        this.isActive = true;
-      }
-    }
+    let filterValues = null;
 
-    this.filterChange.emit({ columnData: this.columnData, values });
+    switch (this.columnData.columnType) {
+      case 'findSimple':
+      case 'findDate':
+        if (filterValue.findSimple || filterValue.findSimpleNull) {
+          filterValues = {
+            values: filterValue.findSimple,
+            noop: filterValue.findSimpleNull
+          };
+        }
+        break;
+      case 'findBoolean':
+        if (filterValue.findBooleanTrue || filterValue.findBooleanFalse || filterValue.findBooleanNull) {
+          filterValues = {
+            values: {
+              yes: filterValue.findBooleanTrue,
+              no: filterValue.findBooleanFalse
+            },
+            noop: filterValue.findBooleanNull
+          };
+        }
+        break;
+      case 'findNumber':
+        if (filterValue.findNumberFrom || filterValue.findNumberTo || filterValue.findNumberNull) {
+          filterValues = {
+            values: {
+              from: filterValue.findNumberFrom,
+              to: filterValue.findNumberTo
+            },
+            noop: filterValue.findNumberNull
+          };
+        }
+        break;
+      case 'findMany':
+        if (filterValue.findMany || filterValue.findManyNull) {
+          filterValues = {
+            values: filterValue.findMany,
+            noop: filterValue.findManyNull
+          };
+        }
+        break;
+      case 'findOne':
+        if (filterValue.findOne || filterValue.findOneNull) {
+          filterValues = {
+            values: filterValue.findOne,
+            noop: filterValue.findOneNull
+          };
+        }
+        break;
+    };
+
+    filterValues ? this.isActive = true : this.isActive = false;
+    this.filterChange.emit({ columnData: this.columnData, filterValues });
   }
 }

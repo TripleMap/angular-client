@@ -1,10 +1,21 @@
 attribute-data-table-filter {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .attribute-data-table-filter-mat-menu-content {
-    padding: 4px 16px !important;
+  padding: 4px 16px !important;
+  min-width: 340px;
+}
+
+.attribute-fiter-select {
+  font-size: 13px;
+  min-width: 340px;
+  overflow: hidden;
+}
+
+.attribute-fiter-select {
+  width: 100%;
 }
