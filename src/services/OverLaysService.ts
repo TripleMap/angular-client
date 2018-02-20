@@ -31,8 +31,9 @@ export class OverLaysService {
             labelName: item.options.labelName,
             visible: item.options.visible,
             featureInfoUrl: item.options.featureInfoUrl,
+            featuresInfoUrl: item.options.featuresInfoUrl,
             schemaInfoUrl: item.options.schemaInfoUrl,
-            featureFilterUrl: item.options.featureFilterUrl
+            featuresFilterUrl: item.options.featuresFilterUrl
         }))
 
 
@@ -94,9 +95,10 @@ export class OverLaysService {
             maxZoom: 24,
             minZoom: 12,
             dataUrl: "api/parcels/GetFeatures",
-            featureInfoUrl: "api/parcels/GetFeaturesInfo",
+            featureInfoUrl: "api/parcels/GetFeatureInfo",
+            featuresInfoUrl: "api/parcels/GetFeaturesInfo",
             schemaInfoUrl: "api/parcels/GetSchema",
-            featureFilterUrl: 'api/parcels/GetFeaturesByFilters',
+            featuresFilterUrl: 'api/parcels/GetFeaturesByFilters',
             styled: false,
             labeled: false,
             selectable: true,
@@ -120,9 +122,10 @@ export class OverLaysService {
             maxZoom: 24,
             minZoom: 12,
             dataUrl: "api/parcelsnext/GetFeatures",
-            featureInfoUrl: "api/parcelsnext/GetFeaturesInfo",
+            featureInfoUrl: "api/parcelsnext/GetFeatureInfo",
+            featuresInfoUrl: "api/parcelsnext/GetFeaturesInfo",
             schemaInfoUrl: "api/parcelsnext/GetSchema",
-            featureFilterUrl: 'api/parcelsnext/GetFeaturesByFilters',
+            featuresFilterUrl: 'api/parcelsnext/GetFeaturesByFilters',
             styled: false,
             labeled: false,
             selectable: true,

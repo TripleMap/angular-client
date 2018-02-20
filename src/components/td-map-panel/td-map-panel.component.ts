@@ -1,4 +1,4 @@
-import { Component, Output, Input, EventEmitter, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChildren, NgZone } from "@angular/core";
+import { Component, Output, Input, EventEmitter, ViewChild, OnChanges, SimpleChanges, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChildren, NgZone, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl } from '@angular/forms';
 import { HttpParams, HttpClient } from "@angular/common/http";
 import { OverLaysService } from "../../services/OverLaysService";
@@ -22,25 +22,22 @@ interface AvaliableLayer {
 	total: number;
 	visibleFeaturesPerPage: any;
 	featureInfoUrl: string;
+	featuresInfoUrl: string;
 	schemaInfoUrl: string;
-	featureFilterUrl: string;
+	featuresFilterUrl: string;
 	data: any;
 	filteredList: any[];
+	visibleFeatures: any[];
 	tableFilterColumnsData: { column: string; values: any; }[];
 	showOnlyFiltered: boolean;
 	showOnlySelected: boolean;
 }
 
-
-
-//////  TO DO onScroll left/right не перерендеривать список
-
-
-
 @Component({
 	selector: "td-map-panel",
 	templateUrl: "./td-map-panel.component.html",
-	styleUrls: ["./td-map-panel.component.css"]
+	styleUrls: ["./td-map-panel.component.css"],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	@Input() public tdMapPanel: boolean;
@@ -69,6 +66,9 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		this.changeDetectionTick = new Subject()
 		this.subscriberChangeDetectionTick = this.changeDetectionTick.asObservable().debounceTime(100).subscribe(data => {
 			this.changeDetectorRef.detectChanges();
+			if (this.activeLayer) {
+				this.onFilterListSubscriberNext(this.activeLayer, false);
+			}
 		});
 	}
 
@@ -85,6 +85,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			});
 			this.subscriptions[`${item.id}_updateMapLayerOnFeatureSelectionChange`] = onChangeSelectedSubscriber;
 			this.subscribeMapLayersOnFeatureSelectionsChange(item);
+			console.log(item)
 			return item;
 		});
 
@@ -125,9 +126,6 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		});
 		this.subscriptions[`OverLaysService_visibleLayers`] = visibleSubscriber;
 
-		// const map = this.MapService.getMap();
-		// map.on('moveend', this.subscribeOnMapMoved, this);
-
 		let filterSubscriber = this.FilterGeometryAdapter.filteredLayerId.subscribe(layerIdAndData => {
 			if (layerIdAndData && layerIdAndData.layerId) {
 				let inspectLayer = this.avaliableLayers.filter(layer => layer.id === layerIdAndData.layerId ? layer : false)[0]
@@ -138,56 +136,59 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 
 	}
 
-	subscribeOnMapMoved(e) {
-		if (this.activeLayer) {
-			this.getColumnDataForLayer(this.activeLayer, true);
-		}
-	}
-
 	ngOnDestroy() {
-		const map = this.MapService.getMap();
-		map.off('moveend', this.subscribeOnMapMoved, this);
 		for (let key in this.subscriptions) {
 			this.subscriptions[key].unsubscribe();
 		}
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
-		if (changes.tdMapPanel && this.activeLayer) {
-			this.getColumnDataForLayer(this.activeLayer, false);
-		}
+		if (changes.tdMapPanel && this.activeLayer) this.getColumnDataForLayer(this.activeLayer, false);
+
 	}
 
 	getColumnDataForLayer(layer, force) {
-		let nw = this.MapService.getMap().getBounds().getNorthWest();
-		let se = this.MapService.getMap().getBounds().getSouthEast();
-		let params = new HttpParams().set('bbox', [nw.lng, se.lat, se.lng, nw.lat].toString());
-		this.http.get(layer.featureInfoUrl, { params }).subscribe((data: any[]) => {
-			this.loadDataVirtualScroll(layer, data)
-		});
+		this.http.get(layer.featuresInfoUrl).subscribe(data => this.loadDataVirtualScroll(layer, data));
 	}
 
 
 	compareOnFilterList(layer, data) {
-		let dictionary = {};
-		let filterIndex, filterLen = layer.filteredList.length;
-		for (let filterIndex = 0; filterIndex < filterLen; filterIndex++) {
-			dictionary[layer.filteredList[filterIndex].id] = 1;
+		let filterDictionary = {};
+		let filterIndex;
+		let filterLen = layer.filteredList ? layer.filteredList.length : null;
+		if (filterLen !== null) {
+			for (let filterIndex = 0; filterIndex < filterLen; filterIndex++) {
+				filterDictionary[layer.filteredList[filterIndex].id] = 1;
+			}
 		}
 
+		let selectedFeaturesDictionary = {};
 		let index, dataLen = data.length, result = [];
-		if (layer.showOnlyFiltered) {
+
+		if ((layer.showOnlyFiltered && filterLen !== null) || (layer.showOnlySelected && layer.selectedFeatures.selected)) {
+			let selectedIndex, selectedLength = layer.selectedFeatures.selected.length;
+			for (let selectedIndex = 0; selectedIndex < selectedLength; selectedIndex++) {
+				selectedFeaturesDictionary[layer.selectedFeatures.selected[selectedIndex]] = 1;
+			}
 			for (index = 0; index < dataLen; index++) {
-				if (dictionary[data[index].id]) {
+				if (layer.showOnlyFiltered && layer.showOnlySelected && filterDictionary[data[index].id] && selectedFeaturesDictionary[data[index].id]) {
+					data[index].filteFlag = false;
+					result.push(data[index]);
+				} else if (layer.showOnlyFiltered && !layer.showOnlySelected && filterDictionary[data[index].id]) {
+					data[index].filteFlag = false;
+					result.push(data[index]);
+				} else if (!layer.showOnlyFiltered && layer.showOnlySelected && selectedFeaturesDictionary[data[index].id]) {
 					data[index].filteFlag = false;
 					result.push(data[index]);
 				} else {
 					data[index].filteFlag = true;
 				}
 			}
-		} else {
+		}
+
+		if (!(layer.showOnlyFiltered && filterLen !== null) && !(layer.showOnlySelected && layer.selectedFeatures.selected)) {
 			for (index = 0; index < dataLen; index++) {
-				dictionary[data[index].id] ? data[index].filteFlag = false : data[index].filteFlag = true;
+				data[index].filteFlag = false;
 			}
 			result = data;
 		}
@@ -197,16 +198,8 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 
 	loadDataVirtualScroll(layer, data) {
 		if (!this.table.first || !data) return;
-		let filteredData;
-		if (layer.filteredList) {
-			filteredData = this.compareOnFilterList(layer, data);
-		} else {
-			filteredData = data.map(item => {
-				item.filteFlag = false;
-				return item;
-			});
-		}
-
+		let filteredData = this.compareOnFilterList(layer, data);
+		layer.visibleFeatures = filteredData;
 		let tableRef = this.table.first.nativeElement;
 		const tableViewHeight = tableRef.offsetHeight;
 		const tableScrollHeight = tableRef.scrollHeight;
@@ -233,19 +226,13 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	}
 
 	onFilterListSubscriberNext(layer, onScroll) {
+		if (!this.table || !this.table.first) return;
 		let tableRef = this.table.first.nativeElement;
 		let inspectLayer = layer || this.activeLayer;
 		let data = inspectLayer.data;
 		if (!tableRef || !inspectLayer || !data) return;
-		let filteredData;
-		if (layer.filteredList) {
-			filteredData = this.compareOnFilterList(layer, data)
-		} else {
-			filteredData = data.map(item => {
-				item.filteFlag = false;
-				return item;
-			});
-		}
+		let filteredData = this.compareOnFilterList(layer, data)
+		layer.visibleFeatures = filteredData;
 		const tableViewHeight = tableRef.offsetHeight;
 		const tableScrollHeight = tableRef.scrollHeight;
 		const scrollLocation = tableRef.scrollTop;
@@ -273,7 +260,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	}
 
 	onShowFilteredOrSelectionChange(e, layer) {
-		this.onFilterListSubscriberNext(layer, true);
+		this.onFilterListSubscriberNext(layer, false);
 	}
 
 	getColumnNamesForLayer(layer) {
@@ -304,21 +291,11 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	isAllSelected() {
 		if (!this.activeLayer) {
 			return false;
-		} else {
-			const numSelected = this.activeLayer.selectedFeatures.selected.length;
-			const numRows = this.activeLayer.data.length;
-			return numSelected == numRows;
 		}
 
-
-		// if (!this.activeLayer.selectedFeatures.selected.length) return false;
-		// let isAllFeaturesOnCurrentViewSelected = true;
-		// for (let i = 0, len = this.activeLayer.data.length; i < len; i++) {
-		// 	if (this.activeLayer.selectedFeatures.selected.indexOf(this.activeLayer.data[i].id) === -1) {
-		// 		isAllFeaturesOnCurrentViewSelected = false;
-		// 	}
-		// }
-		// return isAllFeaturesOnCurrentViewSelected;
+		const numSelected = this.activeLayer.selectedFeatures.selected.length;
+		const numRows = this.activeLayer.visibleFeatures ? this.activeLayer.visibleFeatures.length : null;
+		return numSelected == numRows;
 	}
 
 	masterToggle() {
@@ -327,20 +304,15 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			const maplayer = this.OverLaysService.getLayerById(this.activeLayer.id);
 			if (maplayer && maplayer.options.selectable) maplayer.clearSelections();
 		} else {
-			this.zone.runOutsideAngular(() => {
-				let i, len = this.activeLayer.data.length;
-				for (let i = 0; i < len; i++) {
-					if (!this.activeLayer.data[i].filteFlag) {
-						this.activeLayer.selectedFeatures.select(this.activeLayer.data[i].id);
-					}
-				}
-			});
+			let i, len = this.activeLayer.data.length;
+			for (let i = 0; i < len; i++) {
+				if (!this.activeLayer.data[i].filteFlag) this.activeLayer.selectedFeatures.select(this.activeLayer.data[i].id);
+			}
 		}
 		this.changeDetectionTick.next(0);
 	}
 
 	subscribeMapLayersOnFeatureSelectionsChange(layer) {
-
 		const maplayer = this.OverLaysService.getLayerById(layer.id);
 		if (!maplayer && !maplayer.options.selectable) return;
 
@@ -348,7 +320,6 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			featureSelectionsEvent.added.map(featureId => { if (!layer.selectedFeatures.isSelected(featureId)) { layer.selectedFeatures.select(featureId); this.changeDetectionTick.next(0); } });
 			featureSelectionsEvent.removed.map(featureId => { if (layer.selectedFeatures.isSelected(featureId)) { layer.selectedFeatures.deselect(featureId); this.changeDetectionTick.next(1); } });
 		});
-
 		this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = subscriber;
 	}
 
@@ -429,6 +400,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 
 	hideOrShowColumns(columnName, layer) {
 		if (!layer) return;
+		if (!layer.displayedColumns && !layer.displayedColumns.length) return;
 		let index;
 		for (index = 0; index < layer.columns.length; index++) {
 			if (columnName === layer.columns[index].name) {
@@ -448,6 +420,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	}
 
 	columnIsVisible(columnName) {
+		if (!this.activeLayer.displayedColumns || !this.activeLayer.displayedColumns.length) return false;
 		return this.activeLayer.displayedColumns.filter(item => columnName === item ? item : false)[0];
 	}
 }

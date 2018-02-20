@@ -18,7 +18,7 @@ interface AvaliableLayer {
 	visibleFeaturesPerPage: any;
 	featureInfoUrl: string;
 	schemaInfoUrl: string;
-	featureFilterUrl: string;
+	featuresFilterUrl: string;
 	data: any;
 	filteredList: any[];
 	previousFilterParams: any;
@@ -49,7 +49,7 @@ export class FilterGeometryAdapter {
 
 	updateLayerFilters = requestParams => {
 		this._http
-			.post(this.filteredLayer.featureFilterUrl, requestParams)
+			.post(this.filteredLayer.featuresFilterUrl, requestParams)
 			.subscribe((data: any[]) => {
 				if (this.filteredLayer) {
 					this.filteredLayer.filteredList = data;
@@ -104,7 +104,7 @@ export class FilterGeometryAdapter {
 	concatenateTableFilters(columnData, filterValue, layer) {
 		if (layer.previousFilterParams) {
 			this._http
-				.post(this.filteredLayer.featureFilterUrl, layer.previousFilterParams)
+				.post(this.filteredLayer.featuresFilterUrl, layer.previousFilterParams)
 				.subscribe((data: any[]) => {
 					if (this.filteredLayer) this.filteredLayer.filteredList = data;
 					this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });

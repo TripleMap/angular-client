@@ -1,0 +1,34 @@
+<div color="white" class="toolbar header-feature-info-elements" fxLayout="row" fxLayoutAlign="space-between center">
+  <ng-container *ngIf="feature">
+    <label class="selected-elements-counter ">Кадастровый номер: {{ feature.cn }}</label>
+  </ng-container>
+
+</div>
+<ng-container *ngIf="feature">
+  <form class="feature-info-elements">
+    <ng-container *ngFor='let column of activeLayer.columns; let keyIndex = index'>
+      <div fxLayout="row" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}">
+        <label class="feature-attribute-key">{{column.label}}</label>
+        <ng-container *ngIf="column.columnType === 'findBoolean'">
+          <label class="feature-attribute-value" *ngIf="feature[column.name]">Да</label>
+          <label class="feature-attribute-value" *ngIf="!feature[column.name] && feature[column.name] !== false">Нет значения</label>
+          <label class="feature-attribute-value" *ngIf="feature[column.name] === false">Нет</label>
+        </ng-container>
+        <ng-container *ngIf="column.columnType === 'findMany'">
+          <div class="feature-attribute-value">
+            <ng-container *ngFor="let fyndManyItem of feature[column.name]; let i = index">
+              <label>{{i+1}}) {{fyndManyItem.description}} </label>
+              <br/>
+            </ng-container>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="column.columnType !== 'findBoolean' && column.columnType !== 'findMany'">
+          <div *ngIf="linkDetector(feature[column.name])" class="feature-attribute-value">
+            <a href="{{feature[column.name]}}">{{feature[column.name]}}</a>
+          </div>
+          <label *ngIf="!linkDetector(feature[column.name])" class="feature-attribute-value"> {{feature[column.name]}} </label>
+        </ng-container>
+      </div>
+    </ng-container>
+  </form>
+</ng-container>

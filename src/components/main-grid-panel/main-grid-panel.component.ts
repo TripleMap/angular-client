@@ -38,13 +38,13 @@ export class MainGridPanelComponent {
       outerMarginLeft: 8,
       mobileBreakpoint: 640,
       margin: 10,
-      minCols: 8,
+      minCols: 15,
       maxCols: 100,
       minRows: 8,
       maxRows: 100,
-      maxItemCols: 10,
+      maxItemCols: 25,
       minItemCols: 1,
-      maxItemRows: 10,
+      maxItemRows: 25,
       minItemRows: 1,
       maxItemArea: 2500,
       minItemArea: 1,
@@ -54,11 +54,6 @@ export class MainGridPanelComponent {
       keepFixedWidthInMobile: false,
       scrollSensitivity: 5,
       scrollSpeed: 10,
-      enableEmptyCellClick: false,
-      enableEmptyCellContextMenu: false,
-      enableEmptyCellDrop: false,
-      enableEmptyCellDrag: false,
-      ignoreMarginInRow: true,
       draggable: {
         delayStart: 0,
         enabled: true,
@@ -81,20 +76,21 @@ export class MainGridPanelComponent {
         }
       },
       swap: false,
-      pushItems: true,
+      pushItems: false,
       pushDirections: { north: true, east: true, south: true, west: true },
       pushResizeItems: true,
-      displayGrid: DisplayGrid.Always,
+      displayGrid: DisplayGrid.None,
       itemResizeCallback: this.itemResize,
     };
 
-    this.gridItems.push({ id: 'tdmap', cols: 8, rows: 8, y: 0, x: 0 });
+    this.gridItems.push({ id: 'tdmap', cols: 10, rows: 8, y: 0, x: 0 });
+    this.gridItems.push({ id: 'tdmapItem', cols: 5, rows: 8, y: 0, x: 10 });
   }
 
   itemResize = (item, itemComponent) => {
     if (item.id === 'tdmap') {
       const map = this.MapService.getMap();
-      setTimeout(map.invalidateSize.bind(map), 100);
+      setTimeout(map.invalidateSize.bind(map), 300);
     }
     if (item.id === 'attributeTable') {
       if (this.TdMapPanelComponent.activeLayer) {
@@ -111,7 +107,7 @@ export class MainGridPanelComponent {
 
   toggleAttributeTable(attrinuteTableValueChanges: boolean) {
     if (attrinuteTableValueChanges) {
-      this.gridItems.push({ id: 'attributeTable', cols: 6, rows: 8, y: 0, x: 8 });
+      this.gridItems.push({ id: 'attributeTable', cols: 15, rows: 8, y: 0, x: 0 });
     } else {
       for (let i = this.gridItems.length - 1; i >= 0; i--) {
         if (this.gridItems[i].id === 'attributeTable') {
@@ -124,9 +120,17 @@ export class MainGridPanelComponent {
       if (this.gridsterItems) {
         let tdmap = this.gridsterItems.forEach(gridsterItem => {
           if (gridsterItem.item.id === 'tdmap') {
-            gridsterItem.$item.cols = 8;
+            gridsterItem.$item.cols = 10;
             gridsterItem.$item.rows = 8;
             gridsterItem.$item.x = 0;
+            gridsterItem.$item.y = 0;
+            gridsterItem.setSize(true);
+            gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);
+          }
+          if (gridsterItem.item.id === 'tdmapItem') {
+            gridsterItem.$item.cols = 5;
+            gridsterItem.$item.rows = 8;
+            gridsterItem.$item.x = 10;
             gridsterItem.$item.y = 0;
             gridsterItem.setSize(true);
             gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);
@@ -136,7 +140,7 @@ export class MainGridPanelComponent {
 
       if (this.MapService.TDMapManager) {
         const map = this.MapService.getMap();
-        setTimeout(map.invalidateSize.bind(map), 100);
+        setTimeout(map.invalidateSize.bind(map), 300);
       }
     }
   }
