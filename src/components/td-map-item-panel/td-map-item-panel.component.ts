@@ -43,24 +43,26 @@ export class TdMapItemPanelComponent implements AfterViewInit {
   public subscriberOnfeaturesFlow: any;
   public lastLayerId: any;
   public feature: any;
+
   constructor(
     public http: HttpClient,
     public OverLaysService: OverLaysService,
     public MapService: MapService,
     public changeDetectorRef: ChangeDetectorRef
   ) {
-    this.featuresFlow = new Subject()
+    this.featuresFlow = new Subject();
     this.subscriberOnfeaturesFlow = this.featuresFlow.asObservable()
       .debounceTime(100)
       .subscribe(data => this.getFeatureInfo(data));
   }
 
   ngAfterViewInit() {
-    this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item: AvaliableLayer) => {
-      this.subscribeMapLayersOnFeatureSelectionsChange(item);
-      this.getColumnNamesForLayer(item);
-      return item;
-    });
+    this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions()
+      .map((item: AvaliableLayer) => {
+        this.subscribeMapLayersOnFeatureSelectionsChange(item);
+        this.getColumnNamesForLayer(item);
+        return item;
+      });
   }
 
   ngOnDestroy() {
@@ -77,7 +79,6 @@ export class TdMapItemPanelComponent implements AfterViewInit {
     });
     this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = subscriber;
   }
-
 
   getFeatureInfo(featureId) {
     if (!featureId) return;
@@ -111,6 +112,6 @@ export class TdMapItemPanelComponent implements AfterViewInit {
       this.changeDetectorRef.markForCheck();
     });
   }
-  linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
 
+  linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
 }
