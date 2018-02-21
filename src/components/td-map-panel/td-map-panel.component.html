@@ -1,89 +1,79 @@
 <div color="white" class="toolbar header-table-elements" fxLayout="row" fxLayoutAlign="space-between center">
-  <ng-container *ngIf="activeLayer">
-    <button mat-icon-button [matMenuTriggerFor]="menu">
+    <ng-container *ngIf="activeLayer">
+        <button mat-icon-button [matMenuTriggerFor]="menu">
       <mat-icon fontSet="mdi" fontIcon="mdi-settings" color='accent'></mat-icon>
     </button>
-    <mat-menu #menu="matMenu">
-      <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position:  relative;display:  block;"
-        [(ngModel)]="activeLayer.showOnlySelected" (change)="onShowFilteredOrSelectionChange($event, activeLayer)">только выбранные</mat-checkbox>
-      <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position:  relative;display:  block;"
-        [(ngModel)]="activeLayer.showOnlyFiltered" (change)="onShowFilteredOrSelectionChange($event, activeLayer)">только фильтрованные</mat-checkbox>
-      <button mat-menu-item [matMenuTriggerFor]="displayColumns">настроить колонки</button>
-      <mat-menu #displayColumns="matMenu" class="mat-menu-display-columns">
-        <ng-container *ngIf="activeLayer && activeLayer.visible">
-          <ng-container *ngFor="let column of activeLayer.columns">
-            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position: relative;display: block;"
-              (change)="hideOrShowColumns(column.name, activeLayer)" [checked]="columnIsVisible(column.name)"> {{column.label}}</mat-checkbox>
-          </ng-container>
-        </ng-container>
-      </mat-menu>
-    </mat-menu>
-    <label class="selected-elements-counter ">Выбрано объектов: {{ activeLayer.selectedFeatures.selected.length }}</label>
-  </ng-container>
-  <mat-form-field style="width: 240px;margin-left:auto;">
-    <mat-select [formControl]="inspectLayerAttributeTable">
-      <mat-option *ngIf="!activeLayer " value="None ">Нет активных слоев</mat-option>
-      <mat-option *ngFor="let avaliableLayer of avaliableLayers" [value]="avaliableLayer.id" [disabled]="!avaliableLayer.visible">{{avaliableLayer.labelName}} </mat-option>
-    </mat-select>
-  </mat-form-field>
+        <mat-menu #menu="matMenu">
+            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position:  relative;display:  block;" [(ngModel)]="activeLayer.showOnlySelected" (change)="onShowFilteredOrSelectionChange($event, activeLayer)">только выбранные</mat-checkbox>
+            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position:  relative;display:  block;" [(ngModel)]="activeLayer.showOnlyFiltered" (change)="onShowFilteredOrSelectionChange($event, activeLayer)">только фильтрованные</mat-checkbox>
+            <button mat-menu-item [matMenuTriggerFor]="displayColumns">настроить колонки</button>
+            <mat-menu #displayColumns="matMenu" class="mat-menu-display-columns">
+                <ng-container *ngIf="activeLayer && activeLayer.visible">
+                    <ng-container *ngFor="let column of activeLayer.columns">
+                        <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position: relative;display: block;" (change)="hideOrShowColumns(column.name, activeLayer)" [checked]="columnIsVisible(column.name)"> {{column.label}}</mat-checkbox>
+                    </ng-container>
+                </ng-container>
+            </mat-menu>
+        </mat-menu>
+        <label class="selected-elements-counter ">Выбрано объектов: {{ activeLayer.selectedFeatures.selected.length }}</label>
+    </ng-container>
+    <mat-form-field style="width: 240px;margin-left:auto;">
+        <mat-select [formControl]="inspectLayerAttributeTable">
+            <mat-option *ngIf="!activeLayer " value="None ">Нет активных слоев</mat-option>
+            <mat-option *ngFor="let avaliableLayer of avaliableLayers" [value]="avaliableLayer.id" [disabled]="!avaliableLayer.visible">{{avaliableLayer.labelName}} </mat-option>
+        </mat-select>
+    </mat-form-field>
 </div>
 
 <div *ngIf="activeLayer && activeLayer.visible" class="light-theme table-wrapper">
-  <ng-container *ngFor="let layer of avaliableLayers">
-    <ng-container *ngIf="layer.id === activeLayer.id">
-      <mat-table class="attribute-table " #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort"
-        [trackBy]="trackByFn" (scroll)="onTableScroll($event, layer)" (matSortChange)="sortData($event, layer)">
+    <ng-container *ngFor="let layer of avaliableLayers">
+        <ng-container *ngIf="layer.id === activeLayer.id">
+            <mat-table class="attribute-table " #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort" [trackBy]="trackByFn" (scroll)="onTableScroll($event, layer)" (matSortChange)="sortData($event, layer)">
 
-        <ng-container matColumnDef="select">
-          <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
-            <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="layer.selectedFeatures.hasValue() && isAllSelected()"
-              [indeterminate]="layer.selectedFeatures.hasValue() && !isAllSelected()"></mat-checkbox>
-          </mat-header-cell>
-          <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
-            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)"
-              [disabled]="row.filteFlag" disableRipple="true"></mat-checkbox>
-          </mat-cell>
+                <ng-container matColumnDef="select">
+                    <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
+                        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="layer.selectedFeatures.hasValue() && isAllSelected()" [indeterminate]="layer.selectedFeatures.hasValue() && !isAllSelected()"></mat-checkbox>
+                    </mat-header-cell>
+                    <mat-cell class="attribute-table_rows-cell__checkbox" *matCellDef="let row">
+                        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? layer.selectedFeatures.toggle(row.id) : null" [checked]="layer.selectedFeatures.isSelected(row.id)" [disabled]="row.filteFlag" disableRipple="true"></mat-checkbox>
+                    </mat-cell>
+                </ng-container>
+
+                <ng-container *ngFor="let column of layer.columns" matColumnDef="{{column.name}}">
+
+                    <mat-header-cell *matHeaderCellDef [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): '' " gutter (changeColumnSize)="changeColumnSize(column, $event)" attributeDataTableFilter>
+                        <attribute-data-table-filter [columnData]='column' [filterDataLayer]="layer" (filterChange)="onColumnFilterChange($event, layer)">
+                            <div> {{column.label}}</div>
+                        </attribute-data-table-filter>
+                    </mat-header-cell>
+                    <ng-container *ngIf="column.columnType === 'findBoolean'">
+                        <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" style="line-height:48px; height: 48px;display: flex;justify-content: center;" [ngClass]="{ 'filter-flag': element.filteFlag }">
+                            <label *ngIf="element[column.name]">Да</label>
+                            <label *ngIf="!element[column.name] && element[column.name] !== false">Нет значения</label>
+                            <label *ngIf="element[column.name] === false">Нет</label>
+                        </mat-cell>
+                    </ng-container>
+
+                    <ng-container *ngIf="column.columnType === 'findMany'">
+                        <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48" [ngClass]="{ 'filter-flag': element.filteFlag }">
+                            <ng-container *ngFor="let fyndManyItem of element[column.name]; let i = index">
+                                {{i+1}}) {{fyndManyItem.description}}
+                            </ng-container>
+                        </mat-cell>
+                    </ng-container>
+
+                    <ng-container *ngIf="column.columnType !== 'findBoolean' && column.columnType !== 'findMany'">
+                        <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48" [ngClass]="{ 'filter-flag': element.filteFlag }">
+                            <div *ngIf="linkDetector(element[column.name])">
+                                <a href="{{element[column.name]}}">{{element[column.name]}}</a>
+                            </div>
+                            <div *ngIf="!linkDetector(element[column.name])"> {{element[column.name]}} </div>
+                        </mat-cell>
+                    </ng-container>
+                </ng-container>
+                <mat-header-row *matHeaderRowDef="layer.displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: layer.displayedColumns;"></mat-row>
+            </mat-table>
         </ng-container>
-
-        <ng-container *ngFor="let column of layer.columns" matColumnDef="{{column.name}}">
-
-          <mat-header-cell *matHeaderCellDef [style.width.px]="column.rowWidth" (click)="isResizing? $event.stopPropagation(): '' "
-            gutter (changeColumnSize)="changeColumnSize(column, $event)" attributeDataTableFilter>
-            <attribute-data-table-filter [columnData]='column' [filterDataLayer]="layer" (filterChange)="onColumnFilterChange($event, layer)">
-              <div> {{column.label}}</div>
-            </attribute-data-table-filter>
-          </mat-header-cell>
-          <ng-container *ngIf="column.columnType === 'findBoolean'">
-            <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" style="line-height:48px; height: 48px;display: flex;justify-content: center;"
-              [ngClass]="{ 'filter-flag': element.filteFlag }">
-              <label *ngIf="element[column.name]">Да</label>
-              <label *ngIf="!element[column.name] && element[column.name] !== false">Нет значения</label>
-              <label *ngIf="element[column.name] === false">Нет</label>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngIf="column.columnType === 'findMany'">
-            <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48"
-              [ngClass]="{ 'filter-flag': element.filteFlag }">
-              <ng-container *ngFor="let fyndManyItem of element[column.name]; let i = index">
-                {{i+1}}) {{fyndManyItem.description}}
-              </ng-container>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngIf="column.columnType !== 'findBoolean' && column.columnType !== 'findMany'">
-            <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48"
-              [ngClass]="{ 'filter-flag': element.filteFlag }">
-              <div *ngIf="linkDetector(element[column.name])">
-                <a href="{{element[column.name]}}">{{element[column.name]}}</a>
-              </div>
-              <div *ngIf="!linkDetector(element[column.name])"> {{element[column.name]}} </div>
-            </mat-cell>
-          </ng-container>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="layer.displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: layer.displayedColumns;"></mat-row>
-      </mat-table>
     </ng-container>
-  </ng-container>
 </div>

@@ -20,6 +20,10 @@ interface AvaliableLayer {
   featureFilterUrl: string;
 }
 
+//// TO DO pipe to null if empty
+//// TO DO validetions 
+
+
 @Component({
   selector: 'td-map-item-panel',
   templateUrl: './td-map-item-panel.component.html',
@@ -37,7 +41,8 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   public cadSchema: any[] = [];
   public editMode: boolean = false;
   public orderForm: FormGroup;
-  public compareFn = (f1: any, f2: any) => f1 && f2 && f1.code === f2.code;
+  public subscriberOnOrderForm: any;
+  public compareFn = (f1: any, f2: any) => f1.code === f2.code;
 
   @ViewChild('tabs', { read: ElementRef }) tabs: ElementRef;
   constructor(
@@ -54,7 +59,73 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.orderForm = this.formBuilder.group({});
-    this.orderForm.valueChanges.subscribe(data => console.log(data))
+    this.subscriberOnOrderForm = this.orderForm.valueChanges
+      .debounceTime(300)
+      .subscribe(data => { this.detectOnEditFeatureDifferents(data); })
+  }
+
+  toggleEditMode() {
+    this.editMode = !this.editMode;
+    if (!this.editMode) return;
+    this.resetFormControl();
+  }
+
+  clearFormControls() {
+    for (let control in this.orderForm.controls) {
+      this.orderForm.removeControl(control)
+    }
+  }
+
+  resetFormControl() {
+    this.clearFormControls();
+    this.addControls(this.activeLayer);
+  }
+  detectOnEditFeatureDifferents(data) {
+    if (!this.editMode) return;
+    let differents = false;
+    for (let index = 0; index < this.activeLayer.attributeColumns.length; index++) {
+      let column = this.activeLayer.attributeColumns[index];
+      let columnName = column.name;
+
+      if (this.feature.hasOwnProperty(columnName) && data.hasOwnProperty(columnName)) {
+        if (column.columnType === 'findSimple' || column.columnType === 'findBoolean' || column.columnType === 'findDate' || column.columnType === 'findNumber') {
+          if (this.feature[columnName] !== data[columnName]) {
+            differents = true;
+          }
+        }
+        if (column.columnType === 'findOne' || column.columnType === 'findMany') {
+          if (!data[columnName] && !this.feature[columnName]) {
+          } else if (!data[columnName] && this.feature[columnName] || data[columnName] && !this.feature[columnName]) {
+            differents = true;
+          } else {
+            if (data[columnName].length !== this.feature[columnName].length) {
+              differents = true;
+            } else {
+              let codesInData = {};
+              for (let i = 0; i < data[columnName].length; i++) {
+                codesInData[data[columnName][i]] = 1;
+              }
+              for (let i = 0; i < this.feature[columnName].length; i++) {
+                if (!codesInData[this.feature[columnName][i]]) {
+                  differents = true;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    console.log(data, this.feature);
+    console.log(differents);
+    return data;
+  }
+
+  addControls(layer) {
+    for (let i = 0; i < layer.attributeColumns.length; i++) {
+      let fatureValue = this.feature[`${layer.attributeColumns[i].name}`];
+      let control = new FormControl(fatureValue);
+      this.orderForm.addControl(`${layer.attributeColumns[i].name}`, control);
+    }
   }
 
   ngAfterViewInit() {
@@ -70,26 +141,35 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     header.style.width = 'calc(100% - 48px)';
   }
 
-  ngOnDestroy() {
-    for (let key in this.subscriptions) {
-      this.subscriptions[key].unsubscribe();
-    }
+  getCadColumnNamesForLayer() {
+    this.http.get('api/parcelscad/GetSchema').subscribe((data: { properties: object; }) => {
+      this.cadSchema = [];
+      for (let key in data.properties) {
+        if (key !== 'id' && key !== 'center' && key !== 'extent') {
+          this.cadSchema.push({
+            name: key,
+            label: data.properties[key].label || key,
+            columnType: data.properties[key].columnType || 'findSimple'
+          });
+        }
+      }
+    });
   }
-
   subscribeMapLayersOnFeatureSelectionsChange(layer) {
     let maplayer = this.OverLaysService.getLayerById(layer.id);
     if (!maplayer && !maplayer.options.selectable) return;
-    let subscriber = maplayer.changeSelection.subscribe(featureSelectionsEvent => {
+    this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = maplayer.changeSelection.subscribe(featureSelectionsEvent => {
       featureSelectionsEvent.added.map(featureId => { this.lastLayerId = featureSelectionsEvent.layerId; this.featuresFlow.next(featureId) });
     });
-    this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = subscriber;
   }
 
   getFeatureInfo(featureId) {
+    this.editMode = false;
+    this.clearFormControls();
+
     if (!featureId) return;
     this.activeLayer = this.avaliableLayers.filter(item => item.id === this.lastLayerId ? item : false)[0];
     if (!this.activeLayer) return;
-
     let params = new HttpParams().set('id', featureId);
     this.http.get(this.activeLayer.featureInfoUrl, { params }).subscribe((data) => {
       if (data) this.feature = data;
@@ -158,44 +238,20 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
           }
         }
       }
-      for (let i = 0; i < layer.attributeColumns.length; i++) {
-        let control = new FormControl();
-        this.orderForm.addControl(`${layer.attributeColumns[i].name}`, control);
-      }
     });
   }
 
-  getCadColumnNamesForLayer() {
-    this.http.get('api/parcelscad/GetSchema').subscribe((data: { properties: object; }) => {
-      this.cadSchema = [];
-      for (let key in data.properties) {
-        if (key !== 'id' && key !== 'center' && key !== 'extent') {
-          this.cadSchema.push({
-            name: key,
-            label: data.properties[key].label || key,
-            columnType: data.properties[key].columnType || 'findSimple'
-          });
-        }
-      }
-    });
-  }
-
-  linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
-
-  toggleEditMode() {
-    for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
-      let control = new FormControl();
-      this.orderForm.addControl(`${this.activeLayer.attributeColumns[i].name}`, control);
-    }
-    this.editMode = !this.editMode;
-  }
   updateOrder() {
     let order = this.activeLayer.attributeColumns.map(item => item.name);
     window.localStorage.setItem(`attributesOrderForLayer_${this.activeLayer.id}`, order.toString());
   }
+  linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
 
-  some(feature) {
-    console.log(feature)
+  ngOnDestroy() {
+    for (let key in this.subscriptions) {
+      this.subscriptions[key].unsubscribe();
+    }
+    this.subscriberOnOrderForm.unsubscribe();
+    this.subscriberOnfeaturesFlow.unsubscribe();
   }
-
 }
