@@ -73,6 +73,7 @@ import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingMod
 import { GutterDirective } from '../components/td-map-panel/gutter.directive';
 import { GridsterModule } from 'angular-gridster2';
 import { AttributeDataTableFilterComponent } from '../components/td-map-panel/attribute-data-table-filter/attribute-data-table-filter.component';
+import { DndModule } from 'ng2-dnd';
 
 
 
@@ -112,6 +113,7 @@ import { AttributeDataTableFilterComponent } from '../components/td-map-panel/at
   ],
   imports: [
     BrowserModule,
+    DndModule.forRoot(),
     HttpModule,
     HttpClientModule,
     AppRoutingModule,

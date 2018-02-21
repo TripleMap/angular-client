@@ -1,34 +1,93 @@
-<div color="white" class="toolbar header-feature-info-elements" fxLayout="row" fxLayoutAlign="space-between center">
+<!-- <div color="white" class="toolbar header-feature-info-elements" fxLayout="row" fxLayoutAlign="space-between center">
   <ng-container *ngIf="feature">
     <label class="selected-elements-counter ">Кадастровый номер: {{ feature.cn }}</label>
   </ng-container>
+</div> -->
 
-</div>
-<ng-container *ngIf="feature">
-  <form class="feature-info-elements">
-    <ng-container *ngFor='let column of activeLayer.columns; let keyIndex = index'>
-      <div fxLayout="row" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}">
-        <label class="feature-attribute-key">{{column.label}}</label>
-        <ng-container *ngIf="column.columnType === 'findBoolean'">
-          <label class="feature-attribute-value" *ngIf="feature[column.name]">Да</label>
-          <label class="feature-attribute-value" *ngIf="!feature[column.name] && feature[column.name] !== false">Нет значения</label>
-          <label class="feature-attribute-value" *ngIf="feature[column.name] === false">Нет</label>
-        </ng-container>
-        <ng-container *ngIf="column.columnType === 'findMany'">
-          <div class="feature-attribute-value">
-            <ng-container *ngFor="let fyndManyItem of feature[column.name]; let i = index">
-              <label>{{i+1}}) {{fyndManyItem.description}} </label>
-              <br/>
+<mat-tab-group class="attribute-tabs" #tabs>
+  <mat-tab label="Атрибуты">
+    <ng-container *ngIf="feature">
+      <form class="feature-info-elements" dnd-sortable-container [sortableData]="activeLayer.attributeColumns" [formGroup]="orderForm">
+        <ng-container *ngFor='let column of activeLayer.attributeColumns; let keyIndex = index'>
+          <div fxLayout="row" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}" dnd-sortable [sortableIndex]="keyIndex"
+            (onDragEnd)="updateOrder($event)">
+            <mat-icon dnd-sortable-handle *ngIf="editMode" style="margin: auto;">import_export</mat-icon>
+            <label class="feature-attribute-key">{{column.label}}</label>
+            <ng-container *ngIf="!editMode">
+              <ng-container *ngIf="column.columnType === 'findBoolean'">
+                <label class="feature-attribute-value" *ngIf="feature[column.name]">Да</label>
+                <label class="feature-attribute-value" *ngIf="!feature[column.name] && feature[column.name] !== false">Нет значения</label>
+                <label class="feature-attribute-value" *ngIf="feature[column.name] === false">Нет</label>
+              </ng-container>
+              <ng-container *ngIf="column.columnType === 'findMany'">
+                <div class="feature-attribute-value">
+                  <ng-container *ngFor="let fyndManyItem of feature[column.name]; let i = index">
+                    <label>{{i+1}}) {{fyndManyItem.description}} </label>
+                    <br/>
+                  </ng-container>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="column.columnType !== 'findBoolean' && column.columnType !== 'findMany'">
+                <div *ngIf="linkDetector(feature[column.name])" class="feature-attribute-value">
+                  <a href="{{feature[column.name]}}">{{feature[column.name]}}</a>
+                </div>
+                <label *ngIf="!linkDetector(feature[column.name])" class="feature-attribute-value"> {{feature[column.name]}} </label>
+              </ng-container>
             </ng-container>
+
+            <ng-container *ngIf="editMode">
+              <ng-container *ngIf="column.columnType === 'findSimple'">
+                <mat-form-field class="feature-attribute-value">
+                  <input matInput [value]="feature[column.name]" [formControlName]="column.name">
+                </mat-form-field>
+              </ng-container>
+              <ng-container *ngIf="column.columnType === 'findBoolean'">
+                <mat-checkbox class="feature-attribute-value" [value]="feature[column.name]" disableRipple="true"></mat-checkbox>
+              </ng-container>
+              <ng-container *ngIf="column.columnType === 'findMany' || column.columnType === 'findOne'">
+                <mat-form-field class="feature-attribute-value">
+                  <mat-select [value]="feature[column.name]" [multiple]="column.columnType === 'findMany'" [compareWith]="compareFn" [formControlName]="column.name">
+                    <mat-option style="font-size:14px;" *ngFor="let prop of column.avaliableProperties" [value]="prop">{{prop.description}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </ng-container>
+            </ng-container>
+
           </div>
         </ng-container>
-        <ng-container *ngIf="column.columnType !== 'findBoolean' && column.columnType !== 'findMany'">
-          <div *ngIf="linkDetector(feature[column.name])" class="feature-attribute-value">
-            <a href="{{feature[column.name]}}">{{feature[column.name]}}</a>
-          </div>
-          <label *ngIf="!linkDetector(feature[column.name])" class="feature-attribute-value"> {{feature[column.name]}} </label>
-        </ng-container>
-      </div>
+      </form>
     </ng-container>
-  </form>
-</ng-container>
+  </mat-tab>
+  <mat-tab label="Кадастровая информация">
+    <ng-container *ngIf="cadFeature">
+      <form class="feature-info-elements">
+        <ng-container *ngFor='let column of cadSchema; let keyIndex = index'>
+          <ng-container *ngIf="column.name !== 'area_unit' && column.name !== 'cad_unit' && column.name !== 'area_type' && column.name !== 'rifr'">
+            <div fxLayout="row" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}">
+              <label class="feature-attribute-key">{{column.label}}</label>
+              <ng-container *ngIf="column.name === 'cad_cost'">
+                <label class="feature-attribute-value"> {{cadFeature[column.name]}} {{cadFeature['cad_unit']}}</label>
+              </ng-container>
+              <ng-container *ngIf="column.name === 'area_value'">
+                <label class="feature-attribute-value"> {{cadFeature['area_type']}} {{cadFeature[column.name]}} {{cadFeature['area_unit']}}</label>
+              </ng-container>
+              <ng-container *ngIf="column.name !== 'cad_cost' && column.name !== 'area_value'">
+                <label class="feature-attribute-value"> {{cadFeature[column.name]}} </label>
+              </ng-container>
+
+            </div>
+          </ng-container>
+        </ng-container>
+      </form>
+    </ng-container>
+  </mat-tab>
+  <mat-tab label="Лента событий">Content 2</mat-tab>
+  <mat-tab label="Фото и изображения">Content 2</mat-tab>
+  <mat-tab label="Документы и файлы">Content 2</mat-tab>
+  <mat-tab label="Архивные данные">Content 2</mat-tab>
+
+
+</mat-tab-group>
+<mat-card-actions class="attribute-tabs-actions" *ngIf="feature">
+  <button mat-button [color]="editMode? 'accent' : 'primary'" (click)="toggleEditMode()">Редактировать</button>
+</mat-card-actions>

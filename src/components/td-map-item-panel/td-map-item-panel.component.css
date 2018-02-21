@@ -9,11 +9,6 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.feature-info-elements {
-  overflow: auto;
-  height: calc(100% - 48px);
-}
-
 .feature-info-elements_element {
   width: 100%;
   line-height: 24px;
@@ -37,4 +32,15 @@
 
 .zebra {
   background: rgba(0, 0, 0, 0.02);
+}
+
+.attribute-tabs {
+  height: calc(100% - 40px);
+}
+
+.attribute-tabs-actions {
+  padding: 2px 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
 }

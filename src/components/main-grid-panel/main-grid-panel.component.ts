@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, AfterViewInit, ChangeDetectorRef, OnChanges, ViewChild, ViewChildren, QueryList } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, AfterViewInit, OnChanges, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import {
   CompactType,
   DisplayGrid,
@@ -16,8 +16,7 @@ import { TdMapPanelComponent } from '../td-map-panel/td-map-panel.component'
 @Component({
   selector: 'main-grid-panel',
   templateUrl: './main-grid-panel.component.html',
-  styleUrls: ['./main-grid-panel.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./main-grid-panel.component.css']
 })
 export class MainGridPanelComponent {
   @Input()
@@ -27,7 +26,7 @@ export class MainGridPanelComponent {
   public options: GridsterConfig;
   public gridItems: Array<GridsterItem> = [];
 
-  constructor(public MapService: MapService, public ChangeDetectorRef: ChangeDetectorRef) {
+  constructor(public MapService: MapService) {
     this.options = {
       gridType: GridType.Fit,
       compactType: CompactType.None,
@@ -112,7 +111,6 @@ export class MainGridPanelComponent {
       for (let i = this.gridItems.length - 1; i >= 0; i--) {
         if (this.gridItems[i].id === 'attributeTable') {
           this.gridItems.splice(i, 1);
-          this.ChangeDetectorRef.detectChanges();
           break;
         }
       }
