@@ -116,16 +116,16 @@ export class OverLaysService {
             }
         }),
         new TDMap.Service.GeoJSONService({
-            id: 'parcelsNext',
-            labelName: 'Земельные участки 2',
+            id: 'masterData',
+            labelName: 'Мастер данные',
             visible: false,
             maxZoom: 24,
             minZoom: 12,
-            dataUrl: "api/parcelsnext/GetFeatures",
-            featureInfoUrl: "api/parcelsnext/GetFeatureInfo",
-            featuresInfoUrl: "api/parcelsnext/GetFeaturesInfo",
-            schemaInfoUrl: "api/parcelsnext/GetSchema",
-            featuresFilterUrl: 'api/parcelsnext/GetFeaturesByFilters',
+            dataUrl: "api/masterData/GetFeatures",
+            featureInfoUrl: "api/masterData/GetFeatureInfo",
+            featuresInfoUrl: "api/masterData/GetFeaturesInfo",
+            schemaInfoUrl: "api/masterData/GetSchema",
+            featuresFilterUrl: 'api/masterData/GetFeaturesByFilters',
             styled: false,
             labeled: false,
             selectable: true,
@@ -140,6 +140,16 @@ export class OverLaysService {
                 opacity: 1.0,
                 fillOpacity: 0.4,
                 zIndex: 600
+            },
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, {
+                    fillColor: "blue",
+                    dashArray: "",
+                    opacity: 1.0,
+                    fillOpacity: 0.4,
+                    zIndex: 600,
+                    radius: 2.5
+                });
             }
         })]
     };
@@ -167,12 +177,9 @@ export class OverLaysService {
         const layer = this.getLayerById(layerId);
         let feature;
         layer.eachLayer(layer => {
-            if (layer.feature.properties.id === featureId) {
-                feature = layer
-            }
+            if (layer.feature.properties.id === featureId) feature = layer;
         });
-        if (layer.selections) {
-            layer.selections.setTempFeature(feature);
-        }
+        if (layer.selections) layer.selections.setTempFeature(feature);
+
     }
 }

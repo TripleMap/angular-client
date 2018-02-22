@@ -7,7 +7,7 @@ import { Subject } from 'rxjs/subject'
 import { Observable } from 'rxjs/observable'
 import 'rxjs/add/operator/debounceTime.js';
 import { Subscriber } from "rxjs/Subscriber";
-import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
 interface AvaliableLayer {
   id: string;
@@ -40,6 +40,8 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   public cadFeature: any;
   public cadSchema: any[] = [];
   public editMode: boolean = false;
+  public saveEnable: boolean = true;
+  public differentBetweenInputDataAndInspectFeature: boolean = false;
   public orderForm: FormGroup;
   public subscriberOnOrderForm: any;
   public compareFn = (f1: any, f2: any) => f1.code === f2.code;
@@ -61,7 +63,10 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     this.orderForm = this.formBuilder.group({});
     this.subscriberOnOrderForm = this.orderForm.valueChanges
       .debounceTime(300)
-      .subscribe(data => { this.detectOnEditFeatureDifferents(data); })
+      .filter(this.isValidForm)
+      .map(this.pipeFiltersToNumber)
+      .map(this.detectOnEditFeatureDifferents.bind(this))
+      .subscribe(data => { console.log(data) })
   }
 
   toggleEditMode() {
@@ -80,6 +85,68 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     this.clearFormControls();
     this.addControls(this.activeLayer);
   }
+
+  addControls(layer) {
+    for (let i = 0; i < layer.attributeColumns.length; i++) {
+      let fatureValue = this.feature[`${layer.attributeColumns[i].name}`];
+      let validators = this.addvalidators(layer.attributeColumns[i])
+      let control = new FormControl(fatureValue, validators);
+      this.orderForm.addControl(`${layer.attributeColumns[i].name}`, control);
+    }
+  }
+
+
+  addvalidators(column) {
+    let validators = [];
+
+    if (column.userFilling) validators.push(Validators.required);
+
+    if (column.columnType === 'findNumber') {
+      if (column.length) validators.push(Validators.min(column.length));
+      if (column.tableType === 'double') validators.push(Validators.pattern("^[0-9]{1,20}([,.][0-9]{0,20})?$"));
+      if (column.tableType === 'integer') validators.push(Validators.pattern("^[0-9]{1,20}?$"));
+    }
+    if (column.columnType === 'findSimple') {
+      if (column.length && column.tableType === 'varchar') validators.push(Validators.min(column.length));
+
+    }
+
+    return validators;
+  }
+
+
+  getFormControl(formControlName) {
+    //console.log(this.orderForm.get(formControlName))
+    return this.orderForm.get(formControlName);
+  }
+
+  isValidForm = () => {
+    this.orderForm.status === "VALID" ? this.saveEnable = true : this.saveEnable = false;
+    return this.orderForm.status === "VALID"
+  }
+
+  saveData() {
+    console.log(this.orderForm.value)
+
+    console.log(this.differentBetweenInputDataAndInspectFeature)
+    if (this.saveEnable && this.differentBetweenInputDataAndInspectFeature) {
+      console.log(this.saveEnable)
+    }
+  }
+
+
+  pipeFiltersToNumber = data => {
+    for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
+      const column = this.activeLayer.attributeColumns[i];
+
+      if (column.columnType === 'findSimple' || column.columnType === 'findDate' || column.columnType === 'findNumber') {
+        if (data[column.name] === "") data[column.name] = null;
+      }
+    }
+
+    return data;
+  };
+
   detectOnEditFeatureDifferents(data) {
     if (!this.editMode) return;
     let differents = false;
@@ -89,9 +156,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
 
       if (this.feature.hasOwnProperty(columnName) && data.hasOwnProperty(columnName)) {
         if (column.columnType === 'findSimple' || column.columnType === 'findBoolean' || column.columnType === 'findDate' || column.columnType === 'findNumber') {
-          if (this.feature[columnName] !== data[columnName]) {
-            differents = true;
-          }
+          if (this.feature[columnName] !== data[columnName]) differents = true;
         }
         if (column.columnType === 'findOne' || column.columnType === 'findMany') {
           if (!data[columnName] && !this.feature[columnName]) {
@@ -106,27 +171,20 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
                 codesInData[data[columnName][i]] = 1;
               }
               for (let i = 0; i < this.feature[columnName].length; i++) {
-                if (!codesInData[this.feature[columnName][i]]) {
-                  differents = true;
-                }
+                if (!codesInData[this.feature[columnName][i]]) differents = true;
               }
             }
           }
         }
       }
     }
-    console.log(data, this.feature);
-    console.log(differents);
+
+    this.differentBetweenInputDataAndInspectFeature = differents;
+    if (differents) this.saveEnable = true;
     return data;
   }
 
-  addControls(layer) {
-    for (let i = 0; i < layer.attributeColumns.length; i++) {
-      let fatureValue = this.feature[`${layer.attributeColumns[i].name}`];
-      let control = new FormControl(fatureValue);
-      this.orderForm.addControl(`${layer.attributeColumns[i].name}`, control);
-    }
-  }
+
 
   ngAfterViewInit() {
     this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item) => {
@@ -188,16 +246,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
         for (let i = 0; i < localStorageOrderArray.length; i++) {
           for (let key in data.properties) {
             if (key !== 'id' && key !== 'geometry' && localStorageOrderArray[i] === key) {
-              layer.attributeColumns.push({
-                name: key,
-                label: data.properties[key].label || key,
-                columnType: data.properties[key].columnType || 'findSimple',
-                columnValues: data.properties[key].values || null,
-                avaliableProperties: data.properties[key].avaliableProperties || null,
-                currentProperties: data.properties[key].currentProperties || null,
-                tableType: data.properties[key].tableType,
-                dataLength: data.properties[key].dataLength
-              });
+              layer.attributeColumns.push(this.accumulateAttributeColumn(data, key));
             }
           }
         }
@@ -207,44 +256,42 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
             notInOrderKeys.push(notInOrderKey);
           }
         }
+
         if (notInOrderKeys.length > 0) {
           for (let index = 0; index < notInOrderKeys.length; index++) {
-            layer.attributeColumns.push({
-              name: notInOrderKeys[index],
-              label: data.properties[notInOrderKeys[index]].label || notInOrderKeys[index],
-              columnType: data.properties[notInOrderKeys[index]].columnType || 'findSimple',
-              columnValues: data.properties[notInOrderKeys[index]].values || null,
-              avaliableProperties: data.properties[notInOrderKeys[index]].avaliableProperties || null,
-              currentProperties: data.properties[notInOrderKeys[index]].currentProperties || null,
-              tableType: data.properties[notInOrderKeys[index]].tableType,
-              dataLength: data.properties[notInOrderKeys[index]].dataLength
-            });
+            layer.attributeColumns.push(this.accumulateAttributeColumn(data, notInOrderKeys[index]));
           }
         }
 
       } else {
         for (let key in data.properties) {
           if (key !== 'id' && key !== 'geometry') {
-            layer.attributeColumns.push({
-              name: key,
-              label: data.properties[key].label || key,
-              columnType: data.properties[key].columnType || 'findSimple',
-              columnValues: data.properties[key].values || null,
-              avaliableProperties: data.properties[key].avaliableProperties || null,
-              currentProperties: data.properties[key].currentProperties || null,
-              tableType: data.properties[key].tableType,
-              dataLength: data.properties[key].dataLength
-            });
+            layer.attributeColumns.push(this.accumulateAttributeColumn(data, key));
           }
         }
       }
     });
   }
 
+  accumulateAttributeColumn(data, key) {
+    return {
+      name: key,
+      label: data.properties[key].label || key,
+      columnType: data.properties[key].columnType || 'findSimple',
+      columnValues: data.properties[key].values || null,
+      avaliableProperties: data.properties[key].avaliableProperties || null,
+      currentProperties: data.properties[key].currentProperties || null,
+      tableType: data.properties[key].tableType,
+      dataLength: data.properties[key].length,
+      userFilling: data.properties[key].userFilling
+    }
+  }
+
   updateOrder() {
     let order = this.activeLayer.attributeColumns.map(item => item.name);
     window.localStorage.setItem(`attributesOrderForLayer_${this.activeLayer.id}`, order.toString());
   }
+
   linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
 
   ngOnDestroy() {
