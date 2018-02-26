@@ -16,7 +16,7 @@
       </mat-form-field>
       <mat-form-field fxFlex="20%" fxFlexOffset="4px">
         <mat-select formControlName="squareUnit">
-          <mat-optgroup label="Единицы измерения">
+          <mat-optgroup label="Единицы измерения" style="font-size:14px;">
             <mat-option *ngFor="let squareUnit of squareUnits" [value]="squareUnit.eng">{{squareUnit.ru}}</mat-option>
           </mat-optgroup>
         </mat-select>

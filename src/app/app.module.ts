@@ -37,13 +37,15 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatMenuModule } from '@angular/material/menu';
+
 
 // services
 import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService";
 import { MapService } from "../services/MapService";
 import { BaseLayersService } from "../services/BaseLayersService";
 import { OverLaysService } from "../services/OverLaysService";
-import { SelectedFeatureService } from "../services/SelectedFeatureService";
+import { SelectionLayersService } from "../services/SelectionLayersService";
 import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 
 // mapComponents
@@ -51,6 +53,8 @@ import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 import { MainGridPanelComponent } from '../components/main-grid-panel/main-grid-panel.component';
 import { TdmapComponent } from "../components/tdmap/tdmap.component";
 import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
+import { TdMapItemPanelComponent } from '../components/td-map-item-panel/td-map-item-panel.component';
+
 import { TDMApPanelMatPaginatorIntl } from '../components/td-map-panel/td-map-panel.paginator';
 import { LayerComponent } from "../components/mapComponents/layer/layer.component";
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
@@ -58,6 +62,7 @@ import { MeasureComponent } from "../components/mapComponents/measure/measure.co
 import { SearchAutocompleteComponent } from "../components/search-autocomplete/search-autocomplete.component";
 import { FilterGeometryComponent } from "../components/filter-geometry/filter-geometry.component";
 import { FilterGeometryFirstLineComponent } from "../components/filter-geometry/filter-geometry-first-line/filter-geometry-first-line.component";
+import { FilterGeometrySecondLineComponent } from '../components/filter-geometry/filter-geometry-second-line/filter-geometry-second-line.component';
 import { FilterGeometryResultListComponent } from "../components/filter-geometry/filter-geometry-result-list/filter-geometry-result-list.component";
 import { SpatialFilterComponent } from '../components/filter-geometry/spatial-filter/spatial-filter.component';
 
@@ -65,8 +70,12 @@ import { SpatialFilterComponent } from '../components/filter-geometry/spatial-fi
 import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingModule } from "@covalent/core";
 
 
-import { GutterDirective } from '../directives/gutter.directive';
+import { GutterDirective } from '../components/td-map-panel/gutter.directive';
 import { GridsterModule } from 'angular-gridster2';
+import { AttributeDataTableFilterComponent } from '../components/td-map-panel/attribute-data-table-filter/attribute-data-table-filter.component';
+import { DndModule } from 'ng2-dnd';
+
+
 
 
 @NgModule({
@@ -81,7 +90,7 @@ import { GridsterModule } from 'angular-gridster2';
     MapService,
     BaseLayersService,
     OverLaysService,
-    SelectedFeatureService,
+    SelectionLayersService,
     FilterGeometryAdapter
   ],
   declarations: [
@@ -97,10 +106,14 @@ import { GridsterModule } from 'angular-gridster2';
     TdMapPanelComponent,
     SpatialFilterComponent,
     GutterDirective,
-    MainGridPanelComponent
+    MainGridPanelComponent,
+    AttributeDataTableFilterComponent,
+    FilterGeometrySecondLineComponent,
+    TdMapItemPanelComponent
   ],
   imports: [
     BrowserModule,
+    DndModule.forRoot(),
     HttpModule,
     HttpClientModule,
     AppRoutingModule,
@@ -130,7 +143,8 @@ import { GridsterModule } from 'angular-gridster2';
     CovalentVirtualScrollModule,
     CovalentDataTableModule,
     CovalentPagingModule,
-    GridsterModule
+    GridsterModule,
+    MatMenuModule
   ],
 
   bootstrap: [AppComponent]

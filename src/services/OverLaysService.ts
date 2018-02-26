@@ -2,14 +2,14 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
-import { SelectedFeatureService } from "./SelectedFeatureService";
 import { MapService } from './MapService';
+
 @Injectable()
 export class OverLaysService {
     public visibleLayers = new BehaviorSubject<any>([]);
     public layers: any[];
+    public layersIdsLabelNamesAndHttpOptions: any[];
     constructor(
-        public _selectedFeatureService: SelectedFeatureService,
         public _http: HttpClient,
         public MapService: MapService
     ) {
@@ -24,7 +24,20 @@ export class OverLaysService {
 
             return this._http.get(url, { params });
         };
-        this.layers = this.constructOverlayers()
+        this.layers = this.constructOverlayers();
+
+        this.layersIdsLabelNamesAndHttpOptions = this.layers.map(item => ({
+            id: item.options.id,
+            labelName: item.options.labelName,
+            visible: item.options.visible,
+            featureInfoUrl: item.options.featureInfoUrl,
+            featuresInfoUrl: item.options.featuresInfoUrl,
+            schemaInfoUrl: item.options.schemaInfoUrl,
+            featuresFilterUrl: item.options.featuresFilterUrl,
+            dataApi: item.options.dataApi
+        }))
+
+
     };
 
     addLayerToMap(layerId) {
@@ -51,11 +64,18 @@ export class OverLaysService {
         layer.updateLabels();
     };
 
-    removeFilteredIds = (layerId, arrayOfId) => {
+    removeFilteredIds = (layerId) => {
         const layer = this.getLayerById(layerId);
         layer.removeFilteredIds();
         layer.updateLabels();
     };
+
+    removeFilteredIdForAllLayers = () => {
+        this.layers.map(layer => {
+            layer.removeFilteredIds();
+            layer.updateLabels();
+        });
+    }
 
     getFeatureById = (layerId, id) => {
         const layer = this.getLayerById(layerId);
@@ -74,10 +94,13 @@ export class OverLaysService {
             labelName: 'Земельные участки',
             visible: false,
             maxZoom: 24,
-            minZoom: 12,
+            minZoom: 10,
+            dataApi: "api/parcels",
             dataUrl: "api/parcels/GetFeatures",
-            featureInfo: "api/parcels/GetFeaturesInfo",
-            schemaInfo: "api/parcels/GetSchema",
+            featureInfoUrl: "api/parcels/GetFeatureInfo",
+            featuresInfoUrl: "api/parcels/GetFeaturesInfo",
+            schemaInfoUrl: "api/parcels/GetSchema",
+            featuresFilterUrl: 'api/parcels/GetFeaturesByFilters',
             styled: false,
             labeled: false,
             selectable: true,
@@ -95,14 +118,17 @@ export class OverLaysService {
             }
         }),
         new TDMap.Service.GeoJSONService({
-            id: 'parcelsNext',
-            labelName: 'Земельные участки 2',
+            id: 'masterData',
+            labelName: 'Мастер данные',
             visible: false,
             maxZoom: 24,
             minZoom: 12,
-            dataUrl: "api/parcelsnext/GetFeatures",
-            featureInfo: "api/parcelsnext/GetFeaturesInfo",
-            schemaInfo: "api/parcelsnext/GetSchema",
+            dataApi: "api/masterData",
+            dataUrl: "api/masterData/GetFeatures",
+            featureInfoUrl: "api/masterData/GetFeatureInfo",
+            featuresInfoUrl: "api/masterData/GetFeaturesInfo",
+            schemaInfoUrl: "api/masterData/GetSchema",
+            featuresFilterUrl: 'api/masterData/GetFeaturesByFilters',
             styled: false,
             labeled: false,
             selectable: true,
@@ -117,6 +143,16 @@ export class OverLaysService {
                 opacity: 1.0,
                 fillOpacity: 0.4,
                 zIndex: 600
+            },
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, {
+                    fillColor: "blue",
+                    dashArray: "",
+                    opacity: 1.0,
+                    fillOpacity: 0.4,
+                    zIndex: 600,
+                    radius: 2.5
+                });
             }
         })]
     };
@@ -126,9 +162,17 @@ export class OverLaysService {
         return filterLayers.length ? filterLayers[0] : null;
     };
 
-    getLayerIdsAndLabelNames = () => this.layers.map(item => ({ id: item.options.id, labelName: item.options.labelName, visible: item.options.visible }));
-    getLayersIdsLabelNamesAndHttpOptions = () => this.layers.map(item => ({ id: item.options.id, labelName: item.options.labelName, visible: item.options.visible, featureInfo: item.options.featureInfo, schemaInfo: item.options.schemaInfo }))
-    getActiveOverlayLayersId = () => this.layers.filter(item => item.options.visible ? item : false).map(item => item.options.id);
+    getLayerIdsAndLabelNames = () => this.layers.map(item => ({
+        id: item.options.id,
+        labelName: item.options.labelName,
+        visible: item.options.visible
+    }));
+
+    getLayersIdsLabelNamesAndHttpOptions = () => this.layersIdsLabelNamesAndHttpOptions;
+
+    getActiveOverlayLayersId = () => this.layers.filter(item => item.options.visible ? item : false)
+        .map(item => item.options.id);
+
     getActiveOverlayLayersIdsAndLabelNames = () => this.layers.filter(item => item.options.visible ? item : false)
         .map(item => ({ id: item.options.id, labelName: item.options.labelName, visible: item.options.visible }));
 
@@ -136,12 +180,9 @@ export class OverLaysService {
         const layer = this.getLayerById(layerId);
         let feature;
         layer.eachLayer(layer => {
-            if (layer.feture.properties.id === featureId) {
-                feature = layer
-            }
-        })
-        if (layer.selection) {
-            layer.selection.setTempFeature(feature);
-        }
+            if (layer.feature.properties.id === featureId) feature = layer;
+        });
+        if (layer.selections) layer.selections.setTempFeature(feature);
+
     }
 }

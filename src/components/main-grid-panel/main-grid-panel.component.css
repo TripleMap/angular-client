@@ -1,8 +1,13 @@
 td-map-panel {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
+}
+
+td-map-item-panel {
+  height: 100%;
+  width: 100%;
 }
 
 gridster {
-    background: white;
+  background: white;
 }

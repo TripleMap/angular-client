@@ -1,7 +1,10 @@
 <gridster [options]="options">
-    <gridster-item *ngFor="let gridItem of gridItems" [item]="gridItem" class="mat-elevation-z6">
-        <button mat-mini-fab color="white" style="position:absolute;top:8px;right:8px;" class="mat-elevation-z1" *ngIf="gridItems && gridItems.length > 1"><mat-icon>open_with</mat-icon></button>
-        <td-map *ngIf=" gridItem.id==='tdmmap' " class="gridster-item-content"></td-map>
-        <td-map-panel *ngIf="gridItem.id==='attributeTable'" class="gridster-item-content"></td-map-panel>
-    </gridster-item>
+  <gridster-item *ngFor="let gridItem of gridItems" [item]="gridItem" class="mat-elevation-z6" #gridsteritem>
+    <button mat-mini-fab color="white" style="position:absolute;top:4px;right:4px;" class="mat-elevation-z1" *ngIf="gridItems && gridItems.length > 1">
+      <mat-icon>open_with</mat-icon>
+    </button>
+    <td-map *ngIf="gridItem.id === 'tdmap'" class="gridster-item-content"></td-map>
+    <td-map-panel *ngIf="gridItem.id === 'attributeTable'" class="gridster-item-content"></td-map-panel>
+    <td-map-item-panel *ngIf=" gridItem.id === 'tdmapItem'" class="gridster-item-content"></td-map-item-panel>
+  </gridster-item>
 </gridster>

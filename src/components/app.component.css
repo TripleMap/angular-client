@@ -9,7 +9,7 @@ zoom-controls {
     position: fixed;
     top: calc(50% - 40px);
     z-index: 100;
-    left: 0;
+    left: 4px;
 }
 
 measure-controls {

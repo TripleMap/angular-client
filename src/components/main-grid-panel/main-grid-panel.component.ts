@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, AfterViewInit, ChangeDetectorRef, OnChanges } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, AfterViewInit, OnChanges, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import {
   CompactType,
   DisplayGrid,
@@ -6,24 +6,27 @@ import {
   GridsterConfig,
   GridsterItem,
   GridsterItemComponentInterface,
-  GridType
+  GridType,
+  GridsterItemComponent
 } from 'angular-gridster2';
 
 import { MapService } from "../../services/MapService";
+
+import { TdMapPanelComponent } from '../td-map-panel/td-map-panel.component'
 @Component({
   selector: 'main-grid-panel',
   templateUrl: './main-grid-panel.component.html',
-  styleUrls: ['./main-grid-panel.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./main-grid-panel.component.css']
 })
-export class MainGridPanelComponent implements AfterViewInit {
+export class MainGridPanelComponent {
   @Input()
   isAttributeTableActive: boolean;
+  @ViewChild(TdMapPanelComponent) TdMapPanelComponent: TdMapPanelComponent;
+  @ViewChildren(GridsterItemComponent) gridsterItems: QueryList<GridsterItemComponent>
+  public options: GridsterConfig;
+  public gridItems: Array<GridsterItem> = [];
 
-  options: GridsterConfig;
-  gridItems: Array<GridsterItem> = [];
-
-  constructor(public MapService: MapService, public ChangeDetectorRef: ChangeDetectorRef) {
+  constructor(public MapService: MapService) {
     this.options = {
       gridType: GridType.Fit,
       compactType: CompactType.None,
@@ -34,13 +37,13 @@ export class MainGridPanelComponent implements AfterViewInit {
       outerMarginLeft: 8,
       mobileBreakpoint: 640,
       margin: 10,
-      minCols: 8,
+      minCols: 15,
       maxCols: 100,
       minRows: 8,
       maxRows: 100,
-      maxItemCols: 10,
+      maxItemCols: 25,
       minItemCols: 1,
-      maxItemRows: 10,
+      maxItemRows: 25,
       minItemRows: 1,
       maxItemArea: 2500,
       minItemArea: 1,
@@ -50,11 +53,6 @@ export class MainGridPanelComponent implements AfterViewInit {
       keepFixedWidthInMobile: false,
       scrollSensitivity: 5,
       scrollSpeed: 10,
-      enableEmptyCellClick: false,
-      enableEmptyCellContextMenu: false,
-      enableEmptyCellDrop: false,
-      enableEmptyCellDrag: false,
-      ignoreMarginInRow: true,
       draggable: {
         delayStart: 0,
         enabled: true,
@@ -77,24 +75,27 @@ export class MainGridPanelComponent implements AfterViewInit {
         }
       },
       swap: false,
-      pushItems: true,
+      pushItems: false,
       pushDirections: { north: true, east: true, south: true, west: true },
       pushResizeItems: true,
-      displayGrid: DisplayGrid.Always,
+      displayGrid: DisplayGrid.None,
       itemResizeCallback: this.itemResize,
     };
 
-    this.gridItems.push({ id: 'tdmmap', cols: 8, rows: 8, y: 0, x: 0 });
+    this.gridItems.push({ id: 'tdmap', cols: 10, rows: 8, y: 0, x: 0 });
+    this.gridItems.push({ id: 'tdmapItem', cols: 5, rows: 8, y: 0, x: 10 });
   }
 
   itemResize = (item, itemComponent) => {
-    if (item.id === 'tdmmap') {
+    if (item.id === 'tdmap') {
       const map = this.MapService.getMap();
-      setTimeout(map.invalidateSize.bind(map), 100);
+      setTimeout(map.invalidateSize.bind(map), 300);
     }
-  }
-  ngAfterViewInit() {
-    this.ChangeDetectorRef.detectChanges();
+    if (item.id === 'attributeTable') {
+      if (this.TdMapPanelComponent.activeLayer) {
+        this.TdMapPanelComponent.onFilterListSubscriberNext(this.TdMapPanelComponent.activeLayer, true);
+      }
+    }
   }
 
   ngOnChanges(changes) {
@@ -105,14 +106,39 @@ export class MainGridPanelComponent implements AfterViewInit {
 
   toggleAttributeTable(attrinuteTableValueChanges: boolean) {
     if (attrinuteTableValueChanges) {
-      this.gridItems.push({ id: 'attributeTable', cols: 5, rows: 8, y: 0, x: 8 });
+      this.gridItems.push({ id: 'attributeTable', cols: 15, rows: 8, y: 0, x: 0 });
     } else {
       for (let i = this.gridItems.length - 1; i >= 0; i--) {
-        if (this.gridItems[i].id === 'attributeTable') this.gridItems.splice(i, 1);
+        if (this.gridItems[i].id === 'attributeTable') {
+          this.gridItems.splice(i, 1);
+          break;
+        }
       }
+
+      if (this.gridsterItems) {
+        let tdmap = this.gridsterItems.forEach(gridsterItem => {
+          if (gridsterItem.item.id === 'tdmap') {
+            gridsterItem.$item.cols = 10;
+            gridsterItem.$item.rows = 8;
+            gridsterItem.$item.x = 0;
+            gridsterItem.$item.y = 0;
+            gridsterItem.setSize(true);
+            gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);
+          }
+          if (gridsterItem.item.id === 'tdmapItem') {
+            gridsterItem.$item.cols = 5;
+            gridsterItem.$item.rows = 8;
+            gridsterItem.$item.x = 10;
+            gridsterItem.$item.y = 0;
+            gridsterItem.setSize(true);
+            gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);
+          }
+        });
+      }
+
       if (this.MapService.TDMapManager) {
         const map = this.MapService.getMap();
-        setTimeout(map.invalidateSize.bind(map), 100);
+        setTimeout(map.invalidateSize.bind(map), 300);
       }
     }
   }
