@@ -18,6 +18,7 @@ interface AvaliableLayer {
   featuresInfoUrl: string;
   schemaInfoUrl: string;
   featureFilterUrl: string;
+  dataApi: string;
 }
 
 //// TO DO pipe to null if empty
@@ -69,6 +70,21 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       .subscribe(data => { console.log(data) })
   }
 
+
+  ngAfterViewInit() {
+    this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item) => {
+      //ячейка памяти
+      this.subscribeMapLayersOnFeatureSelectionsChange(item);
+      this.getColumnNamesForLayer(item);
+      return item
+    });
+    console.log(this.avaliableLayers);
+    this.getCadColumnNamesForLayer();
+    let header = this.tabs.nativeElement.getElementsByTagName('mat-tab-header')[0];
+    header.style.width = 'calc(100% - 48px)';
+  }
+
+
   toggleEditMode() {
     this.editMode = !this.editMode;
     if (!this.editMode) return;
@@ -102,12 +118,12 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     if (column.userFilling) validators.push(Validators.required);
 
     if (column.columnType === 'findNumber') {
-      if (column.length) validators.push(Validators.min(column.length));
+      if (column.length) validators.push(Validators.max(column.length));
       if (column.tableType === 'double') validators.push(Validators.pattern("^[0-9]{1,20}([,.][0-9]{0,20})?$"));
       if (column.tableType === 'integer') validators.push(Validators.pattern("^[0-9]{1,20}?$"));
     }
     if (column.columnType === 'findSimple') {
-      if (column.length && column.tableType === 'varchar') validators.push(Validators.min(column.length));
+      if (column.length && column.tableType === 'varchar') validators.push(Validators.max(column.length));
 
     }
 
@@ -126,11 +142,19 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   saveData() {
-    console.log(this.orderForm.value)
-
-    console.log(this.differentBetweenInputDataAndInspectFeature)
+    console.log(this.saveEnable);
+    console.log(this.differentBetweenInputDataAndInspectFeature);
     if (this.saveEnable && this.differentBetweenInputDataAndInspectFeature) {
-      console.log(this.saveEnable)
+      let editResult = this.detectOnEditFeatureDifferents(this.orderForm.value);
+      if (!editResult.differentColumns.length) return;
+      console.log('sdgadf');
+      let puthObj = {};
+      for (let index = 0; index < editResult.differentColumns.length; index++) {
+        const column = editResult.differentColumns[index];
+        puthObj[column] = editResult.data[column];
+      }
+      console.log(puthObj);
+      this.http.put(`${this.activeLayer.dataApi}/${this.feature.id}`, puthObj).subscribe(data => console.log(data));
     }
   }
 
@@ -139,8 +163,11 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
       const column = this.activeLayer.attributeColumns[i];
 
-      if (column.columnType === 'findSimple' || column.columnType === 'findDate' || column.columnType === 'findNumber') {
+      if (column.columnType === 'findSimple' || column.columnType === 'findDate') {
         if (data[column.name] === "") data[column.name] = null;
+      }
+      if (column.columnType === 'findNumber') {
+        data[column.name] = data[column.name] ? Number(data[column.name].replace(",", ".")) : null;
       }
     }
 
@@ -150,28 +177,37 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   detectOnEditFeatureDifferents(data) {
     if (!this.editMode) return;
     let differents = false;
+    let differentColumns = [];
     for (let index = 0; index < this.activeLayer.attributeColumns.length; index++) {
       let column = this.activeLayer.attributeColumns[index];
       let columnName = column.name;
 
       if (this.feature.hasOwnProperty(columnName) && data.hasOwnProperty(columnName)) {
         if (column.columnType === 'findSimple' || column.columnType === 'findBoolean' || column.columnType === 'findDate' || column.columnType === 'findNumber') {
-          if (this.feature[columnName] !== data[columnName]) differents = true;
+          if (this.feature[columnName] !== data[columnName]) {
+            differentColumns.push(columnName);
+            differents = true;
+          }
         }
         if (column.columnType === 'findOne' || column.columnType === 'findMany') {
           if (!data[columnName] && !this.feature[columnName]) {
           } else if (!data[columnName] && this.feature[columnName] || data[columnName] && !this.feature[columnName]) {
             differents = true;
+            differentColumns.push(columnName);
           } else {
             if (data[columnName].length !== this.feature[columnName].length) {
               differents = true;
+              differentColumns.push(columnName);
             } else {
               let codesInData = {};
               for (let i = 0; i < data[columnName].length; i++) {
                 codesInData[data[columnName][i]] = 1;
               }
               for (let i = 0; i < this.feature[columnName].length; i++) {
-                if (!codesInData[this.feature[columnName][i]]) differents = true;
+                if (!codesInData[this.feature[columnName][i]]) {
+                  differentColumns.push(columnName);
+                  differents = true;
+                }
               }
             }
           }
@@ -181,22 +217,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
 
     this.differentBetweenInputDataAndInspectFeature = differents;
     if (differents) this.saveEnable = true;
-    return data;
-  }
-
-
-
-  ngAfterViewInit() {
-    this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item) => {
-      //ячейка памяти
-      this.subscribeMapLayersOnFeatureSelectionsChange(item);
-      this.getColumnNamesForLayer(item);
-      return item
-    });
-
-    this.getCadColumnNamesForLayer();
-    let header = this.tabs.nativeElement.getElementsByTagName('mat-tab-header')[0];
-    header.style.width = 'calc(100% - 48px)';
+    return { data, differentColumns };
   }
 
   getCadColumnNamesForLayer() {

@@ -33,7 +33,8 @@ export class OverLaysService {
             featureInfoUrl: item.options.featureInfoUrl,
             featuresInfoUrl: item.options.featuresInfoUrl,
             schemaInfoUrl: item.options.schemaInfoUrl,
-            featuresFilterUrl: item.options.featuresFilterUrl
+            featuresFilterUrl: item.options.featuresFilterUrl,
+            dataApi: item.options.dataApi
         }))
 
 
@@ -93,7 +94,8 @@ export class OverLaysService {
             labelName: 'Земельные участки',
             visible: false,
             maxZoom: 24,
-            minZoom: 12,
+            minZoom: 10,
+            dataApi: "api/parcels",
             dataUrl: "api/parcels/GetFeatures",
             featureInfoUrl: "api/parcels/GetFeatureInfo",
             featuresInfoUrl: "api/parcels/GetFeaturesInfo",
@@ -121,6 +123,7 @@ export class OverLaysService {
             visible: false,
             maxZoom: 24,
             minZoom: 12,
+            dataApi: "api/masterData",
             dataUrl: "api/masterData/GetFeatures",
             featureInfoUrl: "api/masterData/GetFeatureInfo",
             featuresInfoUrl: "api/masterData/GetFeaturesInfo",
