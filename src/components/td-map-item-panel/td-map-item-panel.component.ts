@@ -78,7 +78,6 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       this.getColumnNamesForLayer(item);
       return item
     });
-    console.log(this.avaliableLayers);
     this.getCadColumnNamesForLayer();
     let header = this.tabs.nativeElement.getElementsByTagName('mat-tab-header')[0];
     header.style.width = 'calc(100% - 48px)';
