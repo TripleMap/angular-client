@@ -116,44 +116,6 @@ export class OverLaysService {
                 fillOpacity: 0.4,
                 zIndex: 600
             }
-        }),
-        new TDMap.Service.GeoJSONService({
-            id: 'masterData',
-            labelName: 'Мастер данные',
-            visible: false,
-            maxZoom: 24,
-            minZoom: 12,
-            dataApi: "api/masterData",
-            dataUrl: "api/masterData/GetFeatures",
-            featureInfoUrl: "api/masterData/GetFeatureInfo",
-            featuresInfoUrl: "api/masterData/GetFeaturesInfo",
-            schemaInfoUrl: "api/masterData/GetSchema",
-            featuresFilterUrl: 'api/masterData/GetFeaturesByFilters',
-            styled: false,
-            labeled: false,
-            selectable: true,
-            selectionOptions: {
-                multiple: false
-            },
-            style: {
-                weight: 1.04,
-                color: "red",
-                fillColor: "blue",
-                dashArray: "",
-                opacity: 1.0,
-                fillOpacity: 0.4,
-                zIndex: 600
-            },
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, {
-                    fillColor: "blue",
-                    dashArray: "",
-                    opacity: 1.0,
-                    fillOpacity: 0.4,
-                    zIndex: 600,
-                    radius: 2.5
-                });
-            }
         })]
     };
 

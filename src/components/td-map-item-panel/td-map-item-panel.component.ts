@@ -131,7 +131,6 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
 
 
   getFormControl(formControlName) {
-    //console.log(this.orderForm.get(formControlName))
     return this.orderForm.get(formControlName);
   }
 
@@ -141,22 +140,30 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   saveData() {
-    console.log(this.saveEnable);
-    console.log(this.differentBetweenInputDataAndInspectFeature);
     if (this.saveEnable && this.differentBetweenInputDataAndInspectFeature) {
       let editResult = this.detectOnEditFeatureDifferents(this.orderForm.value);
       if (!editResult.differentColumns.length) return;
-      console.log('sdgadf');
+
       let puthObj = {};
       for (let index = 0; index < editResult.differentColumns.length; index++) {
         const column = editResult.differentColumns[index];
         puthObj[column] = editResult.data[column];
       }
-      console.log(puthObj);
-      this.http.put(`${this.activeLayer.dataApi}/${this.feature.id}`, puthObj).subscribe(data => console.log(data));
+      this.findManyAndFindOneCodesBeforeSave(puthObj)
+      this.http.patch(`${this.activeLayer.dataApi}?id=${this.feature.id}`, puthObj).subscribe(data => console.log(data));
     }
   }
 
+  findManyAndFindOneCodesBeforeSave(savedItem) {
+    for (let columnName in savedItem) {
+      for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
+        let attributeColumn = this.activeLayer.attributeColumns[i];
+        if (attributeColumn.name === columnName && (attributeColumn.columnType === 'findOne' || attributeColumn.columnType === 'findMany') && savedItem[columnName].length > 0) {
+          savedItem[columnName] = savedItem[columnName].map(item => item.code);
+        }
+      }
+    }
+  }
 
   pipeFiltersToNumber = data => {
     for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
@@ -220,13 +227,13 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   getCadColumnNamesForLayer() {
-    this.http.get('api/parcelscad/GetSchema').subscribe((data: { properties: object; }) => {
+    this.http.get('api/parcelcads/GetSchema').subscribe((data: { properties: object; }) => {
       this.cadSchema = [];
       for (let key in data.properties) {
         if (key !== 'id' && key !== 'center' && key !== 'extent') {
           this.cadSchema.push({
             name: key,
-            label: data.properties[key].label || key,
+            label: data.properties[key].description || key,
             columnType: data.properties[key].columnType || 'findSimple'
           });
         }
@@ -249,11 +256,11 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     this.activeLayer = this.avaliableLayers.filter(item => item.id === this.lastLayerId ? item : false)[0];
     if (!this.activeLayer) return;
     let params = new HttpParams().set('id', featureId);
-    this.http.get(this.activeLayer.featureInfoUrl, { params }).subscribe((data) => {
-      if (data) this.feature = data;
+    this.http.get(this.activeLayer.featuresInfoUrl, { params }).subscribe((data) => {
+      if (data) this.feature = data[0];
     });
-    this.http.get('api/parcelscad/GetFeatureInfo', { params }).subscribe((data) => {
-      if (data) this.cadFeature = data;
+    this.http.get('api/parcelcads/GetFeaturesInfo', { params }).subscribe((data) => {
+      if (data) this.cadFeature = data[0];
     });
   }
 
@@ -296,7 +303,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   accumulateAttributeColumn(data, key) {
     return {
       name: key,
-      label: data.properties[key].label || key,
+      label: data.properties[key].description || key,
       columnType: data.properties[key].columnType || 'findSimple',
       columnValues: data.properties[key].values || null,
       avaliableProperties: data.properties[key].avaliableProperties || null,
