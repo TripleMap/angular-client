@@ -5,3 +5,31 @@
     bottom: 0;
     z-index: -1;
 }
+
+layer-selection {
+    position: absolute;
+    z-index: 100;
+    right: -10px;
+    bottom: 0px;
+}
+
+zoom-controls {
+    position: absolute;
+    top: calc(50% - 44px);
+    z-index: 100;
+    left: 4px;
+}
+
+measure-controls {
+    position: absolute;
+    left: 4px;
+    bottom: 124px;
+    z-index: 100;
+}
+
+spatial-filter {
+    position: absolute;
+    z-index: 100;
+    left: 4px;
+    bottom: 4px;
+}

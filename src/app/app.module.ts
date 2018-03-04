@@ -38,8 +38,11 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatMenuModule } from '@angular/material/menu';
-
-
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
 // services
 import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService";
 import { MapService } from "../services/MapService";
@@ -49,33 +52,33 @@ import { SelectionLayersService } from "../services/SelectionLayersService";
 import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 
 // mapComponents
-
 import { MainGridPanelComponent } from '../components/main-grid-panel/main-grid-panel.component';
 import { TdmapComponent } from "../components/tdmap/tdmap.component";
 import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
-import { TdMapItemPanelComponent } from '../components/td-map-item-panel/td-map-item-panel.component';
+import { TdMapItemPanelComponent, ConfirmRemoveDialodDialog } from '../components/td-map-item-panel/td-map-item-panel.component';
 
 import { TDMApPanelMatPaginatorIntl } from '../components/td-map-panel/td-map-panel.paginator';
+
 import { LayerComponent } from "../components/mapComponents/layer/layer.component";
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
 import { MeasureComponent } from "../components/mapComponents/measure/measure.component";
+import { SpatialFilterComponent } from '../components/mapComponents/spatial-filter/spatial-filter.component';
+
 import { SearchAutocompleteComponent } from "../components/search-autocomplete/search-autocomplete.component";
 import { FilterGeometryComponent } from "../components/filter-geometry/filter-geometry.component";
 import { FilterGeometryFirstLineComponent } from "../components/filter-geometry/filter-geometry-first-line/filter-geometry-first-line.component";
 import { FilterGeometrySecondLineComponent } from '../components/filter-geometry/filter-geometry-second-line/filter-geometry-second-line.component';
 import { FilterGeometryResultListComponent } from "../components/filter-geometry/filter-geometry-result-list/filter-geometry-result-list.component";
-import { SpatialFilterComponent } from '../components/filter-geometry/spatial-filter/spatial-filter.component';
+
 
 //covalent
-import { CovalentVirtualScrollModule, CovalentDataTableModule, CovalentPagingModule } from "@covalent/core";
+import { CovalentVirtualScrollModule } from "@covalent/core";
 
-
+//others
 import { GutterDirective } from '../components/td-map-panel/gutter.directive';
 import { GridsterModule } from 'angular-gridster2';
 import { AttributeDataTableFilterComponent } from '../components/td-map-panel/attribute-data-table-filter/attribute-data-table-filter.component';
 import { DndModule } from 'ng2-dnd';
-
-
 
 
 @NgModule({
@@ -85,6 +88,9 @@ import { DndModule } from 'ng2-dnd';
       useClass: ApiHTTPInterceptorService,
       multi: true
     },
+    { provide: MAT_DATE_LOCALE, useValue: 'ru-RU' },
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS },
     { provide: MatPaginatorIntl, useClass: TDMApPanelMatPaginatorIntl },
     MatIconRegistry,
     MapService,
@@ -109,8 +115,10 @@ import { DndModule } from 'ng2-dnd';
     MainGridPanelComponent,
     AttributeDataTableFilterComponent,
     FilterGeometrySecondLineComponent,
-    TdMapItemPanelComponent
+    TdMapItemPanelComponent,
+    ConfirmRemoveDialodDialog,
   ],
+  entryComponents: [ConfirmRemoveDialodDialog],
   imports: [
     BrowserModule,
     DndModule.forRoot(),
@@ -141,10 +149,11 @@ import { DndModule } from 'ng2-dnd';
     MatPaginatorModule,
     MatRadioModule,
     CovalentVirtualScrollModule,
-    CovalentDataTableModule,
-    CovalentPagingModule,
     GridsterModule,
-    MatMenuModule
+    MatMenuModule,
+    MatSnackBarModule,
+    MatDatepickerModule,
+    MatDialogModule
   ],
 
   bootstrap: [AppComponent]

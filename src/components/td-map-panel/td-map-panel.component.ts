@@ -271,7 +271,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 				if (key !== 'id' && key !== 'geometry') {
 					layer.columns.push({
 						name: key,
-						label: data.properties[key].label || key,
+						label: data.properties[key].description || key,
 						columnType: data.properties[key].columnType || 'findSimple',
 						columnValues: data.properties[key].values || null,
 						avaliableProperties: data.properties[key].avaliableProperties || null,

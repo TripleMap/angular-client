@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['./layer.component.css']
 })
 
-export class LayerComponent implements AfterViewInit {
+export class LayerComponent {
   public cadastrOverLayers: any;
   public baseLayers: any;
   public overlayLayers: { id: string; labelName: string; visible: boolean; }[];
@@ -18,26 +18,27 @@ export class LayerComponent implements AfterViewInit {
   watcher: Subscription;
 
   constructor(public BaseLayersService: BaseLayersService, public MapService: MapService, public OverLaysService: OverLaysService) {
-    this.baseLayers = this.BaseLayersService.getBaseLayers();
-    this.cadastrOverLayers = this.BaseLayersService.getCadastrOverLayers();
-    this.overlayLayers = this.OverLaysService.getLayerIdsAndLabelNames();
+    MapService.mapReady.subscribe(ready => {
+      if (!ready) return;
+      this.baseLayers = this.BaseLayersService.getBaseLayers();
+      this.cadastrOverLayers = this.BaseLayersService.getCadastrOverLayers();
+      this.overlayLayers = this.OverLaysService.getLayerIdsAndLabelNames();
 
-    this.watcher = this.BaseLayersService.activeBaseLayer.subscribe((change) => {
-      if (change) change.layer.addTo(this.MapService.getMap());
-    });
-  }
+      this.watcher = this.BaseLayersService.activeBaseLayer.subscribe((change) => {
+        if (change) change.layer.addTo(this.MapService.getMap());
+      });
 
-  ngAfterViewInit() {
-    this.setBaseLayerOnInit();
-    this.setCadastrOverLaersOnInit();
-    this.setOverlayLaersOnInit();
-    const saveMapState = () => {
-      window.localStorage.setItem("MAP_STATE_ACTIVE_BASEMAP", this.BaseLayersService.getActiveBaseLayerName());
-      window.localStorage.setItem('MAP_STATE_VISIBLE_CAD_LAYERS', this.BaseLayersService.getActiveCadastrLayersName().toString());
-      window.localStorage.setItem('MAP_STATE_VISIBLE_OVERLAY_LAYERS', this.OverLaysService.getActiveOverlayLayersId().toString());
-      return null;
-    }
-    window.addEventListener("beforeunload", (e) => saveMapState());
+      this.setBaseLayerOnInit();
+      this.setCadastrOverLaersOnInit();
+      this.setOverlayLaersOnInit();
+      const saveMapState = () => {
+        window.localStorage.setItem("MAP_STATE_ACTIVE_BASEMAP", this.BaseLayersService.getActiveBaseLayerName());
+        window.localStorage.setItem('MAP_STATE_VISIBLE_CAD_LAYERS', this.BaseLayersService.getActiveCadastrLayersName().toString());
+        window.localStorage.setItem('MAP_STATE_VISIBLE_OVERLAY_LAYERS', this.OverLaysService.getActiveOverlayLayersId().toString());
+        return null;
+      }
+      window.addEventListener("beforeunload", (e) => saveMapState());
+    })
   }
 
   setBaseLayerOnInit() {

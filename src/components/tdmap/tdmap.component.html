@@ -1,1 +1,7 @@
 <div id="map" class="gridster-item-content"></div>
+<div class="td-map-actions light-theme">
+    <layer-selection></layer-selection>
+    <zoom-controls [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></zoom-controls>
+    <measure-controls [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></measure-controls>
+    <spatial-filter [ngClass]="(activeMediaQuery !== 'xs' && isFilterSidenavActive) ? 'td-map-actions_active' : 'td-map-actions_deactive'"></spatial-filter>
+</div>

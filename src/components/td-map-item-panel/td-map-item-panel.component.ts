@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, AfterContentInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, Inject, AfterViewInit, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, AfterContentInit, ViewChild, ElementRef } from '@angular/core';
 import { HttpParams, HttpClient } from "@angular/common/http";
 import { OverLaysService } from "../../services/OverLaysService";
 import { MapService } from "../../services/MapService";
@@ -8,6 +8,26 @@ import { Observable } from 'rxjs/observable'
 import 'rxjs/add/operator/debounceTime.js';
 import { Subscriber } from "rxjs/Subscriber";
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+
+@Component({
+  selector: 'confirm-dialog',
+  template: `
+      <div mat-dialog-content>
+        <p>Удалить дополнительный атрибут?</p>
+      </div>
+      <div mat-dialog-actions>
+        <button mat-button color="accent" (click)="no()" cdkFocusInitial>Отмена</button>
+        <button mat-button color="accent" (click)="yes()">Да</button>
+      </div>`
+}) export class ConfirmRemoveDialodDialog {
+  constructor(public dialogRef: MatDialogRef<ConfirmRemoveDialodDialog>) { }
+  no = () => this.dialogRef.close(false);
+  yes = () => this.dialogRef.close(true);
+}
+
+
 
 interface AvaliableLayer {
   id: string;
@@ -22,8 +42,7 @@ interface AvaliableLayer {
 }
 
 //// TO DO pipe to null if empty
-//// TO DO validetions 
-
+//// TO DO validations 
 
 @Component({
   selector: 'td-map-item-panel',
@@ -43,8 +62,12 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   public editMode: boolean = false;
   public saveEnable: boolean = true;
   public differentBetweenInputDataAndInspectFeature: boolean = false;
+  public differentBetweenInputDataAndAdditionalFeature: boolean = false;
   public orderForm: FormGroup;
   public subscriberOnOrderForm: any;
+  public additionalForm: FormGroup;
+  public subscriberOnAdditionalForm: any;
+  public featureAdditionalCharacters: any[];
   public compareFn = (f1: any, f2: any) => f1.code === f2.code;
 
   @ViewChild('tabs', { read: ElementRef }) tabs: ElementRef;
@@ -52,7 +75,9 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     public http: HttpClient,
     public OverLaysService: OverLaysService,
     public MapService: MapService,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
+    public snackBar: MatSnackBar,
+    public MatDialog: MatDialog
   ) {
     this.featuresFlow = new Subject();
     this.subscriberOnfeaturesFlow = this.featuresFlow.asObservable()
@@ -62,12 +87,18 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.orderForm = this.formBuilder.group({});
+    this.additionalForm = this.formBuilder.group({});
     this.subscriberOnOrderForm = this.orderForm.valueChanges
       .debounceTime(300)
       .filter(this.isValidForm)
       .map(this.pipeFiltersToNumber)
       .map(this.detectOnEditFeatureDifferents.bind(this))
-      .subscribe(data => { console.log(data) })
+      .subscribe(data => { console.log(data) });
+
+    this.subscriberOnAdditionalForm = this.additionalForm.valueChanges
+      .debounceTime(300)
+      .map(this.detectOnEditAdditionalFeatureDifferents.bind(this))
+      .subscribe(data => { console.log(data) });
   }
 
 
@@ -83,6 +114,31 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     header.style.width = 'calc(100% - 48px)';
   }
 
+  succesOnSave(message) {
+    this.snackBar.open(message, null, {
+      duration: 2000,
+      panelClass: ['success-snack'],
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom'
+    });
+  }
+
+  warnOnSave(message) {
+    this.snackBar.open(message, null, {
+      duration: 3000,
+      panelClass: ['warn-snack'],
+      horizontalPosition: 'right'
+    });
+  }
+
+  errorOnSave(message) {
+    this.snackBar.open(message, null, {
+      duration: 3000,
+      panelClass: ['error-snack'],
+      horizontalPosition: 'right'
+    });
+  }
+
 
   toggleEditMode() {
     this.editMode = !this.editMode;
@@ -94,22 +150,41 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     for (let control in this.orderForm.controls) {
       this.orderForm.removeControl(control)
     }
+    for (let control in this.additionalForm.controls) {
+      this.orderForm.removeControl(control)
+    }
   }
 
   resetFormControl() {
     this.clearFormControls();
-    this.addControls(this.activeLayer);
+
+    this.addFeatureAttributesControls(this.activeLayer);
+
+    this.featureAdditionalCharacters.map(item => {
+      this.addAdditionalCharactersControls(item);
+    });
+
   }
 
-  addControls(layer) {
+  addFeatureAttributesControls(layer) {
     for (let i = 0; i < layer.attributeColumns.length; i++) {
-      let fatureValue = this.feature[`${layer.attributeColumns[i].name}`];
+      let fatureValue;
+      (layer.attributeColumns[i].columnType === 'findDate') ?
+        fatureValue = new Date(this.feature[`${layer.attributeColumns[i].name}`])
+        : fatureValue = this.feature[`${layer.attributeColumns[i].name}`];
+
+
       let validators = this.addvalidators(layer.attributeColumns[i])
       let control = new FormControl(fatureValue, validators);
       this.orderForm.addControl(`${layer.attributeColumns[i].name}`, control);
     }
   }
 
+  addAdditionalCharactersControls(item) {
+    this.additionalForm.addControl(this.generateFeatureAdditionalCharactersFormControlName(item.id, 'name'), new FormControl(item.character_name));
+    this.additionalForm.addControl(this.generateFeatureAdditionalCharactersFormControlName(item.id, 'value'), new FormControl(item.character_value));
+  }
+  generateFeatureAdditionalCharactersFormControlName = (id, subName) => `${id}_${subName}`;
 
   addvalidators(column) {
     let validators = [];
@@ -140,17 +215,29 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   saveData() {
-    if (this.saveEnable && this.differentBetweenInputDataAndInspectFeature) {
+
+    if (!this.saveEnable) {
+      this.warnOnSave('Проверьте корректность введеных данных');
+    }
+
+    if (this.saveEnable && this.differentBetweenInputDataAndAdditionalFeature) {
       let editResult = this.detectOnEditFeatureDifferents(this.orderForm.value);
       if (!editResult.differentColumns.length) return;
 
-      let puthObj = {};
+      let patchObj = {};
       for (let index = 0; index < editResult.differentColumns.length; index++) {
         const column = editResult.differentColumns[index];
-        puthObj[column] = editResult.data[column];
+        patchObj[column] = editResult.data[column];
       }
-      this.findManyAndFindOneCodesBeforeSave(puthObj)
-      this.http.patch(`${this.activeLayer.dataApi}?id=${this.feature.id}`, puthObj).subscribe(data => console.log(data));
+      this.findManyAndFindOneCodesBeforeSave(patchObj);
+      this.findDatesMomentBeforeSave(patchObj)
+      console.log(patchObj);
+      // this.http.post(`${this.activeLayer.dataApi}/update/?where={"id":"${this.feature.id}"}`, patchObj)
+      //   .subscribe(data => this.succesOnSave('Атрибуты обновлены'), error => this.errorOnSave('Ошибка при сохранении'));
+    }
+
+    if (this.saveEnable && this.differentBetweenInputDataAndAdditionalFeature) {
+      let additionalResult = this.detectOnEditFeatureDifferents(this.additionalForm.value);
     }
   }
 
@@ -160,6 +247,17 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
         let attributeColumn = this.activeLayer.attributeColumns[i];
         if (attributeColumn.name === columnName && (attributeColumn.columnType === 'findOne' || attributeColumn.columnType === 'findMany') && savedItem[columnName].length > 0) {
           savedItem[columnName] = savedItem[columnName].map(item => item.code);
+        }
+      }
+    }
+  }
+
+  findDatesMomentBeforeSave(savedItem) {
+    for (let columnName in savedItem) {
+      for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
+        let attributeColumn = this.activeLayer.attributeColumns[i];
+        if (attributeColumn.name === columnName && attributeColumn.columnType === 'findDate') {
+          savedItem[columnName] = savedItem[columnName].unix();
         }
       }
     }
@@ -189,8 +287,14 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       let columnName = column.name;
 
       if (this.feature.hasOwnProperty(columnName) && data.hasOwnProperty(columnName)) {
-        if (column.columnType === 'findSimple' || column.columnType === 'findBoolean' || column.columnType === 'findDate' || column.columnType === 'findNumber') {
+        if (column.columnType === 'findSimple' || column.columnType === 'findBoolean' || column.columnType === 'findNumber') {
           if (this.feature[columnName] !== data[columnName]) {
+            differentColumns.push(columnName);
+            differents = true;
+          }
+        }
+        if (column.columnType === 'findDate') {
+          if (this.feature[columnName] !== new Date(data[columnName]).getTime()) {
             differentColumns.push(columnName);
             differents = true;
           }
@@ -226,6 +330,53 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     return { data, differentColumns };
   }
 
+  detectOnEditAdditionalFeatureDifferents(data) {
+    if (!this.editMode) return;
+    let differents = false;
+    let differentAdditionalIds = [];
+    for (let i = 0; i < this.featureAdditionalCharacters.length; i++) {
+      const element = this.featureAdditionalCharacters[i];
+      if (element.added || element.removed) {
+        differentAdditionalIds.push(element.id);
+        differents = true;
+        break;
+      }
+      let elementNameChange = element.character_name !== data[`${element.id}_name`];
+      let elementValueChange = element.character_value !== data[`${element.id}_value`];
+      if (elementNameChange || elementValueChange) {
+        differentAdditionalIds.push(element.id);
+        differents = true;
+      }
+    }
+    this.differentBetweenInputDataAndAdditionalFeature = differents;
+    if (differents) this.saveEnable = true;
+    return { data, differentAdditionalIds };
+  }
+
+  removeAdditionalItem(item) {
+    this.MatDialog.open(ConfirmRemoveDialodDialog, {
+      width: '250px'
+    }).afterClosed()
+      .subscribe(confirm => {
+        if (confirm) item.removed = true;
+      });
+  }
+
+  addAdditionalItem() {
+    const guid = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) + '-' + Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    const newAdditionalCharacter = {
+      id: guid(),
+      character_name: ``,
+      character_value: ``,
+      parcel_id: this.feature.id,
+      user_id: '',
+      added: true
+    }
+
+    this.featureAdditionalCharacters.push(newAdditionalCharacter);
+    this.addAdditionalCharactersControls(newAdditionalCharacter)
+  }
+
   getCadColumnNamesForLayer() {
     this.http.get('api/parcelcads/GetSchema').subscribe((data: { properties: object; }) => {
       this.cadSchema = [];
@@ -255,13 +406,30 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     if (!featureId) return;
     this.activeLayer = this.avaliableLayers.filter(item => item.id === this.lastLayerId ? item : false)[0];
     if (!this.activeLayer) return;
+    this.getInfo(featureId);
+    this.getCadInfo(featureId);
+    this.getAdditionalCharacters(featureId);
+  }
+
+  getInfo(featureId) {
     let params = new HttpParams().set('id', featureId);
     this.http.get(this.activeLayer.featuresInfoUrl, { params }).subscribe((data) => {
       if (data) this.feature = data[0];
-    });
+    }, error => this.errorOnSave('Ошибка при получении атрибутов'));
+  }
+
+  getCadInfo(featureId) {
+    let params = new HttpParams().set('id', featureId);
     this.http.get('api/parcelcads/GetFeaturesInfo', { params }).subscribe((data) => {
       if (data) this.cadFeature = data[0];
-    });
+    }, error => this.errorOnSave('Ошибка при получении кадастровых атрибутов'));
+  }
+
+  getAdditionalCharacters(featureId) {
+    let params = new HttpParams().set('filter', JSON.stringify({ "where": { "user_id": "1", 'parcel_id': featureId } }));
+    this.http.get('api/ParcelsAdditionalCharacters/', { params }).subscribe((data: any[]) => {
+      if (data) this.featureAdditionalCharacters = data;
+    }, error => this.errorOnSave('Ошибка при получении дополнительных атрибутов'));
   }
 
   getColumnNamesForLayer(layer) {
@@ -320,7 +488,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
-
+  formatUnixDate = (date) => new Date(date).toISOString().slice(0, 10);
   ngOnDestroy() {
     for (let key in this.subscriptions) {
       this.subscriptions[key].unsubscribe();

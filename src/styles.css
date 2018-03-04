@@ -46,3 +46,19 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+.success-snack {
+    background-color: #4caf50 !important;
+}
+
+.error-snack {
+    background-color: #F44336 !important;
+}
+
+.warn-snack {
+    background-color: #ff9800 !important;
+}
+
+.mat-drawer-container {
+    background: rgba(0, 0, 0, 0) !important;
+}

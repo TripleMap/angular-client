@@ -29,15 +29,15 @@ export class MainGridPanelComponent {
   constructor(public MapService: MapService) {
     this.options = {
       gridType: GridType.Fit,
-      compactType: CompactType.None,
+      compactType: CompactType.CompactUp,
       outerMargin: true,
       outerMarginTop: 8,
       outerMarginRight: 8,
       outerMarginBottom: 8,
       outerMarginLeft: 8,
       mobileBreakpoint: 640,
-      margin: 10,
-      minCols: 15,
+      margin: 6,
+      minCols: 16,
       maxCols: 100,
       minRows: 8,
       maxRows: 100,
@@ -82,8 +82,8 @@ export class MainGridPanelComponent {
       itemResizeCallback: this.itemResize,
     };
 
-    this.gridItems.push({ id: 'tdmap', cols: 10, rows: 8, y: 0, x: 0 });
-    this.gridItems.push({ id: 'tdmapItem', cols: 5, rows: 8, y: 0, x: 10 });
+    this.gridItems.push({ id: 'tdmap', cols: 8, rows: 8, y: 0, x: 0 });
+    this.gridItems.push({ id: 'tdmapItem', cols: 8, rows: 8, y: 0, x: 8 });
   }
 
   itemResize = (item, itemComponent) => {
@@ -106,7 +106,7 @@ export class MainGridPanelComponent {
 
   toggleAttributeTable(attrinuteTableValueChanges: boolean) {
     if (attrinuteTableValueChanges) {
-      this.gridItems.push({ id: 'attributeTable', cols: 15, rows: 8, y: 0, x: 0 });
+      this.gridItems.push({ id: 'attributeTable', cols: 16, rows: 8, y: 0, x: 0 });
     } else {
       for (let i = this.gridItems.length - 1; i >= 0; i--) {
         if (this.gridItems[i].id === 'attributeTable') {
@@ -118,7 +118,7 @@ export class MainGridPanelComponent {
       if (this.gridsterItems) {
         let tdmap = this.gridsterItems.forEach(gridsterItem => {
           if (gridsterItem.item.id === 'tdmap') {
-            gridsterItem.$item.cols = 10;
+            gridsterItem.$item.cols = 8;
             gridsterItem.$item.rows = 8;
             gridsterItem.$item.x = 0;
             gridsterItem.$item.y = 0;
@@ -126,9 +126,9 @@ export class MainGridPanelComponent {
             gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);
           }
           if (gridsterItem.item.id === 'tdmapItem') {
-            gridsterItem.$item.cols = 5;
+            gridsterItem.$item.cols = 8;
             gridsterItem.$item.rows = 8;
-            gridsterItem.$item.x = 10;
+            gridsterItem.$item.x = 8;
             gridsterItem.$item.y = 0;
             gridsterItem.setSize(true);
             gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);

@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpParams, HttpHeaders, HttpErrorResponse } from "@angular/common/http";
 import { BaseLayersService } from "./BaseLayersService";
 import { OverLaysService } from "./OverLaysService";
 import { Subject } from "rxjs/Subject";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import "rxjs/add/operator/filter";
 
+import { MatSnackBar } from '@angular/material';
 
 interface AvaliableLayer {
 	id: string;
@@ -24,6 +25,14 @@ interface AvaliableLayer {
 	previousFilterParams: any;
 }
 
+const errorOnSave = (message) => {
+	this.snackBar.open(message, null, {
+		duration: 2000,
+		panelClass: ['error-snack'],
+		horizontalPosition: 'right'
+	});
+}
+
 @Injectable()
 export class FilterGeometryAdapter {
 	public mainFlow: Subject<any>;
@@ -31,7 +40,7 @@ export class FilterGeometryAdapter {
 	public filteredLayer: any;
 	public avaliableLayers: any;
 
-	constructor(public _http: HttpClient, public OverLaysService: OverLaysService) {
+	constructor(public http: HttpClient, public OverLaysService: OverLaysService, public snackBar: MatSnackBar) {
 		this.mainFlow = new Subject();
 		this.filteredLayerId = new BehaviorSubject(false);
 		this.mainFlow
@@ -48,13 +57,16 @@ export class FilterGeometryAdapter {
 	};
 
 	updateLayerFilters = requestParams => {
-		this._http
+
+		this.http
 			.post(this.filteredLayer.featuresFilterUrl, requestParams)
 			.subscribe((data: any[]) => {
 				if (this.filteredLayer) {
 					this.filteredLayer.filteredList = data;
 					this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });
 				}
+			}, (error: HttpErrorResponse) => {
+				if (error.status <= 400) errorOnSave.call(this, 'Не удалось обработать фильтры');
 			});
 	};
 
@@ -103,11 +115,13 @@ export class FilterGeometryAdapter {
 
 	concatenateTableFilters(columnData, filterValue, layer) {
 		if (layer.previousFilterParams) {
-			this._http
+			this.http
 				.post(this.filteredLayer.featuresFilterUrl, layer.previousFilterParams)
 				.subscribe((data: any[]) => {
 					if (this.filteredLayer) this.filteredLayer.filteredList = data;
 					this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });
+				}, (error: HttpErrorResponse) => {
+					if (error.status <= 400) errorOnSave.call(this, 'Не удалось обработать фильтры');
 				});
 		}
 	};
