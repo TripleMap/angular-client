@@ -220,7 +220,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       this.warnOnSave('Проверьте корректность введеных данных');
     }
 
-    if (this.saveEnable && this.differentBetweenInputDataAndAdditionalFeature) {
+    if (this.saveEnable && this.differentBetweenInputDataAndInspectFeature) {
       let editResult = this.detectOnEditFeatureDifferents(this.orderForm.value);
       if (!editResult.differentColumns.length) return;
 
@@ -237,7 +237,8 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     }
 
     if (this.saveEnable && this.differentBetweenInputDataAndAdditionalFeature) {
-      let additionalResult = this.detectOnEditFeatureDifferents(this.additionalForm.value);
+      let additionalResult = this.detectOnEditAdditionalFeatureDifferents(this.additionalForm.value);
+      console.log(additionalResult);
     }
   }
 
@@ -336,6 +337,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     let differentAdditionalIds = [];
     for (let i = 0; i < this.featureAdditionalCharacters.length; i++) {
       const element = this.featureAdditionalCharacters[i];
+      console.log(element);
       if (element.added || element.removed) {
         differentAdditionalIds.push(element.id);
         differents = true;
@@ -358,7 +360,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       width: '250px'
     }).afterClosed()
       .subscribe(confirm => {
-        if (confirm) item.removed = true;
+        if (confirm) { item.removed = true; this.differentBetweenInputDataAndAdditionalFeature = true; }
       });
   }
 
@@ -374,7 +376,8 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     }
 
     this.featureAdditionalCharacters.push(newAdditionalCharacter);
-    this.addAdditionalCharactersControls(newAdditionalCharacter)
+    this.addAdditionalCharactersControls(newAdditionalCharacter);
+    this.differentBetweenInputDataAndAdditionalFeature = true;
   }
 
   getCadColumnNamesForLayer() {
