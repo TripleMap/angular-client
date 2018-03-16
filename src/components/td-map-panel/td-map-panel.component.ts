@@ -10,7 +10,7 @@ import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
 import { Subject } from 'rxjs/subject'
 import { Observable } from 'rxjs/observable'
 import 'rxjs/add/operator/debounceTime.js';
-import { Subscriber } from "rxjs/Subscriber";
+import { Subscription } from "rxjs/Subscription";
 
 interface AvaliableLayer {
 	id: string;
@@ -42,7 +42,6 @@ interface AvaliableLayer {
 export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	@Input() public tdMapPanel: boolean;
 	@Output() public closeTdmapPanelSidenav: EventEmitter<string> = new EventEmitter<string>();
-
 	@ViewChild(MatSort) sort: MatSort;
 	@ViewChild('sortVisibleFeaturesPerPage') sortVisibleFeaturesPerPage: MatSort;
 	@ViewChildren('table', { read: ElementRef }) table;
@@ -54,21 +53,18 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 	public subscriptions: object = {};
 	public changeDetectionOnserver: Observable<any>;
 	public changeDetectionTick: any;
-	public subscriberChangeDetectionTick: any;
+
 	constructor(
 		public OverLaysService: OverLaysService,
 		public http: HttpClient,
 		public MapService: MapService,
 		public FilterGeometryAdapter: FilterGeometryAdapter,
-		public changeDetectorRef: ChangeDetectorRef,
-		public zone: NgZone
+		public changeDetectorRef: ChangeDetectorRef
 	) {
-		this.changeDetectionTick = new Subject()
-		this.subscriberChangeDetectionTick = this.changeDetectionTick.asObservable().debounceTime(100).subscribe(data => {
+		this.changeDetectionTick = new Subject();
+		this.subscriptions[`subscriberChangeDetectionTick`] = this.changeDetectionTick.asObservable().debounceTime(100).subscribe(data => {
 			this.changeDetectorRef.detectChanges();
-			if (this.activeLayer) {
-				this.onFilterListSubscriberNext(this.activeLayer, false);
-			}
+			if (this.activeLayer) this.updateTableData(this.activeLayer, false);
 		});
 	}
 
@@ -91,23 +87,21 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 
 		this.avaliableLayers.map(layer => this.getColumnNamesForLayer(layer));
 
-		let inspectLayerAttributeTableSubscriber = this.inspectLayerAttributeTable.valueChanges.subscribe(avaliableLayerId => {
+		this.subscriptions[`OverLaysService_visibleLayers`] = this.inspectLayerAttributeTable.valueChanges.subscribe(avaliableLayerId => {
 			if (avaliableLayerId && avaliableLayerId !== 'None') {
 				this.activeLayer = this.avaliableLayers.filter(item => item.id === avaliableLayerId ? item : false)[0];
 				this.getColumnDataForLayer(this.activeLayer, false);
 			}
 
 			this.changeDetectorRef.detectChanges();
-			if (this.table.first) {
-				let scrollElement = document.createElement('div');
-				scrollElement.classList.add('table-sroll-wrapper');
-				this.table.first.nativeElement.appendChild(scrollElement);
-			}
+			if (!this.table.first) return;
+
+			let scrollElement = document.createElement('div');
+			scrollElement.classList.add('table-sroll-wrapper');
+			this.table.first.nativeElement.appendChild(scrollElement);
 		});
 
-		this.subscriptions[`OverLaysService_visibleLayers`] = inspectLayerAttributeTableSubscriber;
-
-		let visibleSubscriber = this.OverLaysService.visibleLayers.subscribe(layerIdsUpdate => {
+		this.subscriptions[`OverLaysService_visibleLayers`] = this.OverLaysService.visibleLayers.subscribe(layerIdsUpdate => {
 			let shouldUpdate = true;
 			if (!layerIdsUpdate.length) {
 				this.inspectLayerAttributeTable.setValue('None');
@@ -122,35 +116,30 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			if (shouldUpdate) this.inspectLayerAttributeTable.setValue(layerIdsUpdate[0]);
 
 			this.changeDetectorRef.detectChanges();
-
 		});
-		this.subscriptions[`OverLaysService_visibleLayers`] = visibleSubscriber;
 
-		let filterSubscriber = this.FilterGeometryAdapter.filteredLayerId.subscribe(layerIdAndData => {
+		this.subscriptions[`filterSubscriber`] = this.FilterGeometryAdapter.filteredLayerId.subscribe(layerIdAndData => {
 			if (layerIdAndData && layerIdAndData.layerId) {
 				let inspectLayer = this.avaliableLayers.filter(layer => layer.id === layerIdAndData.layerId ? layer : false)[0]
-				this.onFilterListSubscriberNext(inspectLayer, false);
+				this.updateTableData(inspectLayer, false);
 			}
 		});
-		this.subscriptions[`filterSubscriber`] = filterSubscriber;
-
 	}
 
 	ngOnDestroy() {
-		for (let key in this.subscriptions) {
-			this.subscriptions[key].unsubscribe();
+		for (const key in this.subscriptions) {
+			if (this.subscriptions.hasOwnProperty(key)) this.subscriptions[key].unsubscribe();
 		}
+		this.changeDetectorRef.detach();
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.tdMapPanel && this.activeLayer) this.getColumnDataForLayer(this.activeLayer, false);
-
 	}
 
 	getColumnDataForLayer(layer, force) {
-		this.http.get(layer.featuresInfoUrl).subscribe(data => this.loadDataVirtualScroll(layer, data));
+		this.http.get(layer.featuresInfoUrl).subscribe(data => { layer.data = data; this.updateTableData(layer, false) });
 	}
-
 
 	compareOnFilterList(layer, data) {
 		let filterDictionary = {};
@@ -195,37 +184,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 		return result;
 	}
 
-
-	loadDataVirtualScroll(layer, data) {
-		if (!this.table.first || !data) return;
-		let filteredData = this.compareOnFilterList(layer, data);
-		layer.visibleFeatures = filteredData;
-		let tableRef = this.table.first.nativeElement;
-		const tableViewHeight = tableRef.offsetHeight;
-		const tableScrollHeight = tableRef.scrollHeight;
-		const scrollLocation = tableRef.scrollTop;
-		let rowHeigth = 48;
-		let elementPreView = Math.ceil(tableViewHeight / rowHeigth);
-		let firstElement = Math.floor(scrollLocation / rowHeigth);
-
-		let scrollElement = tableRef.getElementsByClassName('table-sroll-wrapper')[0];
-		scrollElement.style.height = filteredData.length * rowHeigth + 'px';
-
-		layer.data = data;
-		layer.total = filteredData.length;
-		layer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
-		layer.visibleFeaturesPerPage.sort = this.sortVisibleFeaturesPerPage;
-		this.changeDetectorRef.detectChanges();
-		let delta = scrollLocation > 56 ? 1 : 0;
-		let matRows = tableRef.getElementsByTagName('mat-row');
-		for (let i = 0; i < matRows.length; i++) {
-			matRows[i].style.position = 'absolute';
-			matRows[i].style.zIndex = 0;
-			matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`;
-		}
-	}
-
-	onFilterListSubscriberNext(layer, onScroll) {
+	updateTableData(layer, onScroll) {
 		if (!this.table || !this.table.first) return;
 		let tableRef = this.table.first.nativeElement;
 		let inspectLayer = layer || this.activeLayer;
@@ -253,14 +212,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			matRows[i].style.zIndex = 0;
 			matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`;
 		}
-	}
 
-	onTableScroll(e, layer) {
-		this.onFilterListSubscriberNext(layer, true);
-	}
-
-	onShowFilteredOrSelectionChange(e, layer) {
-		this.onFilterListSubscriberNext(layer, false);
 	}
 
 	getColumnNamesForLayer(layer) {
@@ -333,20 +285,19 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 
 	linkDetector = (text: string) => (text && typeof text === 'string' && text.indexOf('http') > -1) ? true : false;
 
-	sortingDataAccessor = (data, sortHeaderId: string) => {
-		const value: any = data[sortHeaderId];
-		return _isNumberValue(value) ? Number(value) : value;
-	}
-
 	sortData(e, layer) {
+		const sortingDataAccessor = (data, sortHeaderId: string) => {
+			const value: any = data[sortHeaderId];
+			return _isNumberValue(value) ? Number(value) : value;
+		}
 		const active = e.active;
 		const direction = e.direction;
 		let data = layer.data;
 		if (!active || direction == '') return;
 
 		data.sort((a, b) => {
-			let valueA = this.sortingDataAccessor(a, active);
-			let valueB = this.sortingDataAccessor(b, active);
+			let valueA = sortingDataAccessor(a, active);
+			let valueB = sortingDataAccessor(b, active);
 			let comparatorResult = 0;
 			if (valueA && valueB) {
 				if (valueA > valueB) {
@@ -363,7 +314,7 @@ export class TdMapPanelComponent implements AfterViewInit, OnDestroy {
 			return comparatorResult * (direction == 'asc' ? 1 : -1);
 		});
 
-		this.onFilterListSubscriberNext(layer, true);
+		this.updateTableData(layer, false);
 	}
 
 

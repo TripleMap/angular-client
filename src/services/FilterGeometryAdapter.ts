@@ -59,7 +59,7 @@ export class FilterGeometryAdapter {
 	updateLayerFilters = requestParams => {
 
 		this.http
-			.post(this.filteredLayer.featuresFilterUrl, requestParams)
+			.post(this.filteredLayer.featuresFilterUrl, { filterParams: requestParams })
 			.subscribe((data: any[]) => {
 				if (this.filteredLayer) {
 					this.filteredLayer.filteredList = data;

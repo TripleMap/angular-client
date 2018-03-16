@@ -82,8 +82,8 @@ export class MainGridPanelComponent {
       itemResizeCallback: this.itemResize,
     };
 
-    this.gridItems.push({ id: 'tdmap', cols: 8, rows: 8, y: 0, x: 0 });
-    this.gridItems.push({ id: 'tdmapItem', cols: 8, rows: 8, y: 0, x: 8 });
+    this.gridItems.push({ id: 'tdmap', cols: 10, rows: 8, y: 0, x: 0 });
+    this.gridItems.push({ id: 'tdmapItem', cols: 6, rows: 8, y: 0, x: 10 });
   }
 
   itemResize = (item, itemComponent) => {
@@ -93,7 +93,7 @@ export class MainGridPanelComponent {
     }
     if (item.id === 'attributeTable') {
       if (this.TdMapPanelComponent.activeLayer) {
-        this.TdMapPanelComponent.onFilterListSubscriberNext(this.TdMapPanelComponent.activeLayer, true);
+        this.TdMapPanelComponent.updateTableData(this.TdMapPanelComponent.activeLayer);
       }
     }
   }
@@ -116,24 +116,7 @@ export class MainGridPanelComponent {
       }
 
       if (this.gridsterItems) {
-        let tdmap = this.gridsterItems.forEach(gridsterItem => {
-          if (gridsterItem.item.id === 'tdmap') {
-            gridsterItem.$item.cols = 8;
-            gridsterItem.$item.rows = 8;
-            gridsterItem.$item.x = 0;
-            gridsterItem.$item.y = 0;
-            gridsterItem.setSize(true);
-            gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);
-          }
-          if (gridsterItem.item.id === 'tdmapItem') {
-            gridsterItem.$item.cols = 8;
-            gridsterItem.$item.rows = 8;
-            gridsterItem.$item.x = 8;
-            gridsterItem.$item.y = 0;
-            gridsterItem.setSize(true);
-            gridsterItem.checkItemChanges(gridsterItem.$item, gridsterItem.item);
-          }
-        });
+
       }
 
       if (this.MapService.TDMapManager) {
