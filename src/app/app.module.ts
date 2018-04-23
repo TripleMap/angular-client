@@ -12,7 +12,7 @@ import { HttpClientModule } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 // TDMap, Leaflet
-
+import { TDMapManagerConstructor, TDMapConstructor } from '../tdmap/TDMap';
 // materialComponents
 import {
   MatIconRegistry,
@@ -43,12 +43,15 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
+
+//main
+import { TdmapSistem } from '../components/tdmap-sistem/tdmap-sistem.component';
+
 // services
 import { ApiHTTPInterceptorService } from "../services/ApiHTTPInterceptorService";
 import { MapService } from "../services/MapService";
 import { BaseLayersService } from "../services/BaseLayersService";
 import { OverLaysService } from "../services/OverLaysService";
-import { SelectionLayersService } from "../services/SelectionLayersService";
 import { FilterGeometryAdapter } from "../services/FilterGeometryAdapter";
 
 // mapComponents
@@ -56,8 +59,8 @@ import { MainGridPanelComponent } from '../components/main-grid-panel/main-grid-
 import { TdmapComponent } from "../components/tdmap/tdmap.component";
 import { TdMapPanelComponent } from '../components/td-map-panel/td-map-panel.component';
 import { TdMapItemPanelComponent, ConfirmRemoveDialodDialog } from '../components/td-map-item-panel/td-map-item-panel.component';
+import { VirtualScrollContainer } from '../components/td-map-panel/virtual-scroll-container.directive'
 
-import { TDMApPanelMatPaginatorIntl } from '../components/td-map-panel/td-map-panel.paginator';
 
 import { LayerComponent } from "../components/mapComponents/layer/layer.component";
 import { ZoomComponent } from "../components/mapComponents/zoom/zoom.component";
@@ -80,9 +83,21 @@ import { GridsterModule } from 'angular-gridster2';
 import { AttributeDataTableFilterComponent } from '../components/td-map-panel/attribute-data-table-filter/attribute-data-table-filter.component';
 import { DndModule } from 'ng2-dnd';
 
+//auth
+import { Login } from '../auth/login/login';
+import { AuthService, AuthHttpInterceptorService } from '../auth/auth-service';
+import { AuthGuard } from '../auth/auth-guard';
+import { RoleGuard } from '../auth/role-guard';
+import { Register } from '../auth/register/register.component';
+import { NotFound } from './not-found/not-found.component';
 
 @NgModule({
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthHttpInterceptorService,
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiHTTPInterceptorService,
@@ -91,15 +106,17 @@ import { DndModule } from 'ng2-dnd';
     { provide: MAT_DATE_LOCALE, useValue: 'ru-RU' },
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
     { provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS },
-    { provide: MatPaginatorIntl, useClass: TDMApPanelMatPaginatorIntl },
     MatIconRegistry,
     MapService,
     BaseLayersService,
     OverLaysService,
-    SelectionLayersService,
-    FilterGeometryAdapter
+    FilterGeometryAdapter,
+    AuthService,
+    AuthGuard,
+    RoleGuard
   ],
   declarations: [
+    TdmapSistem,
     AppComponent,
     TdmapComponent,
     LayerComponent,
@@ -117,6 +134,10 @@ import { DndModule } from 'ng2-dnd';
     FilterGeometrySecondLineComponent,
     TdMapItemPanelComponent,
     ConfirmRemoveDialodDialog,
+    Login,
+    Register,
+    NotFound,
+    VirtualScrollContainer
   ],
   entryComponents: [ConfirmRemoveDialodDialog],
   imports: [

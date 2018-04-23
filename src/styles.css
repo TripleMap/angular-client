@@ -5,6 +5,7 @@
 @import '~leaflet/dist/leaflet.css';
 @import '~@swimlane/ngx-datatable/release/themes/material.css';
 @import '~@swimlane/ngx-datatable/release/assets/icons.css';
+@import './tdmap/css/main.css';
 html,
 body {
     margin: 0;

@@ -1,9 +1,9 @@
-import { Component, ViewChild, OnInit, OnDestroy, AfterViewInit, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
+import { Component, ViewChild, OnInit, OnDestroy, AfterViewInit, Output, EventEmitter } from "@angular/core";
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
 import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FilterGeometryFirstLineComponent } from './filter-geometry-first-line/filter-geometry-first-line.component';
 import { FilterGeometryResultListComponent } from './filter-geometry-result-list/filter-geometry-result-list.component';
-import { OverLaysService } from "../../services/OverLaysService";
+import { OverLaysService, LayerSchema } from "../../services/OverLaysService";
 import { Subscription } from 'rxjs/Subscription';
 import { FormControl } from '@angular/forms'
 
@@ -11,15 +11,14 @@ import { FormControl } from '@angular/forms'
 @Component({
   selector: "filter-geometry",
   templateUrl: "./filter-geometry.component.html",
-  styleUrls: ["./filter-geometry.component.css"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ["./filter-geometry.component.css"]
 })
 export class FilterGeometryComponent implements OnInit, OnDestroy {
   public isFiltersActive: boolean;
   public isResultPaneAvalible: boolean;
   public isResultPaneCounts: number;
   public activeMediaQuery: string = "";
-  public avaliableLayers: any[];
+  public avaliableLayers: LayerSchema[];
   public filterSubscription: Subscription;
   public filterLayerFormControlSubscriber: Subscription;
   public mediaSubscription: Subscription;
@@ -30,35 +29,36 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   @ViewChild(FilterGeometryResultListComponent) resultPane: FilterGeometryResultListComponent;
   constructor(
     public OverLaysService: OverLaysService,
-    public _filterGeometryAdapter: FilterGeometryAdapter,
-    public media: ObservableMedia,
-    public changeDetectorRef: ChangeDetectorRef
+    public FilterGeometryAdapter: FilterGeometryAdapter,
+    public media: ObservableMedia
   ) { }
 
   ngOnInit() {
     this.isFiltersActive = true;
     this.isResultPaneAvalible = false;
     this.mediaSubscription = this.media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
-    this.filterSubscription = this._filterGeometryAdapter.filteredLayerId.subscribe(this.toogleAvaliableResultPane);
+    this.filterSubscription = this.FilterGeometryAdapter.filteredLayerId.subscribe(this.toogleAvaliableResultPane);
   }
 
   ngAfterViewInit() {
-    this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions();
-    this.filterLayerFormControlSubscriber = this.filterLayerFormControl.valueChanges.subscribe(avaliableLayer => {
-      this._filterGeometryAdapter.setFilteredLayer(avaliableLayer.id);
-      this.resultPane.setResultListLayer(avaliableLayer.id);
-    });
-    this.filterLayerFormControl.setValue(this.avaliableLayers[0])
+    this.OverLaysService.layersChange.subscribe(change => {
+      if (!change) return;
+      this.avaliableLayers = this.OverLaysService.layersSchemas;
+      this.filterLayerFormControlSubscriber = this.filterLayerFormControl.valueChanges.subscribe(avaliableLayer => {
+        this.FilterGeometryAdapter.setFilteredLayer(avaliableLayer.id);
+        this.resultPane.setResultListLayer(avaliableLayer.id);
+      });
+
+      this.filterLayerFormControl.setValue(this.avaliableLayers[0])
+    })
   }
 
-  changeFilterOrResultPane() {
-    this.isFiltersActive = !this.isFiltersActive;
-  }
+  changeFilterOrResultPane = () => this.isFiltersActive = !this.isFiltersActive;
 
   toogleAvaliableResultPane = (layerIdAndData) => {
     let inspectLayer
     if (layerIdAndData) {
-      inspectLayer = this.avaliableLayers.filter(item => (item.id === layerIdAndData.layerId) ? item : false)[0];
+      inspectLayer = this.FilterGeometryAdapter.getLayerById(layerIdAndData.layerId);
     }
 
     this.isResultPaneAvalible = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0;
@@ -70,11 +70,10 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
         this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
       }
     }
-    this.changeDetectorRef.detectChanges();
   };
 
   clearFilters() {
-    this._filterGeometryAdapter.clearData();
+    this.FilterGeometryAdapter.clearData();
     this.firstLine.clearForm();
     this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
   }
@@ -85,8 +84,6 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
     this.mediaSubscription.unsubscribe();
   }
 
-  toggleSideNav() {
-    this.closesidenav.emit('close-sidenav');
-  }
+  toggleSideNav = () => this.closesidenav.emit('close-sidenav');
 
 }

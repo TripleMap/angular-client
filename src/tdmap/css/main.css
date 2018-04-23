@@ -1,0 +1,85 @@
+
+.measurment-lineguide {
+  stroke: #106cc8;
+}
+
+.measurment-line {
+  stroke: #106cc8;
+}
+
+.measurment-polygon {
+  stroke: #106cc8;
+  fill: #106cc8;
+  fill-opacity: 0.2;
+}
+
+.measurment-edge {
+  border: 1px solid #106cc8;
+  border-radius: 50%;
+  margin-left: -6px !important;
+  margin-top: -6px !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.measurment-middleEdge {
+  border: 1px solid #106cc8;
+  border-radius: 50%;
+  margin-left: -6px !important;
+  margin-top: -6px !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.spatial-filter-lineguide {
+  stroke: #009688;
+}
+
+.spatial-filter-cirlce {
+  stroke: #009688;
+  fill: #009688;
+  fill-opacity: 0.2;
+}
+
+.spatial-filter-polygon {
+  stroke: #009688;
+  fill: #009688;
+  fill-opacity: 0.2;
+}
+
+.spatial-filter-edge {
+  border: 1px solid #009688;
+  border-radius: 50%;
+  margin-left: -8px !important;
+  margin-top: -8px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.spatial-filter-middleEdge {
+  border: 1px solid #009688;
+  border-radius: 50%;
+  margin-left: -8px !important;
+  margin-top: -8px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.router-polyline {
+  stroke: #E53935;
+  stroke-width: 4px;
+}
+
+.router-hidden-edge {
+  display: none;
+}
+
+.router-edge {
+  border: 1px solid #E53935;
+  border-radius: 50%;
+  opacity: 1 !important;
+  margin-left: -8px !important;
+  margin-top: -8px !important;
+  width: 16px !important;
+  height: 16px !important;
+}

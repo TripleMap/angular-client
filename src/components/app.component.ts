@@ -1,35 +1,12 @@
-import { Component, ChangeDetectorRef, AfterViewInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { MatIconRegistry } from "@angular/material";
-import { MediaChange, ObservableMedia } from "@angular/flex-layout";
-
 @Component({
 	selector: "app-root",
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"]
 })
-export class AppComponent implements AfterViewInit {
-	public activeMediaQuery = "";
-	public isFilterSidenavActive: boolean = false;
-	public isAttributeTableActive: boolean = false;
-
-	constructor(
-		public iconRegistry: MatIconRegistry,
-		public changeDetectorRef: ChangeDetectorRef,
-		public media: ObservableMedia
-	) {
+export class AppComponent {
+	constructor(public iconRegistry: MatIconRegistry) {
 		this.iconRegistry.registerFontClassAlias("materialdesignicons", "mdi");
-		media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
-	}
-
-	ngAfterViewInit(): void {
-		this.changeDetectorRef.detectChanges();
-	}
-
-	toggleFilterSideNav(): void {
-		this.isFilterSidenavActive = !this.isFilterSidenavActive;
-	}
-
-	toggleTDMapPanelSideNav(): void {
-		this.isAttributeTableActive = !this.isAttributeTableActive;
 	}
 }

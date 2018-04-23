@@ -1,0 +1,36 @@
+<mat-card style="background:transparent;box-shadow:none;">
+    <form [formGroup]="registerForm" (submit)="registration()">
+        <mat-card-title> Регистрация </mat-card-title>
+        <mat-card-content>
+            <section fxLayout="column">
+                <mat-form-field>
+                    <input matInput placeholder="Ваше имя" formControlName="name">
+                    <mat-icon matSuffix>perm_identity</mat-icon>
+                    <mat-error *ngIf="registerForm.controls['name'].hasError('required')">Ваше имя обязательно для заполнения</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput placeholder="e-mail" type="email" formControlName="email">
+                    <mat-icon matSuffix>perm_identity</mat-icon>
+                    <mat-error *ngIf="registerForm.controls['email'].hasError('pattern')">Не корректный E-mail</mat-error>
+                    <mat-error *ngIf="registerForm.controls['email'].hasError('required')">E-mail обязателен</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput placeholder="Введите свой пароль" [type]="passVisible ? 'text': 'password'" formControlName="password">
+                    <mat-icon matSuffix (click)="passVisible = !passVisible">{{passVisible ? 'visibility_off': 'visibility' }}</mat-icon>
+                    <mat-error *ngIf="registerForm.controls['password'].hasError('required')">Пароль обязателен</mat-error>
+                    <mat-error *ngIf="registerForm.controls['password'].hasError('notEquivalent')">Пароли не совпадают</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput placeholder="Подтверждение пароля" [type]="confirmVisible ?  'text': 'password'" formControlName="passwordConfirm">
+                    <mat-icon matSuffix (click)="confirmVisible = !confirmVisible">{{confirmVisible ?'visibility_off': 'visibility' }}</mat-icon>
+                    <mat-error *ngIf="registerForm.controls['passwordConfirm'].hasError('required')">Подтверждение пароля обязательно</mat-error>
+                    <mat-error *ngIf="registerForm.controls['passwordConfirm'].hasError('notEquivalent')">Пароли не совпадают</mat-error>
+                </mat-form-field>
+            </section>
+        </mat-card-content>
+        <mat-card-actions class="register-form-actions">
+            <button mat-raised-button [color]="registerEnable ? 'success'  : (registerEnable === false) ?  'warn' : 'primary'" type="submit">Регистрация</button>
+            <button mat-button [color]="'primary'" (click)="login()">Вход в систему</button>
+        </mat-card-actions>
+    </form>
+</mat-card>

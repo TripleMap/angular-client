@@ -1,0 +1,44 @@
+main-grid-panel {
+    position: fixed;
+    height: calc(100% - 64px);
+    width: 100%;
+    z-index: 1;
+    left: 0;
+    top: 64px;
+}
+
+.toolbar {
+    position: absolute;
+    z-index: 10;
+}
+
+.sidenav-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 120;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.td-map-actions_active {
+    transition-duration: .4s;
+    transition-timing-function: cubic-bezier(.25, .8, .25, 1);
+    transition-property: margin-left;
+    margin-left: 440px;
+}
+
+.td-map-actions_deactive {
+    transition-duration: .4s;
+    transition-timing-function: cubic-bezier(.25, .8, .25, 1);
+    transition-property: margin-left;
+    margin-left: 0px;
+}
+
+app-search-autocomplete {
+    margin-left: 16px;
+}

@@ -1,18 +1,4 @@
-<mat-sidenav-container class="sidenav-container">
-    <mat-sidenav [opened]="isFilterSidenavActive" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ?'push': 'side'">
-
-        <filter-geometry (closesidenav)="toggleFilterSideNav()"></filter-geometry>
-    </mat-sidenav>
-    <mat-sidenav-content class="overflow-hidden">
-        <mat-toolbar color="primary" class="toolbar mat-elevation-z8">
-            <button mat-icon-button (click)="toggleFilterSideNav()"><mat-icon>search</mat-icon></button>
-            <app-search-autocomplete [style.width]="(activeMediaQuery === 'xs') ? '100%' : '340px'"></app-search-autocomplete>
-            <button mat-button (click)="toggleTDMapPanelSideNav()" style='margin-left:auto;'>Атрибутивные данные</button>
-        </mat-toolbar>
-
-        <main-grid-panel [isAttributeTableActive]="isAttributeTableActive"></main-grid-panel>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+<router-outlet></router-outlet>
 
 <div class="container">
     <div class="first"></div>

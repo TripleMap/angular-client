@@ -11,37 +11,46 @@ import { MapService } from './MapService';
     constructor(public MapService: MapService) {
         this.baseMapsModels = [{
             name: 'Yandex - гибрид',
-            layer: new TDMap.Layers.YandexProvider('hybrid'),
+            layer: new MapService.TDMap.Layers.YandexProvider('hybrid', {
+                maxZoom: 24
+            }),
             imageType: 'pan',
             images: ['./assets/tiles_y_sat.png', './assets/tiles_y_hib.png']
         }, {
             name: 'Yandex - спутник',
-            layer: new TDMap.Layers.YandexProvider('satellite'),
+            layer: new MapService.TDMap.Layers.YandexProvider('satellite', {
+                maxZoom: 24
+            }),
             imageType: 'single',
             images: ['./assets/tiles_y_sat.png']
         }, {
             name: 'Yandex - карта',
-            layer: new TDMap.Layers.YandexProvider('map'),
+            layer: new MapService.TDMap.Layers.YandexProvider('map', {
+                maxZoom: 24
+            }),
             imageType: 'single',
             images: ['./assets/tiles_y_map.png']
         }, {
             name: 'Google - гибрид',
-            layer: new TDMap.Layers.GoogleProvider({
-                type: 'hybrid'
+            layer: new MapService.TDMap.Layers.GoogleProvider({
+                type: 'hybrid',
+                maxZoom: 24
             }),
             imageType: 'multi',
             images: ['./assets/tiles_g_1_hib.png', './assets/tiles_g_2_hib.png']
         }, {
             name: 'Google - спутник',
-            layer: new TDMap.Layers.GoogleProvider({
-                type: 'satellite'
+            layer: new MapService.TDMap.Layers.GoogleProvider({
+                type: 'satellite',
+                maxZoom: 24
             }),
             imageType: 'multi',
             images: ['./assets/tiles_g_1_sat.png', './assets/tiles_g_2_sat.png']
         }, {
             name: 'Open Street Map',
             layer: new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 24
             }),
             imageType: 'multi',
             images: ['./assets/tiles_osm_1.png', './assets/tiles_osm_2.png']
@@ -49,56 +58,62 @@ import { MapService } from './MapService';
 
         this.overLayersCadastrModels = [{
             name: 'Земельные участки',
-            layer: new TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
+            layer: new MapService.TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
                 tileSize: 512,
                 clickable: true,
                 layers: "show:22,23,24,36,37",
-                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>',
+                maxZoom: 24
             }),
             visible: false
         }, {
             name: 'Объекты капитального строительства',
-            layer: new TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
+            layer: new MapService.TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
                 tileSize: 512,
                 clickable: true,
                 layers: "show:26,27,28,29,30,31",
-                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>',
+                maxZoom: 24
             }),
             visible: false
         }, {
             name: 'Кадастровые округа',
-            layer: new TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
+            layer: new MapService.TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
                 tileSize: 512,
                 clickable: true,
                 layers: "show:1,2,3,4,5,6,7",
-                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>',
+                maxZoom: 24
             }),
             visible: false
         }, {
             name: 'Кадастровые районы',
-            layer: new TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
+            layer: new MapService.TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
                 tileSize: 512,
                 clickable: true,
                 layers: "show:9,10,11,12,13,14,15,16",
-                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>',
+                maxZoom: 24
             }),
             visible: false
         }, {
             name: 'Кадастровые кварталы',
-            layer: new TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
+            layer: new MapService.TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer/export', {
                 tileSize: 512,
                 clickable: true,
                 layers: "show:18,19,20",
-                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>',
+                maxZoom: 24
             }),
             visible: false
         }, {
             name: 'Росреестр ЗОУИТ',
-            layer: new TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/ZONES/MapServer/export', {
+            layer: new MapService.TDMap.Layers.RosreestrProvider('http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/ZONES/MapServer/export', {
                 tileSize: 512,
                 clickable: true,
                 layers: "show:0",
-                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>'
+                attribution: '<a href="https://pkk5.rosreestr.ru/">Публичная кадастрвоая карта</a>',
+                maxZoom: 24
             }),
             visible: false
         }];
@@ -112,8 +127,8 @@ import { MapService } from './MapService';
     getBaseLayerByName = (name: string) => this.baseMapsModels.filter(layerModel => layerModel.name === name ? layerModel : false).pop();
     getCadastrOverLayerByName = (name: string) => this.overLayersCadastrModels.filter(layerModel => layerModel.name === name ? layerModel : false).pop();
 
-    getActiveBaseLayerName = () => (this.activeBaseLayer.getValue())?  this.activeBaseLayer.getValue().name: false;
- 
+    getActiveBaseLayerName = () => (this.activeBaseLayer.getValue()) ? this.activeBaseLayer.getValue().name : false;
+
     changeActiveBaseLayer(layerName: string) {
         if (!this.getBaseLayersNames().includes(layerName)) {
             return;

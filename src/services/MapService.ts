@@ -1,29 +1,47 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import { HttpClient } from "@angular/common/http";
-
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { TDMapManagerConstructor, TDMapConstructor } from '../tdmap/TDMap'
 
 @Injectable()
 export class MapService {
     public TDMap: any;
     public TDMapManager: any;
     public mapReady = new BehaviorSubject<any>(false);
-    constructor() { }
+    constructor(public http: HttpClient) {
+        this.TDMap = new TDMapConstructor();
+        this.TDMapManager = new TDMapManagerConstructor();
+        window.TDMap = this.TDMap;
+        window.TDMapManager = this.TDMapManager;
+    }
 
     createLeafletMap(mapElementId) {
-        this.TDMap = TDMap;
         const mapOptions = {
             center: [60, 30],
             zoom: 12,
             editable: true,
-            zoomControl: false
+            zoomControl: false,
+            renderer: L.canvas()
         };
         const managerOptions = {
             memorize: true
         }
-        this.TDMapManager = new TDMapManager("map", mapOptions, managerOptions);
-        window.TDMapManager = this.TDMapManager;
+
+        TDMapManager.createLeafletMap("map", mapOptions, managerOptions);
+        // переопределяем getPromise
+        TDMap.Utils.Promises.getPromise = (url: string, requestParams: any) => {
+            let params = new HttpParams();
+            if (requestParams) {
+                for (let key in requestParams) {
+                    params = params.set(key, requestParams[key]);
+                }
+            }
+            return this.http.get(url, { params });
+        };
+
         this.mapReady.next(true);
+
+
     }
 
     getMap = () => this.TDMapManager._map;

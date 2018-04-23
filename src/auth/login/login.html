@@ -1,0 +1,26 @@
+<mat-card style="background:transparent;box-shadow:none;">
+    <form [formGroup]="loginForm" (submit)="login()">
+        <mat-card-title> Авторизация </mat-card-title>
+        <mat-card-content>
+
+            <section fxLayout="column">
+                <mat-form-field>
+                    <input matInput placeholder="e-mail" type="email" formControlName="email">
+                    <mat-icon matSuffix>perm_identity</mat-icon>
+                    <mat-error *ngIf="loginForm.controls['email'].hasError('pattern')">Не корректный E-mail</mat-error>
+                    <mat-error *ngIf="loginForm.controls['email'].hasError('required')">E-mail обязателен</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput placeholder="Введите свой пароль" [type]="invisible ?  'text':'password'" formControlName="password">
+                    <mat-icon matSuffix (click)="invisible = !invisible">{{invisible ? 'visibility_off': 'visibility'}}</mat-icon>
+                    <mat-error *ngIf="loginForm.controls['password'].hasError('required')">Пароль обязателен</mat-error>
+                </mat-form-field>
+            </section>
+
+        </mat-card-content>
+        <mat-card-actions class="login-form-actions">
+            <button mat-raised-button [color]="loginEnable ? 'success'  : (loginEnable === false) ?  'warn' : 'primary'" type="submit">Вход</button>
+            <button mat-button [color]="'primary'" (click)="registration()">Регистрация</button>
+        </mat-card-actions>
+    </form>
+</mat-card>

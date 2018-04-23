@@ -1,0 +1,19 @@
+.register-form-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+mat-card {
+    background: transparent;
+}
+
+:host {
+    position: absolute;
+    z-index: 1000;
+    margin: auto;
+    right: 0;
+    width: 40%;
+    max-width: 600px;
+    bottom: 24px;
+}

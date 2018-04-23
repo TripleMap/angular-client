@@ -1,0 +1,25 @@
+<mat-sidenav-container class="sidenav-container">
+    <mat-sidenav [opened]="isFilterSidenavActive" [style.width]="(activeMediaQuery === 'xs') ? '100%' : '440px'" class="mat-elevation-z5" [mode]="(activeMediaQuery === 'xs') ?'push': 'side'">
+        <filter-geometry (closesidenav)="toggleFilterSideNav()"></filter-geometry>
+    </mat-sidenav>
+    <mat-sidenav-content class="overflow-hidden">
+        <mat-toolbar color="primary" class="toolbar mat-elevation-z8">
+            <button mat-icon-button (click)="toggleFilterSideNav()"><mat-icon>search</mat-icon></button>
+            <app-search-autocomplete [style.width]="(activeMediaQuery === 'xs') ? '100%' : '340px'"></app-search-autocomplete>
+            <button mat-icon-button style='margin-left:auto;' [color]="isAttributeTableActive ? 'accent': 'white'" (click)="toggleTDMapPanel()">
+                <mat-icon fontSet="mdi" fontIcon="mdi-table-large"></mat-icon>
+            </button>
+            <button mat-icon-button [color]="isAttributeItemActive ? 'accent': 'white'" (click)="toggleTDMapItemPanel()">
+                <mat-icon fontSet="mdi" fontIcon="mdi-information-outline"></mat-icon>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon fontSet="mdi" fontIcon="mdi-settings" color='white'></mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="logout()">Выход</button>
+            </mat-menu>
+        </mat-toolbar>
+
+        <main-grid-panel [isAttributeTableActive]="isAttributeTableActive" [isAttributeItemActive]="isAttributeItemActive"></main-grid-panel>
+    </mat-sidenav-content>
+</mat-sidenav-container>

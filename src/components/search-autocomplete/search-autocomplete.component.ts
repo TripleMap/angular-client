@@ -23,10 +23,10 @@ import { MapService } from "../../services/MapService";
 export class SearchAutocompleteComponent implements OnInit {
 	pkkCtrl: FormControl;
 	filteredPkkObject: Observable<any[]>;
-	seachProviders: any[] = ['ЗУ', 'ОКС'];
+	seachProviders: any[] = ['Земельные участки', 'Объекты капитального строительства'];
 	activeSearchProvider: any;
 	matAutocomplete: any;
-	cadastralTools:any;
+	cadastralTools: any;
 	public activeMediaQuery = "";
 	constructor(
 		public MapService: MapService,
@@ -35,23 +35,23 @@ export class SearchAutocompleteComponent implements OnInit {
 		media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
 		this.pkkCtrl = new FormControl();
 
-	
+
 		this.filteredPkkObject = this.pkkCtrl.valueChanges
 			.debounceTime(300)
 			.distinctUntilChanged()
 			.switchMap((term: string) => term.length > 1 ? this.cadastralTools.getTypeAheadFeatures(term, 10, this.activeSearchProvider === 'ЗУ' ? 'PARCEL' : 'OKS') : Observable.of<any>('filter'))
 			.map((data: any) => data.results && data.results.length > 0 ? data.results : data === 'filter' ? [] : [{ value: "Ничего не найдено", type: "warn" }])
 			.catch(e => e.status === 500 ? Observable.of<any>([{
-					value: "Не удалось получить данные",
-					type: "warn"
-				}]) : Observable.of<any>([{ value: "Ошибка запроса", type: "warn" }])
+				value: "Не удалось получить данные",
+				type: "warn"
+			}]) : Observable.of<any>([{ value: "Ошибка запроса", type: "warn" }])
 			);
 	}
 
 	ngOnInit() {
 		this.MapService.mapReady.subscribe(mapReady => {
-			if(!mapReady) return;
-			this.activeSearchProvider = this.seachProviders[0];	
+			if (!mapReady) return;
+			this.activeSearchProvider = this.seachProviders[0];
 			this.cadastralTools = new TDMap.CadastralUtils.CadastralSearchDataService(this.MapService.getMap())
 		});
 	}
@@ -60,16 +60,16 @@ export class SearchAutocompleteComponent implements OnInit {
 	forceSeacheCadObject(cadObj) {
 		if (!cadObj) return;
 		this.cadastralTools.getFeatureByCadastralNumber(cadObj.value, this.activeSearchProvider === 'ЗУ' ? 'PARCEL' : 'OKS')
-		.subscribe(cadData => this.setViewOnCadData(cadData));
+			.subscribe(cadData => this.setViewOnCadData(cadData));
 	}
 
 	setViewOnCadData = cadObjGeoJSON => {
 		if (!cadObjGeoJSON || !cadObjGeoJSON.geometry) return;
 		this.MapService.TDMapManager.updateMapPosition(
-			L.latLng(cadObjGeoJSON.geometry.coordinates[1],cadObjGeoJSON.geometry.coordinates[0]), 16
+			L.latLng(cadObjGeoJSON.geometry.coordinates[1], cadObjGeoJSON.geometry.coordinates[0]), 16
 		);
-		new this.MapService.TDMap.Tools.PulseMarker(L.latLng(cadObjGeoJSON.geometry.coordinates[1],cadObjGeoJSON.geometry.coordinates[0]), { fillColor: '#1976d2', color: '#1976d2',timeout:7000})
-		.addTo(this.MapService.getMap())
+		new this.MapService.TDMap.Tools.PulseMarker(L.latLng(cadObjGeoJSON.geometry.coordinates[1], cadObjGeoJSON.geometry.coordinates[0]), { fillColor: '#1976d2', color: '#1976d2', timeout: 7000 })
+			.addTo(this.MapService.getMap())
 	};
 
 	clearAutocomplete = () => this.pkkCtrl.setValue('');

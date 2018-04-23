@@ -52,7 +52,7 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div fxLayout="column">
-                    <mat-checkbox *ngFor="let overlayLayer of overlayLayers" (change)="changeOverLayLayer(overlayLayer)" [(ngModel)]="overlayLayer.visible">{{overlayLayer.labelName}}</mat-checkbox>
+                    <mat-checkbox *ngFor="let overlayLayer of overlayLayers" (change)="changeOverLayLayer(overlayLayer)" [(ngModel)]="overlayLayer.layer_schema.options.visible">{{overlayLayer.layer_schema.labelName}}</mat-checkbox>
                 </div>
             </mat-expansion-panel>
         </mat-accordion>

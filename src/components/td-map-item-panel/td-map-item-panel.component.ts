@@ -1,6 +1,6 @@
 import { Component, Inject, AfterViewInit, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, AfterContentInit, ViewChild, ElementRef } from '@angular/core';
 import { HttpParams, HttpClient } from "@angular/common/http";
-import { OverLaysService } from "../../services/OverLaysService";
+import { OverLaysService, LayerSchema, LayersLinks } from "../../services/OverLaysService";
 import { MapService } from "../../services/MapService";
 import { MatTabHeader } from "@angular/material/tabs"
 import { Subject } from 'rxjs/subject'
@@ -28,19 +28,6 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 }
 
 
-
-interface AvaliableLayer {
-  id: string;
-  labelName: string;
-  visible: boolean;
-  attributeColumns: any[];
-  featureInfoUrl: string;
-  featuresInfoUrl: string;
-  schemaInfoUrl: string;
-  featureFilterUrl: string;
-  dataApi: string;
-}
-
 //// TO DO pipe to null if empty
 //// TO DO validations 
 
@@ -49,9 +36,11 @@ interface AvaliableLayer {
   templateUrl: './td-map-item-panel.component.html',
   styleUrls: ['./td-map-item-panel.component.css']
 })
-export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
-  public activeLayer: AvaliableLayer;
-  public avaliableLayers: AvaliableLayer[];
+export class TdMapItemPanelComponent implements OnInit {
+  public activeLayer: LayerSchema;
+  public avaliableLayers: LayerSchema[];
+  public attributeColumns: any[] = [];
+  public onLayersChange: Subscription;
   public subscriptions: object = {};
   public featuresFlow: any;
   public subscriberOnfeaturesFlow: any;
@@ -67,7 +56,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   public subscriberOnOrderForm: any;
   public additionalForm: FormGroup;
   public subscriberOnAdditionalForm: any;
-  public featureAdditionalCharacters: any[];
+  public featureAdditionalCharacters: any[] = [];
   public compareFn = (f1: any, f2: any) => f1.code === f2.code;
   public onSaveMessageSubject: Subject<any>;
   public onSaveSubscriber: Subscription;
@@ -82,8 +71,8 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     public MatDialog: MatDialog
   ) {
     this.featuresFlow = new Subject();
-    this.subscriberOnfeaturesFlow = this.featuresFlow.asObservable()
-      .debounceTime(100)
+    this.subscriberOnfeaturesFlow = this.featuresFlow
+      .asObservable()
       .subscribe(data => this.getFeatureInfo(data));
   }
 
@@ -103,19 +92,18 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       .subscribe();
 
     this.onSaveMessageSubject = new Subject();
-    this.onSaveSubscriber = this.onSaveMessageSubject.debounceTime(300).subscribe(success => {
-      this.succesOnSave('Атрибуты обновлены');
-    }, error => {
-      this.errorOnSave('Ошибка при обновлении атрибутов');
-    });
+    this.onSaveSubscriber = this.onSaveMessageSubject.debounceTime(300).subscribe(
+      success => this.succesOnSave('Атрибуты обновлены'),
+      error => this.errorMessage('Ошибка при обновлении атрибутов'));
+    this.onLayersChange = this.OverLaysService.layersChange.subscribe(change => { if (change) this.onLayersChangeConsumer(); });
   }
 
 
-  ngAfterViewInit() {
-    this.avaliableLayers = this.OverLaysService.getLayersIdsLabelNamesAndHttpOptions().map((item) => {
+  onLayersChangeConsumer() {
+    this.avaliableLayers = this.OverLaysService.layersSchemas.map((item) => {
       this.subscribeMapLayersOnFeatureSelectionsChange(item);
       this.getColumnNamesForLayer(item);
-      return item
+      return item;
     });
     this.getCadColumnNamesForLayer();
     let header = this.tabs.nativeElement.getElementsByTagName('mat-tab-header')[0];
@@ -139,7 +127,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     });
   }
 
-  errorOnSave(message) {
+  errorMessage(message) {
     this.snackBar.open(message, null, {
       duration: 3000,
       panelClass: ['error-snack'],
@@ -165,26 +153,27 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
 
   resetFormControl() {
     this.clearFormControls();
-
     this.addFeatureAttributesControls(this.activeLayer);
-
-    this.featureAdditionalCharacters.map(item => {
-      this.addAdditionalCharactersControls(item);
-    });
-
+    this.featureAdditionalCharacters.map(item => this.addAdditionalCharactersControls(item));
   }
 
-  addFeatureAttributesControls(layer) {
-    for (let i = 0; i < layer.attributeColumns.length; i++) {
-      let fatureValue;
-      (layer.attributeColumns[i].columnType === 'findDate') ?
-        fatureValue = new Date(this.feature[`${layer.attributeColumns[i].name}`])
-        : fatureValue = this.feature[`${layer.attributeColumns[i].name}`];
+  addFeatureAttributesControls(layerSchema: LayerSchema) {
 
-
-      let validators = this.addvalidators(layer.attributeColumns[i])
-      let control = new FormControl(fatureValue, validators);
-      this.orderForm.addControl(`${layer.attributeColumns[i].name}`, control);
+    for (const key in layerSchema.layer_schema.properties) {
+      if (key !== 'id') {
+        const attribute = layerSchema.layer_schema.properties[key];
+        let fatureValue;
+        if (attribute.columnType === 'findDate') {
+          fatureValue = new Date(Number(this.feature[`${key}`]))
+        } else if (attribute.columnType === 'findMany' || attribute.columnType === 'findOne') {
+          fatureValue = this.feature[`_${key}`];
+        } else {
+          fatureValue = this.feature[`${key}`];
+        }
+        let validators = this.addValidators(attribute)
+        let control = new FormControl(fatureValue, validators);
+        this.orderForm.addControl(`${key}`, control);
+      }
     }
   }
 
@@ -194,39 +183,31 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
   generateFeatureAdditionalCharactersFormControlName = (id, subName) => `${id}_${subName}`;
 
-  addvalidators(column) {
+  addValidators(column) {
     let validators = [];
-
-    if (column.userFilling) validators.push(Validators.required);
+    if (column.required) validators.push(Validators.required);
 
     if (column.columnType === 'findNumber') {
       if (column.length) validators.push(Validators.max(column.length));
-      if (column.tableType === 'double') validators.push(Validators.pattern("^[0-9]{1,20}([,.][0-9]{0,20})?$"));
-      if (column.tableType === 'integer') validators.push(Validators.pattern("^[0-9]{1,20}?$"));
+      if (column.tableType === 'double') validators.push(Validators.pattern("^[0-9]{1,40}([,.][0-9]{0,20})?$"));
+      if (column.tableType === 'integer') validators.push(Validators.pattern("^[0-9]{1,40}?$"));
     }
+
     if (column.columnType === 'findSimple') {
       if (column.length && column.tableType === 'varchar') validators.push(Validators.max(column.length));
-
     }
-
     return validators;
   }
 
-
-  getFormControl(formControlName) {
-    return this.orderForm.get(formControlName);
-  }
+  getFormControl = (formControlName) => this.orderForm.get(formControlName);
 
   isValidForm = () => {
     this.orderForm.status === "VALID" ? this.saveEnable = true : this.saveEnable = false;
-    return this.orderForm.status === "VALID"
+    return this.orderForm.status === "VALID";
   }
 
   saveData() {
-
-    if (!this.saveEnable) {
-      this.warnOnSave('Проверьте корректность введеных данных');
-    }
+    if (!this.saveEnable) this.warnOnSave('Проверьте корректность введеных данных');
 
     if (this.saveEnable && this.differentBetweenInputDataAndInspectFeature) {
       let editResult = this.detectOnEditFeatureDifferents(this.orderForm.value);
@@ -237,10 +218,16 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
         const column = editResult.differentColumns[index];
         patchObj[column] = editResult.data[column];
       }
-      this.findManyAndFindOneCodesBeforeSave(patchObj);
+
       this.findDatesMomentBeforeSave(patchObj);
-      this.http.post(`${this.activeLayer.dataApi}/update/?where={"id":"${this.feature.id}"}`, patchObj)
-        .subscribe(data => { this.onSaveMessageSubject.next(1); this.getInfo(this.feature.id); }, error => this.onSaveMessageSubject.error(1));
+      this.http.patch(LayersLinks.featuresEdit.updateById(this.activeLayer.id, this.feature.id), patchObj)
+        .subscribe(
+          data => {
+            this.onSaveMessageSubject.next(1);
+            this.getInfo(this.feature.id);
+          }, error => {
+            if (error.status <= 400) this.onSaveMessageSubject.error(1)
+          });
     }
 
     if (this.saveEnable && this.differentBetweenInputDataAndAdditionalFeature) {
@@ -249,37 +236,47 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
         const id = additionalResult.differentAdditionalIds[i];
         for (let additionalIndex = this.featureAdditionalCharacters.length - 1; additionalIndex >= 0; additionalIndex--) {
           let element = this.featureAdditionalCharacters[additionalIndex];
-          if (element.id === id) {
+          this.activeLayer = this.avaliableLayers.filter(item => item.id === this.lastLayerId ? item : false)[0];
+          if (element.id === id && this.activeLayer) {
             if (element.removed) {
               this.featureAdditionalCharacters.splice(additionalIndex, 1);
-              this.http.delete(`api/ParcelsAdditionalCharacters/${element.id}`).subscribe(data => this.onSaveMessageSubject.next(1), error => this.onSaveMessageSubject.error(1));
+              this.http.delete(LayersLinks.additionalCharacters.deleteById(this.activeLayer.id, element.id)).subscribe(
+                data => this.onSaveMessageSubject.next(1),
+                error => {
+                  if (error.status <= 400) this.onSaveMessageSubject.error(1)
+                });
             } else if (element.added) {
-              let addedObject = {
+              this.http.post(LayersLinks.additionalCharacters.create(this.activeLayer.id, this.feature.id), {
                 character_name: this.additionalForm.get(`${element.id}_name`).value,
                 character_value: this.additionalForm.get(`${element.id}_value`).value,
-                parcel_id: this.feature.id,
+                feature_id: this.feature.id,
                 user_id: ''
-              }
-              this.http.post(`api/ParcelsAdditionalCharacters`, addedObject).subscribe((data: any) => {
-                element.id = data.id;
-                element.character_name = data.character_name;
-                element.character_value = data.character_value;
-                element.parcel_id = data.parcel_id;
-                element.user_id = data.user_id;
-                delete element.added;
-                this.onSaveMessageSubject.next(1);
-              }, error => this.onSaveMessageSubject.error(1));
+              }).subscribe(
+                (data: any) => {
+                  this.onSaveMessageSubject.next(1);
+                  element.id = data.id;
+                  element.character_name = data.character_name;
+                  element.character_value = data.character_value;
+                  element.feature_id = data.feature_id;
+                  element.user_id = data.user_id;
+                  delete element.added;
+                }, error => {
+                  if (error.status <= 400) this.onSaveMessageSubject.error(1)
+                });
             } else if (element.updated && !element.added && !element.removed) {
               let putchObject = {
                 character_name: this.additionalForm.get(`${element.id}_name`).value,
                 character_value: this.additionalForm.get(`${element.id}_value`).value,
               }
-              this.http.post(`api/ParcelsAdditionalCharacters/update/?where={"id":"${element.id}"}`, putchObject).subscribe(data => {
-                this.onSaveMessageSubject.next(1);
-                element.character_name = putchObject.character_name;
-                element.character_value = putchObject.character_value;
-                delete element.updated;
-              }, error => this.onSaveMessageSubject.error(1));
+              this.http.patch(LayersLinks.additionalCharacters.updateById(this.activeLayer.id, element.id), putchObject).subscribe(
+                data => {
+                  this.onSaveMessageSubject.next(1);
+                  element.character_name = putchObject.character_name;
+                  element.character_value = putchObject.character_value;
+                  delete element.updated;
+                }, error => {
+                  if (error.status <= 400) this.onSaveMessageSubject.error(1)
+                });
             }
           }
         }
@@ -288,26 +285,11 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     this.toggleEditMode();
   }
 
-  findManyAndFindOneCodesBeforeSave(savedItem) {
-    for (let columnName in savedItem) {
-      for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
-        let attributeColumn = this.activeLayer.attributeColumns[i];
-        if (attributeColumn.name === columnName && attributeColumn.columnType === 'findOne' && !savedItem[columnName]) {
-          savedItem[columnName] = null;
-        } else if (attributeColumn.name === columnName && (attributeColumn.columnType === 'findOne' || attributeColumn.columnType === 'findMany') && savedItem[columnName].length > 0) {
-          savedItem[columnName] = savedItem[columnName].map(item => item.code);
-        }
-      }
-    }
-  }
-
   findDatesMomentBeforeSave(savedItem) {
     for (let columnName in savedItem) {
-      for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
-        let attributeColumn = this.activeLayer.attributeColumns[i];
-        if (attributeColumn.name === columnName && attributeColumn.columnType === 'findDate') {
-          console.log(savedItem[columnName]);
-          console.log(savedItem[columnName].valueOf());
+      for (let key in this.activeLayer.layer_schema.properties) {
+        let attributeColumn = this.activeLayer.layer_schema.properties[key];
+        if (key === columnName && attributeColumn.columnType === 'findDate') {
           savedItem[columnName] = savedItem[columnName].valueOf();
         }
       }
@@ -315,84 +297,86 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   pipeFiltersToNumber = data => {
-    for (let i = 0; i < this.activeLayer.attributeColumns.length; i++) {
-      const column = this.activeLayer.attributeColumns[i];
-
+    for (let key in this.activeLayer.layer_schema.properties) {
+      let column = this.activeLayer.layer_schema.properties[key];
       if (column.columnType === 'findSimple' || column.columnType === 'findDate') {
-        if (this.feature[column.name] === "") this.feature[column.name] = null;
-        if (data[column.name] === "") data[column.name] = null;
+        if (this.feature[key] === "") this.feature[key] = null;
+        if (data[key] === "") data[key] = null;
       }
-      if (column.columnType === 'findNumber') {
-        data[column.name] = data[column.name] ? Number(data[column.name].replace(",", ".")) : null;
+
+      if (column.columnType === 'findNumber' && typeof data[key] === 'string') {
+        data[key] = data[key] ? Number(data[key].replace(",", ".")) : null;
       }
     }
-
     return data;
   };
 
   detectOnEditFeatureDifferents(data) {
+
     if (!this.editMode) return;
     let differents = false;
     let differentColumns = [];
-    for (let index = 0; index < this.activeLayer.attributeColumns.length; index++) {
-      let column = this.activeLayer.attributeColumns[index];
-      let columnName = column.name;
-
-      if (this.feature.hasOwnProperty(columnName) && data.hasOwnProperty(columnName)) {
+    for (let key in this.activeLayer.layer_schema.properties) {
+      let column = this.activeLayer.layer_schema.properties[key];
+      if ((this.feature.hasOwnProperty(key) && data.hasOwnProperty(key)) || (this.feature.hasOwnProperty(`_${key}`) && data.hasOwnProperty(key))) {
         if (column.columnType === 'findSimple') {
-          if (this.feature[columnName] !== data[columnName]) {
-            differentColumns.push(columnName);
+          if (this.feature[key] !== data[key]) {
+            differentColumns.push(key);
             differents = true;
           }
         }
         if (column.columnType === 'findBoolean' || column.columnType === 'findNumber') {
-          if (this.feature[columnName] !== data[columnName]) {
-            differentColumns.push(columnName);
+          if (this.feature[key] !== data[key]) {
+            differentColumns.push(key);
             differents = true;
           }
         }
         if (column.columnType === 'findDate') {
-          if (this.feature[columnName] !== new Date(data[columnName]).getTime()) {
-            differentColumns.push(columnName);
+          if (Number(this.feature[key]) !== new Date(data[key]).getTime()) {
+            differentColumns.push(key);
             differents = true;
           }
         }
         if (column.columnType === 'findOne') {
-          if (!data[columnName] && !this.feature[columnName]) { }
-          else if (!data[columnName] && this.feature[columnName] || data[columnName] && !this.feature[columnName]) {
+          if (!data[key] && !this.feature[`_${key}`]) { }
+          else if (!data[key] && this.feature[`_${key}`] || data[key] && !this.feature[`_${key}`]) {
             differents = true;
-            differentColumns.push(columnName);
-          } else if (data[columnName].code !== this.feature[columnName].code) {
+            differentColumns.push(key);
+          } else if (data[key].code !== this.feature[`_${key}`].code) {
             differents = true;
-            differentColumns.push(columnName);
+            differentColumns.push(key);
           }
         }
+
         if (column.columnType === 'findMany') {
-          if (!data[columnName] && !this.feature[columnName]) {
-          } else if (!data[columnName] && this.feature[columnName] || data[columnName] && !this.feature[columnName]) {
+          if (!data[key] && !this.feature[`_${key}`]) {
+          } else if (!data[key] && this.feature[`_${key}`] || data[key] && !this.feature[`_${key}`]) {
             differents = true;
-            differentColumns.push(columnName);
+            differentColumns.push(key);
           } else {
-            if (data[columnName].length !== this.feature[columnName].length) {
+            if (data[key].length !== this.feature[`_${key}`].length) {
               differents = true;
-              differentColumns.push(columnName);
+              differentColumns.push(key);
             } else {
-              let codesInData = {};
-              for (let i = 0; i < data[columnName].length; i++) {
-                codesInData[data[columnName][i]] = 1;
-              }
-              for (let i = 0; i < this.feature[columnName].length; i++) {
-                if (!codesInData[this.feature[columnName][i]]) {
-                  differentColumns.push(columnName);
+              let codesInData = data[key].map(item => item.code);
+              let codesInFeature = this.feature[`_${key}`].map(item => item.code);
+              codesInData.map(code => {
+                if (codesInFeature.indexOf(code) === -1) {
                   differents = true;
+                  differentColumns.push(key);
                 }
-              }
+              });
+              codesInFeature.map(code => {
+                if (codesInData.indexOf(code) === -1) {
+                  differents = true;
+                  differentColumns.push(key);
+                }
+              });
             }
           }
         }
       }
     }
-
     this.differentBetweenInputDataAndInspectFeature = differents;
     if (differents) this.saveEnable = true;
     return { data, differentColumns };
@@ -415,9 +399,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
           differentAdditionalIds.push(element.id);
           differents = true;
         } else {
-          if (element.updated) {
-            delete element.updated;
-          }
+          if (element.updated) delete element.updated;
         }
       }
     }
@@ -431,7 +413,16 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       width: '250px'
     }).afterClosed()
       .subscribe(confirm => {
-        if (confirm) { item.removed = true; this.differentBetweenInputDataAndAdditionalFeature = true; }
+        if (!confirm) return;
+        if (item.added) {
+          this.featureAdditionalCharacters.forEach((char, index) => {
+            if (item.id === char.id) this.featureAdditionalCharacters.splice(index, 1);
+            this.detectOnEditAdditionalFeatureDifferents(this.additionalForm.value);
+          })
+        } else {
+          item.removed = true;
+          this.differentBetweenInputDataAndAdditionalFeature = true;
+        }
       });
   }
 
@@ -441,43 +432,54 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
       id: guid(),
       character_name: ``,
       character_value: ``,
-      parcel_id: this.feature.id,
+      feature_id: this.feature.id,
       user_id: '',
       added: true
     }
 
     this.featureAdditionalCharacters.push(newAdditionalCharacter);
     this.addAdditionalCharactersControls(newAdditionalCharacter);
-    this.differentBetweenInputDataAndAdditionalFeature = true;
+    this.detectOnEditAdditionalFeatureDifferents(this.additionalForm.value);
   }
 
   getCadColumnNamesForLayer() {
-    this.http.get('api/parcelcads/GetSchema').subscribe((data: { properties: object; }) => {
+    this.http.get('api/layers/GetGeoJSONLayerSchemaWithData?LayerId=a35a770e-2cd3-4ae1-bf25-79ed2b080efa').subscribe((data: { properties: object; }) => {
       this.cadSchema = [];
       for (let key in data.properties) {
         if (key !== 'id' && key !== 'center' && key !== 'extent') {
           this.cadSchema.push({
             name: key,
+            dictionary: data.properties[key].dictionary,
+            foreignTable: data.properties[key].foreignTable,
             label: data.properties[key].description || key,
             columnType: data.properties[key].columnType || 'findSimple'
           });
         }
       }
+    }, error => {
+      if (error.status <= 400) this.errorMessage('Ошибка при получении описания кадастровых данных');
     });
   }
-  subscribeMapLayersOnFeatureSelectionsChange(layer) {
-    let maplayer = this.OverLaysService.getLayerById(layer.id);
-    if (!maplayer && !maplayer.options.selectable) return;
-    this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = maplayer.changeSelection.subscribe(featureSelectionsEvent => {
-      featureSelectionsEvent.added.map(featureId => { this.lastLayerId = featureSelectionsEvent.layerId; this.featuresFlow.next(featureId) });
+
+  subscribeMapLayersOnFeatureSelectionsChange(layer: LayerSchema) {
+    let mapLayer = this.OverLaysService.getLeafletLayerById(layer.id);
+    if (!mapLayer) return;
+    this.subscriptions[`${layer.id}_subscribeMapLayersOnFeatureSelectionsChange`] = mapLayer.selections.selectedFeatures.onChange.subscribe(featureSelectionsEvent => {
+      let featureId = featureSelectionsEvent.added[featureSelectionsEvent.added.length - 1];
+      this.lastLayerId = mapLayer.options.id;
+      this.featuresFlow.next(featureId);
     });
   }
 
   getFeatureInfo(featureId) {
     this.editMode = false;
     this.clearFormControls();
-
-    if (!featureId) return;
+    if (!featureId) {
+      this.feature = null;
+      this.cadFeature = null;
+      this.featureAdditionalCharacters = [];
+      return;
+    }
     this.activeLayer = this.avaliableLayers.filter(item => item.id === this.lastLayerId ? item : false)[0];
     if (!this.activeLayer) return;
     this.getInfo(featureId);
@@ -486,36 +488,33 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   getInfo(featureId) {
-    let params = new HttpParams().set('id', featureId);
-    this.http.get(this.activeLayer.featuresInfoUrl, { params }).subscribe((data) => {
-      if (data) this.feature = data[0];
-    }, error => this.errorOnSave('Ошибка при получении атрибутов'));
+    this.http.get(LayersLinks.featuresEdit.getInfo(this.activeLayer.id, featureId)).subscribe((data) => {
+      if (data) this.feature = data;
+    }, error => { if (error.status <= 400) this.errorMessage('Ошибка при получении атрибутов'); });
   }
 
   getCadInfo(featureId) {
-    let params = new HttpParams().set('id', featureId);
-    this.http.get('api/parcelcads/GetFeaturesInfo', { params }).subscribe((data) => {
-      if (data) this.cadFeature = data[0];
-    }, error => this.errorOnSave('Ошибка при получении кадастровых атрибутов'));
+    this.http.get(LayersLinks.featuresEdit.getInfo('a35a770e-2cd3-4ae1-bf25-79ed2b080efa', featureId)).subscribe((data) => {
+      if (data) this.cadFeature = data;
+    }, error => { if (error.status <= 400) this.errorMessage('Ошибка при получении кадастровых атрибутов'); });
   }
 
   getAdditionalCharacters(featureId) {
-    let params = new HttpParams().set('filter', JSON.stringify({ "where": { 'parcel_id': featureId } }));
-    this.http.get('api/ParcelsAdditionalCharacters/', { params }).subscribe((data: any[]) => {
+    this.http.get(LayersLinks.additionalCharacters.getAll(this.activeLayer.id, featureId)).subscribe((data: any[]) => {
       if (data) this.featureAdditionalCharacters = data;
-    }, error => this.errorOnSave('Ошибка при получении дополнительных атрибутов'));
+    }, error => { if (error.status <= 400) this.errorMessage('Ошибка при получении дополнительных атрибутов'); });
   }
 
-  getColumnNamesForLayer(layer) {
-    this.http.get(layer.schemaInfoUrl).subscribe((data: { properties: object; }) => {
-      layer.attributeColumns = [];
-      let localStorageOrder = window.localStorage.getItem(`attributesOrderForLayer_${layer.id}`);
+  getColumnNamesForLayer(layerSchema: LayerSchema) {
+    this.http.get(LayersLinks.schemaInfoUrl(layerSchema.id)).subscribe((data: { properties: object; }) => {
+      this.attributeColumns = [];
+      let localStorageOrder = window.localStorage.getItem(`attributesOrderForLayer_${layerSchema.id}`);
       if (localStorageOrder) {
         let localStorageOrderArray = localStorageOrder.split(',');
         for (let i = 0; i < localStorageOrderArray.length; i++) {
           for (let key in data.properties) {
             if (key !== 'id' && key !== 'geometry' && localStorageOrderArray[i] === key) {
-              layer.attributeColumns.push(this.accumulateAttributeColumn(data, key));
+              this.attributeColumns.push(this.accumulateAttributeColumn(data, key));
             }
           }
         }
@@ -528,14 +527,13 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
 
         if (notInOrderKeys.length > 0) {
           for (let index = 0; index < notInOrderKeys.length; index++) {
-            layer.attributeColumns.push(this.accumulateAttributeColumn(data, notInOrderKeys[index]));
+            this.attributeColumns.push(this.accumulateAttributeColumn(data, notInOrderKeys[index]));
           }
         }
-
       } else {
         for (let key in data.properties) {
           if (key !== 'id' && key !== 'geometry') {
-            layer.attributeColumns.push(this.accumulateAttributeColumn(data, key));
+            this.attributeColumns.push(this.accumulateAttributeColumn(data, key));
           }
         }
       }
@@ -557,7 +555,7 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
   }
 
   updateOrder() {
-    let order = this.activeLayer.attributeColumns.map(item => item.name);
+    let order = this.attributeColumns.map(item => item.name);
     window.localStorage.setItem(`attributesOrderForLayer_${this.activeLayer.id}`, order.toString());
   }
 
@@ -569,5 +567,6 @@ export class TdMapItemPanelComponent implements OnInit, AfterViewInit {
     this.subscriberOnOrderForm.unsubscribe();
     this.subscriberOnfeaturesFlow.unsubscribe();
     this.onSaveSubscriber.unsubscribe();
+    this.onLayersChange.unsubscribe();
   }
 }

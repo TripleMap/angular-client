@@ -19,17 +19,7 @@ export class AttributeDataTableFilterComponent implements OnInit {
     public container: ViewContainerRef,
     public fb: FormBuilder,
     public changeDetectorRef: ChangeDetectorRef
-  ) {
-
-    // this.filterForm = this.fb.group({
-    //   findSimple: '',
-    //   findBooleanTrue: false,
-    //   findBooleanFalse: false,
-    //   findBooleanNull: false,
-    //   findNumberFrom: [null, [Validators.min(0), Validators.pattern("^[0-9]{1,7}([,.][0-9]{0,7})?$")]],
-    //   findNumberTo: [null, [Validators.min(0), Validators.pattern("^[0-9]{1,7}([,.][0-9]{0,7})?$")]]
-    // });
-  }
+  ) { }
 
   ngOnInit() {
     if (this.columnData.columnType === 'findSimple') {
@@ -82,9 +72,11 @@ export class AttributeDataTableFilterComponent implements OnInit {
       filters.findNumberFrom = filters.findNumberFrom && filters.findNumberFrom !== 0 ? Number(filters.findNumberFrom.replace(",", ".")) : null;
       filters.findNumberTo = filters.findNumberTo && filters.findNumberTo !== 0 ? Number(filters.findNumberTo.replace(",", ".")) : null;
     }
+
     if (this.columnData.columnType === 'findSimple') {
       filters.findSimple = filters.findSimple ? filters.findSimple.length ? filters.findSimple : null : null;
     }
+
     if (this.columnData.columnType === 'findMany') {
       filters.findMany = filters.findMany ? filters.findMany.length ? filters.findMany : null : null;
     }

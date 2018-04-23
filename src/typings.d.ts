@@ -7,6 +7,9 @@ interface NodeModule {
 
 interface Window {
   TDMapManager: any;
+  TDMap: any;
+  ymaps: any;
+  google: any;
 }
 
 declare var L: any;

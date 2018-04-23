@@ -13,7 +13,7 @@
     width: 100%;
     line-height: 24px;
     align-content: center;
-    padding: 4px 16px;
+    padding: 4px 2px;
 }
 
 .feature-attribute-key {
@@ -21,6 +21,10 @@
     font-size: 14px;
     vertical-align: middle;
     margin: auto;
+}
+
+.nonedit-feature-attribute-key {
+    padding-left: 8px;
 }
 
 .feature-attribute-value {

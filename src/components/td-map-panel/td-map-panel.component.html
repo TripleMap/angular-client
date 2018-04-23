@@ -5,7 +5,6 @@
     </button>
         <mat-menu #menu="matMenu">
             <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position:  relative;display:  block;" [(ngModel)]="activeLayer.showOnlySelected" (change)="updateTableData(activeLayer)">только выбранные</mat-checkbox>
-            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 4px 8px;position:  relative;display:  block;" [(ngModel)]="activeLayer.showOnlyFiltered" (change)="updateTableData(activeLayer)">только фильтрованные</mat-checkbox>
             <button mat-menu-item [matMenuTriggerFor]="displayColumns">настроить колонки</button>
             <mat-menu #displayColumns="matMenu" class="mat-menu-display-columns">
                 <ng-container *ngIf="activeLayer && activeLayer.visible">
@@ -28,7 +27,7 @@
 <div *ngIf="activeLayer && activeLayer.visible" class="light-theme table-wrapper">
     <ng-container *ngFor="let layer of avaliableLayers">
         <ng-container *ngIf="layer.id === activeLayer.id">
-            <mat-table class="attribute-table " #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort" [trackBy]="trackByFn" (scroll)="updateTableData(layer, true)" (matSortChange)="sortData($event, layer)">
+            <mat-table class="attribute-table " #table [dataSource]="layer.visibleFeaturesPerPage" matSort #sortVisibleFeaturesPerPage="matSort" [trackBy]="trackByFn" (scroll)="updateTableData(layer, true)" (matSortChange)="sortData($event, layer)" virtualScrollContainer>
 
                 <ng-container matColumnDef="select">
                     <mat-header-cell class="attribute-table_header-cell__checkbox" *matHeaderCellDef>
@@ -56,15 +55,15 @@
 
                     <ng-container *ngIf="column.columnType === 'findMany'">
                         <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48" [ngClass]="{ 'filter-flag': element.filteFlag }">
-                            <ng-container *ngFor="let fyndManyItem of element[column.name]; let i = index">
+                            <ng-container *ngFor="let fyndManyItem of element['_' + column.name]; let i = index">
                                 {{i+1}}) {{fyndManyItem.description}}
                             </ng-container>
                         </mat-cell>
                     </ng-container>
                     <ng-container *ngIf="column.columnType === 'findOne'">
                         <mat-cell *matCellDef="let element" [style.width.px]="column.rowWidth" [style.height.px]="48" [style.lineHeight.px]="48" [ngClass]="{ 'filter-flag': element.filteFlag }">
-                            <ng-container *ngIf="element[column.name]">{{ element[column.name].description }}</ng-container>
-                            <ng-container *ngIf="!element[column.name]"></ng-container>
+                            <ng-container *ngIf="element['_' + column.name]">{{ element['_' + column.name].description }}</ng-container>
+                            <ng-container *ngIf="!element['_' + column.name]"></ng-container>
                         </mat-cell>
                     </ng-container>
                     <ng-container *ngIf="column.columnType === 'findSimple'">
