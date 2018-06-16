@@ -1,5 +1,6 @@
 import { ImageVectorize } from './TDMap.CadastralTools.ImageVectorize.js';
 
+
 let random = () => Math.floor((1 + Math.random()) * 0x10000)
     .toString(16)
     .substring(1);
@@ -24,6 +25,7 @@ export class CadastralSearchProvider {
         }
         this.imageVectorize = new ImageVectorize();
     }
+
     getFeatureByCadastralNumber(cadNum, cadObjType) {
         var urlOptions = {
             text: cadNum,
@@ -41,7 +43,10 @@ export class CadastralSearchProvider {
                 dataType: "jsonp",
                 success: function (response) {
                     if (!response.feature) {
-                        resolve(false);
+                        resolve({
+                            data: response,
+                            type: "noObjects"
+                        });
                         return
                     }
                     if (!response.feature.center && !response.feature.extent) {
@@ -58,9 +63,7 @@ export class CadastralSearchProvider {
                         return;
                     }
 
-                    let cords = L.Projection.SphericalMercator.unproject(
-                        L.point(response.feature.center.x, response.feature.center.y)
-                    );
+                    let cords = L.Projection.SphericalMercator.unproject(L.point(response.feature.center.x, response.feature.center.y));
                     let obj = {
                         type: "Feature",
                         geometry: {
@@ -81,7 +84,44 @@ export class CadastralSearchProvider {
         });
     }
 
-    getImageByCadastralNumber(cadnum, strBbox, strSize, futureSW, futureNE) {
+    getImageByCadastralNumber(cadnum, strBbox, strSize, futureSW, futureNE, d) {
+        var urlOptions = {
+            dpi: "96",
+            transparent: "true",
+            format: "png32",
+            layers: "show:6,7",
+            bbox: strBbox,
+            bboxSR: "3857",
+            imageSR: "3857",
+            size: strSize,
+            layerDefs: JSON.stringify({
+                "6": `ID = '${cadnum}'`,
+                "7": `ID = '${cadnum}'`
+            }),
+            f: "image"
+        };
+        let self = this;
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: "http://pkk5.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/export?",
+                type: "GET",
+                data: urlOptions,
+                success: function (data) {
+                    let url = this.url;
+                    var image = new Image();
+                    image.setAttribute("crossOrigin", "anonymous");
+                    image.onload = function () {
+                        resolve({ image, width: image.width, height: image.height, bbox: urlOptions.bbox, url });
+                    };
+                    image.onerror = error => reject(error);
+                    image.src = this.url;
+                },
+                error: error => reject(error)
+            });
+        });
+    }
+
+    getGeometryByImageByCadastralNumber(cadnum, strBbox, strSize, futureSW, futureNE, d) {
         var urlOptions = {
             dpi: "96",
             transparent: "true",
@@ -105,10 +145,11 @@ export class CadastralSearchProvider {
                 data: urlOptions,
                 success: function (data) {
                     var image = new Image();
+                    let url = this.url
                     image.setAttribute("crossOrigin", "anonymous");
                     image.onload = function () {
-                        let geometry = self.imageVectorize.pkkImageToGeoJSON(image, self.map, futureSW, futureNE, 18);
-                        //resolve(geometry, image.width, image.height, urlOptions.bbox);
+                        let geometry = self.imageVectorize.pkkImageToGeoJSON(image, self.map, futureSW, futureNE, 18, d);
+                        resolve({ geometry, image, width: image.width, height: image.height, bbox: urlOptions.bbox, url });
                     };
                     image.onerror = error => reject(error);
                     image.src = this.url;
@@ -118,7 +159,9 @@ export class CadastralSearchProvider {
         });
     }
 
+
     getFeaturesByLocation(lngLatString, cadObjType) {
+
         return new Promise((resolve, reject) => {
             var urlOptions = {
                 text: lngLatString,
@@ -127,7 +170,6 @@ export class CadastralSearchProvider {
                 callback: "JQuery" + random() + random()
             };
 
-            this[urlOptions.callback] = function (data) { };
             let dataUrl = `${this.featuresUrl}/${this.featuresTypes[cadObjType]}?`;
             $.ajax({
                 url: dataUrl,
@@ -136,14 +178,12 @@ export class CadastralSearchProvider {
                 dataType: "jsonp",
                 jsonpCallback: urlOptions.callback,
                 success: function (response) {
-                    if (!response.features.length) {
+                    if (!response.features || !response.features.length) {
                         resolve([]);
                         return;
                     }
                     let result = response.features.map((item) => {
-                        let cords = L.Projection.SphericalMercator.unproject(
-                            L.point(item.center.x, item.center.y)
-                        );
+                        let cords = L.Projection.SphericalMercator.unproject(L.point(item.center.x, item.center.y));
                         return {
                             display_name: item.attrs.address,
                             type: "Feature",

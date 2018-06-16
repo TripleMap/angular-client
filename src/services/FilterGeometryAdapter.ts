@@ -1,26 +1,16 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams, HttpHeaders, HttpErrorResponse } from "@angular/common/http";
-import { BaseLayersService } from "./BaseLayersService";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { OverLaysService, LayersLinks, LayerSchema } from "./OverLaysService";
-import { Subject } from "rxjs/Subject";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import "rxjs/add/operator/filter";
-
-import { MatSnackBar } from '@angular/material';
+import { Subject, BehaviorSubject } from "rxjs";
+import { MessageService } from './MessageService';
 
 interface AvaliableLayer {
 	id: string;
 	filteredList: any[];
+	showOnlySelected: boolean;
 	previousFilterParams: any;
 }
 
-const errorOnSave = (message) => {
-	this.snackBar.open(message, null, {
-		duration: 2000,
-		panelClass: ['error-snack'],
-		horizontalPosition: 'right'
-	});
-}
 
 @Injectable()
 export class FilterGeometryAdapter {
@@ -29,9 +19,15 @@ export class FilterGeometryAdapter {
 	public filteredLayer: AvaliableLayer;
 	public avaliableLayers: AvaliableLayer[];
 
-	constructor(public http: HttpClient, public OverLaysService: OverLaysService, public snackBar: MatSnackBar) {
+	constructor(
+		public http: HttpClient,
+		public OverLaysService: OverLaysService,
+		public MessageService: MessageService
+	) {
 		this.mainFlow = new Subject();
 		this.filteredLayerId = new BehaviorSubject(false);
+		this.filteredLayerId.subscribe(this.onFilterListChange);
+
 		this.mainFlow
 			.map(this.concatenateAllFilters)
 			.filter(this.checkForEmptyFilters)
@@ -42,10 +38,12 @@ export class FilterGeometryAdapter {
 			this.avaliableLayers = this.OverLaysService.layersSchemas.map((item: LayerSchema) => ({
 				id: item.id,
 				filteredList: null,
+				showOnlySelected: false,
 				previousFilterParams: {}
 			}));
 		});
 	};
+
 
 	updateLayerFilters = requestParams => {
 		this.http
@@ -56,7 +54,7 @@ export class FilterGeometryAdapter {
 					this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });
 				}
 			}, (error: HttpErrorResponse) => {
-				if (error.status <= 400) errorOnSave.call(this, 'Не удалось обработать фильтры');
+				if (error.status <= 400) this.MessageService.errorMessage.call(this, 'Не удалось обработать фильтры');
 			});
 	};
 
@@ -97,16 +95,51 @@ export class FilterGeometryAdapter {
 		return emptyCounter !== 0;
 	};
 
-	concatenateTableFilters(columnData, filterValue, layer) {
-		if (layer.previousFilterParams) {
-			this.http
-				.post(LayersLinks.featuresFilterUrl(this.filteredLayer.id), layer.previousFilterParams)
-				.subscribe((data: any[]) => {
-					if (this.filteredLayer) this.filteredLayer.filteredList = data;
-					this.filteredLayerId.next({ layerId: this.filteredLayer.id, data: true });
-				}, (error: HttpErrorResponse) => {
-					if (error.status <= 400) errorOnSave.call(this, 'Не удалось обработать фильтры');
+
+	setOnlySelected(id, showOnlySelected) {
+		let inspectLayer = this.getLayerById(id);
+		if (!inspectLayer) return;
+		inspectLayer.showOnlySelected = showOnlySelected;
+		if (showOnlySelected) {
+			let maplayer = this.OverLaysService.getLeafletLayerById(id);
+			let selectedFeatures = maplayer.selections.selectedFeatures.selected;
+			this.refreshFilteredIds(id, selectedFeatures);
+		} else {
+			if (inspectLayer.filteredList) {
+				this.refreshFilteredIds(id, inspectLayer.filteredList.map(item => item.id));
+			} else {
+				this.OverLaysService.removeFilteredIds(id);
+			}
+		}
+	}
+
+	onFilterListChange = (layerIdAndData) => {
+		let inspectLayer = layerIdAndData ? this.getLayerById(layerIdAndData.layerId) : false;
+		if (this.filteredLayer && inspectLayer && layerIdAndData && layerIdAndData.data) {
+			let itemsToFilter;
+			let maplayer = this.OverLaysService.getLeafletLayerById(this.filteredLayer.id);
+
+			let selectedFeatures = maplayer.selections.selectedFeatures.selected;
+			if (inspectLayer.showOnlySelected) {
+				itemsToFilter = inspectLayer.filteredList
+					.map(item => item.id)
+					.filter(item => selectedFeatures.indexOf(item) !== -1 ? item : false);
+			} else {
+				itemsToFilter = inspectLayer.filteredList.map(item => item.id)
+			}
+			if (inspectLayer.filteredList) {
+				selectedFeatures.map(item => {
+					if (itemsToFilter.indexOf(item) === -1) maplayer.selections.selectedFeatures.deselect(item);
 				});
+			}
+
+			this.refreshFilteredIds(this.filteredLayer.id, itemsToFilter);
+		} else {
+			if (this.filteredLayer && this.filteredLayer.id) this.OverLaysService.removeFilteredIds(this.filteredLayer.id);
 		}
 	};
+
+	refreshFilteredIds(layerId, data) {
+		this.OverLaysService.refreshFilteredIds(layerId, data);
+	}
 }

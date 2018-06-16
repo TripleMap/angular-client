@@ -1,0 +1,11 @@
+<form [formGroup]="importForm">
+    <mat-form-field class="feature-attribute-value" style="width: 100%;">
+        <mat-select [(ngModel)]="selectedLayer" formControlName="selectedLayer">
+            <mat-option style="font-size:14px;" *ngFor="let prop of avaliableLayers" [value]="prop">{{prop.layer_schema.labelName}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</form>
+<div style="display: flex;flex-direction: row; ">
+    <button mat-button color="primary" (click)="cancel()" cdkFocusInitial>Отмена</button>
+    <button mat-button [color]="canImport ? 'primary': 'accent'" (click)="sendData()">Загрузить</button>
+</div>

@@ -1,9 +1,5 @@
-import {
-	CadastralSearchProvider
-} from './TDMap.CadastralTools.DataProvider.js'
-import {
-	Observable
-} from "rxjs/Observable";
+import { CadastralSearchProvider } from './TDMap.CadastralTools.DataProvider.js'
+import { Observable } from "rxjs/Observable";
 import 'rxjs/add/observable/fromPromise';
 
 export class CadastralSearchDataService {
@@ -14,28 +10,30 @@ export class CadastralSearchDataService {
 		this.cadastralSearchProvider = new CadastralSearchProvider(map);
 	}
 
-	getGeoJsonByCadNum(cadNum, cadObjType) {
+	getGeoJsonByCadNum(cadNum, cadObjType, geometry) {
 		return Observable.fromPromise(new Promise((resolve, reject) => {
-			this.cadastralSearchProvider.getDataByCadastralNumber(cadNum, cadObjType).then((data, type) => {
+			this.cadastralSearchProvider.getFeatureByCadastralNumber(cadNum, cadObjType).then((data: any) => {
+				const feature = data.data;
+				const type = data.type;
 				if (type === "withoutCoords") {
-					resolve({ data, type: "withoutCoords" });
+					resolve({ data: feature, type });
 					return;
 				}
 				if (type === "noObjects") {
-					resolve({ data, type: "noObjects" });
+					resolve({ data: feature, type });
 					return;
 				}
 				if (type === "withCoords") {
 					let bbox = [
-						data.properties.extent.xmin,
-						data.properties.extent.ymin,
-						data.properties.extent.xmax,
-						data.properties.extent.ymax
+						feature.properties.extent.xmin,
+						feature.properties.extent.ymin,
+						feature.properties.extent.xmax,
+						feature.properties.extent.ymax
 					];
 					let strBbox = bbox.join();
 					let bounds = new L.latLngBounds(
-						L.Projection.SphericalMercator.unproject(new L.point(data.properties.extent.xmin, data.properties.extent.ymax)),
-						L.Projection.SphericalMercator.unproject(new L.point(data.properties.extent.xmax, data.properties.extent.ymin))
+						L.Projection.SphericalMercator.unproject(new L.point(feature.properties.extent.xmin, feature.properties.extent.ymax)),
+						L.Projection.SphericalMercator.unproject(new L.point(feature.properties.extent.xmax, feature.properties.extent.ymin))
 					);
 
 					let newBoundsNorthEast = this.map.getPixelBounds(bounds._northEast, 18);
@@ -62,15 +60,39 @@ export class CadastralSearchDataService {
 					//////
 					///// TO DO !!!
 					//// ИСПОЛЬЗОВАТЬ WEB WORKER
-					this.cadastralSearchProvider.getImageByCadastralNumber(data.properties.id, strBbox, strSize, futureSW, futureNE).then((geometry) => {
-						resolve({
-							data: {
-								type: "Feature",
-								geometry: geometry,
-								properties: data.properties
-							}, type: "withCoords"
-						});
-					}, error => reject(error));
+
+					if (geometry) {
+						this.cadastralSearchProvider.getGeometryByImageByCadastralNumber(feature.properties.id, strBbox, strSize, futureSW, futureNE, d).then((imageAndData) => {
+							resolve({
+								data: {
+									type: "Feature",
+									geometry: imageAndData.geometry,
+									properties: feature.properties
+								},
+								image: imageAndData.image,
+								type: "withCoords",
+								width: imageAndData.width,
+								height: imageAndData.height,
+								bbox: imageAndData.bbox,
+								bounds: bounds,
+								url: imageAndData.url
+							});
+						}, error => reject(error));
+					} else {
+						this.cadastralSearchProvider.getImageByCadastralNumber(feature.properties.id, strBbox, strSize, futureSW, futureNE, d).then((image) => {
+							resolve({
+								data: feature.properties,
+								image: image.image,
+								type: "withCoords",
+								width: image.width,
+								height: image.height,
+								bbox: image.bbox,
+								bounds: bounds,
+								url: image.url
+							});
+						}, error => reject(error));
+					}
+
 				}
 			}, error => reject(error));
 		}))
@@ -81,8 +103,8 @@ export class CadastralSearchDataService {
 	};
 
 	getFeaturesByLocation(latLng, cadObjType) {
-		let lngLatString = latLng instanceof L.LatLng ? `${latLng.lng},${latLng.lat}` : latLng;
-		return Observable.fromPromise(this.cadastralSearchProvider.getFeatureByLocation(lngLatString, (cadObjType || 'PARCEL')));
+		let lngLatString = (latLng instanceof L.LatLng) ? `${latLng.lng} ${latLng.lat}` : latLng;
+		return Observable.fromPromise(this.cadastralSearchProvider.getFeaturesByLocation(lngLatString, (cadObjType || 'PARCEL')));
 	};
 
 	getTypeAheadFeatures(text, limit, cadObjType) {

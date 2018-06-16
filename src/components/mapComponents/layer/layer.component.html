@@ -4,9 +4,8 @@
     </button>
     <div class="expansion-layers-panel mat-elevation-z5" [ngClass]="isActive ? 'expansion-panel__expansed' : 'expansion-panel__collapsed'">
         <mat-toolbar color="primary" class="mat-elevation-z2" style="position:absolute;z-index:10;height:48px;min-height:48px;">
-            <mat-toolbar-row fxLayout="row">
+            <mat-toolbar-row style="display: flex;flex-direction: row;justify-content: space-between;align-items: center;">
                 <span>Управление слоями</span>
-                <span fxFlex="100%"></span>
                 <button mat-icon-button (click)="transformMaterial($event)" style="margin:0;margin-right: -16px;">
                     <mat-icon aria-label="Close dialog">close</mat-icon>
                 </button>

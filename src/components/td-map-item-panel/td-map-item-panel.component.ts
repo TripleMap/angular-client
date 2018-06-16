@@ -1,35 +1,14 @@
-import { Component, Inject, AfterViewInit, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, AfterContentInit, ViewChild, ElementRef } from '@angular/core';
-import { HttpParams, HttpClient } from "@angular/common/http";
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { HttpClient } from "@angular/common/http";
 import { OverLaysService, LayerSchema, LayersLinks } from "../../services/OverLaysService";
 import { MapService } from "../../services/MapService";
-import { MatTabHeader } from "@angular/material/tabs"
-import { Subject } from 'rxjs/subject'
-import { Observable } from 'rxjs/observable'
-import 'rxjs/add/operator/debounceTime.js';
-import { Subscription } from 'rxjs/Subscription';
-import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-
-@Component({
-  selector: 'confirm-dialog',
-  template: `
-      <div mat-dialog-content>
-        <p>Удалить дополнительный атрибут?</p>
-      </div>
-      <div mat-dialog-actions>
-        <button mat-button color="accent" (click)="no()" cdkFocusInitial>Отмена</button>
-        <button mat-button color="accent" (click)="yes()">Да</button>
-      </div>`
-}) export class ConfirmRemoveDialodDialog {
-  constructor(public dialogRef: MatDialogRef<ConfirmRemoveDialodDialog>) { }
-  no = () => this.dialogRef.close(false);
-  yes = () => this.dialogRef.close(true);
-}
-
-
-//// TO DO pipe to null if empty
-//// TO DO validations 
+import { Subject, Subscription } from 'rxjs';
+import 'rxjs/add/operator/debounceTime';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material';
+import { PkkInfoService } from '../../services/PkkInfoService';
+import { ConfirmDialogDialog } from '../confirm-dialog/confirm-dialog.component';
+import { MessageService } from '../../services/MessageService';
 
 @Component({
   selector: 'td-map-item-panel',
@@ -46,6 +25,7 @@ export class TdMapItemPanelComponent implements OnInit {
   public subscriberOnfeaturesFlow: any;
   public lastLayerId: any;
   public feature: any;
+  public cadastralInfoEmpty: boolean = false;
   public cadFeature: any;
   public cadSchema: any[] = [];
   public editMode: boolean = false;
@@ -61,14 +41,22 @@ export class TdMapItemPanelComponent implements OnInit {
   public onSaveMessageSubject: Subject<any>;
   public onSaveSubscriber: Subscription;
 
+
+
+  public CadastralFeatureInfo: any;
+  public CadastralFeatureInfoSubscription: Subscription;
+  public selectedTab: number = 0;
+
   @ViewChild('tabs', { read: ElementRef }) tabs: ElementRef;
   constructor(
     public http: HttpClient,
     public OverLaysService: OverLaysService,
     public MapService: MapService,
     public formBuilder: FormBuilder,
-    public snackBar: MatSnackBar,
-    public MatDialog: MatDialog
+    public MatDialog: MatDialog,
+    public PkkInfoService: PkkInfoService,
+    public MessageService: MessageService,
+    public changeDetectorRef: ChangeDetectorRef
   ) {
     this.featuresFlow = new Subject();
     this.subscriberOnfeaturesFlow = this.featuresFlow
@@ -92,10 +80,14 @@ export class TdMapItemPanelComponent implements OnInit {
       .subscribe();
 
     this.onSaveMessageSubject = new Subject();
-    this.onSaveSubscriber = this.onSaveMessageSubject.debounceTime(300).subscribe(
-      success => this.succesOnSave('Атрибуты обновлены'),
-      error => this.errorMessage('Ошибка при обновлении атрибутов'));
+    this.onSaveSubscriber = this.onSaveMessageSubject.debounceTime(300)
+      .subscribe(success => success ? this.MessageService.succesMessage('Атрибуты обновлены') : this.MessageService.errorMessage('Ошибка при обновлении атрибутов'));
     this.onLayersChange = this.OverLaysService.layersChange.subscribe(change => { if (change) this.onLayersChangeConsumer(); });
+
+
+    this.CadastralFeatureInfoSubscription = this.PkkInfoService.CadastralFeatureInfo.subscribe(data => {
+      this.CadastralFeatureInfo = data;
+    });
   }
 
 
@@ -110,32 +102,6 @@ export class TdMapItemPanelComponent implements OnInit {
     header.style.width = 'calc(100% - 48px)';
   }
 
-  succesOnSave(message) {
-    this.snackBar.open(message, null, {
-      duration: 2000,
-      panelClass: ['success-snack'],
-      horizontalPosition: 'right',
-      verticalPosition: 'bottom'
-    });
-  }
-
-  warnOnSave(message) {
-    this.snackBar.open(message, null, {
-      duration: 3000,
-      panelClass: ['warn-snack'],
-      horizontalPosition: 'right'
-    });
-  }
-
-  errorMessage(message) {
-    this.snackBar.open(message, null, {
-      duration: 3000,
-      panelClass: ['error-snack'],
-      horizontalPosition: 'right'
-    });
-  }
-
-
   toggleEditMode() {
     this.editMode = !this.editMode;
     if (!this.editMode) return;
@@ -147,7 +113,7 @@ export class TdMapItemPanelComponent implements OnInit {
       this.orderForm.removeControl(control)
     }
     for (let control in this.additionalForm.controls) {
-      this.orderForm.removeControl(control)
+      this.additionalForm.removeControl(control)
     }
   }
 
@@ -165,7 +131,7 @@ export class TdMapItemPanelComponent implements OnInit {
         let fatureValue;
         if (attribute.columnType === 'findDate') {
           fatureValue = new Date(Number(this.feature[`${key}`]))
-        } else if (attribute.columnType === 'findMany' || attribute.columnType === 'findOne') {
+        } else if (attribute.columnType === 'findMany' || attribute.columnType === 'findOne' || attribute.columnType === 'findUser') {
           fatureValue = this.feature[`_${key}`];
         } else {
           fatureValue = this.feature[`${key}`];
@@ -207,7 +173,7 @@ export class TdMapItemPanelComponent implements OnInit {
   }
 
   saveData() {
-    if (!this.saveEnable) this.warnOnSave('Проверьте корректность введеных данных');
+    if (!this.saveEnable) this.MessageService.warnMessage('Проверьте корректность введеных данных');
 
     if (this.saveEnable && this.differentBetweenInputDataAndInspectFeature) {
       let editResult = this.detectOnEditFeatureDifferents(this.orderForm.value);
@@ -216,6 +182,8 @@ export class TdMapItemPanelComponent implements OnInit {
       let patchObj = {};
       for (let index = 0; index < editResult.differentColumns.length; index++) {
         const column = editResult.differentColumns[index];
+        console.log(editResult);
+        console.log(patchObj);
         patchObj[column] = editResult.data[column];
       }
 
@@ -223,10 +191,10 @@ export class TdMapItemPanelComponent implements OnInit {
       this.http.patch(LayersLinks.featuresEdit.updateById(this.activeLayer.id, this.feature.id), patchObj)
         .subscribe(
           data => {
-            this.onSaveMessageSubject.next(1);
+            this.onSaveMessageSubject.next(true);
             this.getInfo(this.feature.id);
           }, error => {
-            if (error.status <= 400) this.onSaveMessageSubject.error(1)
+            if (error.status <= 400) this.onSaveMessageSubject.next(false)
           });
     }
 
@@ -241,9 +209,9 @@ export class TdMapItemPanelComponent implements OnInit {
             if (element.removed) {
               this.featureAdditionalCharacters.splice(additionalIndex, 1);
               this.http.delete(LayersLinks.additionalCharacters.deleteById(this.activeLayer.id, element.id)).subscribe(
-                data => this.onSaveMessageSubject.next(1),
+                data => this.onSaveMessageSubject.next(true),
                 error => {
-                  if (error.status <= 400) this.onSaveMessageSubject.error(1)
+                  if (error.status <= 400) this.onSaveMessageSubject.next(false)
                 });
             } else if (element.added) {
               this.http.post(LayersLinks.additionalCharacters.create(this.activeLayer.id, this.feature.id), {
@@ -253,7 +221,7 @@ export class TdMapItemPanelComponent implements OnInit {
                 user_id: ''
               }).subscribe(
                 (data: any) => {
-                  this.onSaveMessageSubject.next(1);
+                  this.onSaveMessageSubject.next(true);
                   element.id = data.id;
                   element.character_name = data.character_name;
                   element.character_value = data.character_value;
@@ -261,7 +229,7 @@ export class TdMapItemPanelComponent implements OnInit {
                   element.user_id = data.user_id;
                   delete element.added;
                 }, error => {
-                  if (error.status <= 400) this.onSaveMessageSubject.error(1)
+                  if (error.status <= 400) this.onSaveMessageSubject.next(false)
                 });
             } else if (element.updated && !element.added && !element.removed) {
               let putchObject = {
@@ -270,12 +238,12 @@ export class TdMapItemPanelComponent implements OnInit {
               }
               this.http.patch(LayersLinks.additionalCharacters.updateById(this.activeLayer.id, element.id), putchObject).subscribe(
                 data => {
-                  this.onSaveMessageSubject.next(1);
+                  this.onSaveMessageSubject.next(true);
                   element.character_name = putchObject.character_name;
                   element.character_value = putchObject.character_value;
                   delete element.updated;
                 }, error => {
-                  if (error.status <= 400) this.onSaveMessageSubject.error(1)
+                  if (error.status <= 400) this.onSaveMessageSubject.next(false)
                 });
             }
           }
@@ -348,6 +316,17 @@ export class TdMapItemPanelComponent implements OnInit {
           }
         }
 
+        if (column.columnType === 'findUser') {
+          if (!data[key] && !this.feature[`_${key}`]) { }
+          else if (!data[key] && this.feature[`_${key}`] || data[key] && !this.feature[`_${key}`]) {
+            differents = true;
+            differentColumns.push(key);
+          } else if (data[key].id !== this.feature[`_${key}`].id) {
+            differents = true;
+            differentColumns.push(key);
+          }
+        }
+
         if (column.columnType === 'findMany') {
           if (!data[key] && !this.feature[`_${key}`]) {
           } else if (!data[key] && this.feature[`_${key}`] || data[key] && !this.feature[`_${key}`]) {
@@ -409,9 +388,13 @@ export class TdMapItemPanelComponent implements OnInit {
   }
 
   removeAdditionalItem(item) {
-    this.MatDialog.open(ConfirmRemoveDialodDialog, {
-      width: '250px'
-    }).afterClosed()
+    this.MatDialog.open(ConfirmDialogDialog, {
+      width: '250px',
+      data: {
+        message: 'Удалить дополнительный атрибут?'
+      }
+    })
+      .afterClosed()
       .subscribe(confirm => {
         if (!confirm) return;
         if (item.added) {
@@ -443,7 +426,7 @@ export class TdMapItemPanelComponent implements OnInit {
   }
 
   getCadColumnNamesForLayer() {
-    this.http.get('api/layers/GetGeoJSONLayerSchemaWithData?LayerId=a35a770e-2cd3-4ae1-bf25-79ed2b080efa').subscribe((data: { properties: object; }) => {
+    this.http.get('api/Layers/GetGeoJSONLayerSchemaWithData?LayerId=parcels_cad').subscribe((data: { properties: object; }) => {
       this.cadSchema = [];
       for (let key in data.properties) {
         if (key !== 'id' && key !== 'center' && key !== 'extent') {
@@ -457,7 +440,7 @@ export class TdMapItemPanelComponent implements OnInit {
         }
       }
     }, error => {
-      if (error.status <= 400) this.errorMessage('Ошибка при получении описания кадастровых данных');
+      if (error.status <= 400) this.MessageService.errorMessage('Ошибка при получении описания кадастровых данных');
     });
   }
 
@@ -490,19 +473,23 @@ export class TdMapItemPanelComponent implements OnInit {
   getInfo(featureId) {
     this.http.get(LayersLinks.featuresEdit.getInfo(this.activeLayer.id, featureId)).subscribe((data) => {
       if (data) this.feature = data;
-    }, error => { if (error.status <= 400) this.errorMessage('Ошибка при получении атрибутов'); });
+    }, error => { if (error.status <= 400) this.MessageService.errorMessage('Ошибка при получении атрибутов'); });
   }
 
   getCadInfo(featureId) {
-    this.http.get(LayersLinks.featuresEdit.getInfo('a35a770e-2cd3-4ae1-bf25-79ed2b080efa', featureId)).subscribe((data) => {
+    this.cadastralInfoEmpty = false;
+    this.http.get(LayersLinks.featuresEdit.getInfo('parcels_cad', featureId)).subscribe((data) => {
       if (data) this.cadFeature = data;
-    }, error => { if (error.status <= 400) this.errorMessage('Ошибка при получении кадастровых атрибутов'); });
+      if (!data) this.cadastralInfoEmpty = true;
+    }, error => {
+      if (error.status <= 400) this.MessageService.errorMessage('Ошибка при получении кадастровых атрибутов');
+    });
   }
 
   getAdditionalCharacters(featureId) {
     this.http.get(LayersLinks.additionalCharacters.getAll(this.activeLayer.id, featureId)).subscribe((data: any[]) => {
       if (data) this.featureAdditionalCharacters = data;
-    }, error => { if (error.status <= 400) this.errorMessage('Ошибка при получении дополнительных атрибутов'); });
+    }, error => { if (error.status <= 400) this.MessageService.errorMessage('Ошибка при получении дополнительных атрибутов'); });
   }
 
   getColumnNamesForLayer(layerSchema: LayerSchema) {
@@ -568,5 +555,40 @@ export class TdMapItemPanelComponent implements OnInit {
     this.subscriberOnfeaturesFlow.unsubscribe();
     this.onSaveSubscriber.unsubscribe();
     this.onLayersChange.unsubscribe();
+    this.CadastralFeatureInfoSubscription.unsubscribe();
+  }
+
+
+
+  loadCadastralFeatureIntoSystem = () => this.PkkInfoService.loadCadastralFeatureIntoSystem();
+
+  loadCadastralInfoToSystem = () => {
+    this.PkkInfoService.loadCadastralIntoSystem(this.feature)
+      .subscribe(
+        (result: any) => {
+          this.MessageService.succesMessage('Данные добавлены');
+          this.cadFeature = result;
+          this.cadastralInfoEmpty = false;
+        },
+        error => this.MessageService.errorMessage('Ошибка при загрузке данных в систему')
+      );
+  }
+
+  updateCadastralInfoToSystem = () => {
+    this.PkkInfoService.updateCadastralIntoSystem(this.feature, (this.feature.cn || this.cadFeature.cn))
+      .subscribe(
+        (result: any) => {
+          this.MessageService.succesMessage('Данные обновлены');
+          this.cadFeature = result;
+          this.cadastralInfoEmpty = false;
+        },
+        error => this.MessageService.errorMessage('Ошибка при загрузке данных в систему')
+      );
+  }
+
+  @ViewChild("eventComponent") eventComponent;
+
+  createEvent() {
+    this.eventComponent.createEvent();
   }
 }

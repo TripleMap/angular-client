@@ -1,33 +1,26 @@
 import { Injectable } from "@angular/core";
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from "@angular/common/http";
-import { Observable } from "rxjs/Observable";
+import { Observable, Subject, Subscription } from "rxjs";
 import { environment } from "../environments/environment";
-import { MatSnackBar } from '@angular/material';
-import { AppComponent } from '../components/app.component';
-
-import { Subject } from 'rxjs/subject'
-import 'rxjs/add/operator/debounceTime.js';
-import { Subscription } from 'rxjs/Subscription';
 import { Router } from "@angular/router";
+import { MessageService } from './MessageService';
+
+import 'rxjs/add/operator/do';
 
 @Injectable()
 export class ApiHTTPInterceptorService implements HttpInterceptor {
 	public onRequestError: Subject<any>;
 	public onRequestErrorSubscriber: Subscription;
-	constructor(public snackBar: MatSnackBar, public router: Router) {
+	constructor(
+		public router: Router,
+		public MessageService: MessageService
+	) {
 		this.onRequestError = new Subject();
 		this.onRequestErrorSubscriber = this.onRequestError
 			.debounceTime(300)
-			.subscribe(message => this.errorSnack(message));
+			.subscribe(message => this.MessageService.errorMessage(message));
 	}
 
-	errorSnack(message) {
-		this.snackBar.open(message, null, {
-			duration: 5000,
-			panelClass: ['error-snack'],
-			horizontalPosition: 'right'
-		});
-	}
 
 	intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 		let apiReq;

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router, CanActivate } from '@angular/router';
 import { AuthService, AUTH_LINKS } from './auth-service';
 import { Observable } from "rxjs/Observable";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(public AuthService: AuthService, public router: Router, public http: HttpClient) { }

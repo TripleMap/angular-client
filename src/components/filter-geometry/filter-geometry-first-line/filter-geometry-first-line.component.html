@@ -1,42 +1,42 @@
 <form [formGroup]="firstLine" *ngIf="isActive">
-  <section fxLayout="column" class="filter-sections">
-    <mat-checkbox class="avaliable-survey-segmented" formControlName="survey">Возможно межевание</mat-checkbox>
-    <mat-checkbox class="avaliable-survey-segmented" formControlName="segmented">Возможно объединение</mat-checkbox>
-  </section>
-  <section fxLayout="column" class="filter-sections">
-    <label class="mat-body-2 filter-subheading">Площадь: </label>
-    <section fxLayout="row">
-      <mat-form-field fxFlex="40%" fxFlexOffset="4px">
-        <input matInput placeholder="от" formControlName="squareFrom" min="0">
-        <mat-error *ngIf="firstLine.get('squareFrom')?.invalid">{{getErrorMessage('squareFrom')}}</mat-error>
-      </mat-form-field>
-      <mat-form-field fxFlex="40%" fxFlexOffset="4px">
-        <input matInput placeholder="до" formControlName="squareTo" min="0">
-        <mat-error *ngIf="firstLine.get('squareTo')?.invalid">{{getErrorMessage('squareTo')}}</mat-error>
-      </mat-form-field>
-      <mat-form-field fxFlex="20%" fxFlexOffset="4px">
-        <mat-select formControlName="squareUnit">
-          <mat-optgroup label="Единицы измерения" style="font-size:14px;">
-            <mat-option *ngFor="let squareUnit of squareUnits" [value]="squareUnit.eng">{{squareUnit.ru}}</mat-option>
-          </mat-optgroup>
-        </mat-select>
-      </mat-form-field>
+    <section style="display:flex;flex-direction:column;" class="filter-sections">
+        <mat-checkbox class="avaliable-survey-segmented" formControlName="survey">Возможно межевание</mat-checkbox>
+        <mat-checkbox class="avaliable-survey-segmented" formControlName="segmented">Возможно объединение</mat-checkbox>
     </section>
-  </section>
-  <section fxLayout="column" class="filter-sections">
-    <label class="mat-body-2 filter-subheading">Удаленность от МКАД: </label>
-    <section fxLayout="row">
-      <mat-form-field fxFlex="40%" fxFlexOffset="4px">
-        <input matInput placeholder="от" formControlName="distanceFrom" min="0">
-        <span matSuffix>км</span>
-        <mat-error *ngIf="firstLine.get('distanceFrom')?.invalid">{{getErrorMessage('distanceFrom')}}</mat-error>
-      </mat-form-field>
-      <mat-form-field fxFlex="40%" fxFlexOffset="4px">
-        <input matInput placeholder="до" formControlName="distanceTo" min="0">
-        <span matSuffix>км</span>
-        <mat-error *ngIf="firstLine.get('distanceTo')?.invalid">{{getErrorMessage('distanceTo')}}</mat-error>
-      </mat-form-field>
-      <span fxFlex="20%" fxFlexOffset="4px"></span>
+    <section style="display:flex;flex-direction:column;" class="filter-sections">
+        <label class="mat-body-2 filter-subheading">Площадь: </label>
+        <section fxLayout="row">
+            <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+                <input matInput placeholder="от" formControlName="squareFrom" min="0">
+                <mat-error *ngIf="firstLine.get('squareFrom')?.invalid">{{getErrorMessage('squareFrom')}}</mat-error>
+            </mat-form-field>
+            <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+                <input matInput placeholder="до" formControlName="squareTo" min="0">
+                <mat-error *ngIf="firstLine.get('squareTo')?.invalid">{{getErrorMessage('squareTo')}}</mat-error>
+            </mat-form-field>
+            <mat-form-field fxFlex="20%" fxFlexOffset="4px">
+                <mat-select formControlName="squareUnit">
+                    <mat-optgroup label="Единицы измерения" style="font-size:14px;">
+                        <mat-option *ngFor="let squareUnit of squareUnits" [value]="squareUnit.eng">{{squareUnit.ru}}</mat-option>
+                    </mat-optgroup>
+                </mat-select>
+            </mat-form-field>
+        </section>
     </section>
-  </section>
+    <section style="display:flex;flex-direction:column;" class="filter-sections">
+        <label class="mat-body-2 filter-subheading">Удаленность от МКАД: </label>
+        <section fxLayout="row">
+            <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+                <input matInput placeholder="от" formControlName="distanceFrom" min="0">
+                <span matSuffix>км</span>
+                <mat-error *ngIf="firstLine.get('distanceFrom')?.invalid">{{getErrorMessage('distanceFrom')}}</mat-error>
+            </mat-form-field>
+            <mat-form-field fxFlex="40%" fxFlexOffset="4px">
+                <input matInput placeholder="до" formControlName="distanceTo" min="0">
+                <span matSuffix>км</span>
+                <mat-error *ngIf="firstLine.get('distanceTo')?.invalid">{{getErrorMessage('distanceTo')}}</mat-error>
+            </mat-form-field>
+            <span fxFlex="20%" fxFlexOffset="4px"></span>
+        </section>
+    </section>
 </form>

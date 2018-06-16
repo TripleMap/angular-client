@@ -1,8 +1,5 @@
-import { Component, AfterViewInit, OnInit, ChangeDetectionStrategy, NgZone } from "@angular/core";
+import { Component, AfterViewInit } from "@angular/core";
 import { MapService } from "../../services/MapService";
-
-// прикрутить хэш строки в браузере
-//   background: #284360;
 
 @Component({
     selector: "td-map",
@@ -10,7 +7,7 @@ import { MapService } from "../../services/MapService";
     styleUrls: ["./tdmap.component.css"]
 })
 export class TdmapComponent implements AfterViewInit {
-    constructor(public MapService: MapService, public zone: NgZone) { }
+    constructor(public MapService: MapService) { }
 
     ngAfterViewInit() {
         this.MapService.createLeafletMap("map");

@@ -1,0 +1,39 @@
+<mat-dialog-content>
+    <mat-tab-group>
+        <mat-tab *ngFor="let label of userLabels">
+
+            <div style="display: flex;flex-direction: column;">
+                <mat-form-field>
+                    <mat-select [(ngModel)]="label.selectedLayer" required (selectionChange)="layerChange(label)">
+                        <mat-option *ngFor="let avaliableLayer of layersSchemas" [value]="avaliableLayer">{{avaliableLayer.layer_schema.labelName}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-select [(ngModel)]="label.currentProp" required>
+                        <mat-option *ngFor="let prop of label.avaliableProperties" [value]="prop">{{prop.description}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div style="display: flex;flex-direction: column;">
+                <div style="display: flex;flex-direction: row;">
+                    <color-picker colorPlaceHolder="цвет подписи" [color]="label.labelColor" (colorChange)="colorChange(label, $event, 'label')"></color-picker>
+                    <mat-form-field style="width: 100px; margin-left: 32px;">
+                        <input matInput placeholder="размер шрифта" [(ngModel)]="label.labelFontSize">
+                    </mat-form-field>
+                </div>
+                <div style="display: flex;flex-direction: row;">
+                    <color-picker colorPlaceHolder="цвет ореола" [color]="label.haloColor" (colorChange)="colorChange(label, $event, 'halo')"></color-picker>
+                    <mat-form-field style="width: 100px; margin-left: 32px;">
+                        <input matInput placeholder="размер ореола" [(ngModel)]="label.haloSize">
+                    </mat-form-field>
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="close()" color="primary">Отмена</button>
+    <button mat-button (click)="createLabel()" color="primary">Создать</button>
+    <button mat-button (click)="saveLabel()" [color]="labelEnable ? 'primary' : 'accent'">Сохранить и подписать объекты</button>
+</mat-dialog-actions>

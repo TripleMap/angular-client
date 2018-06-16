@@ -1,8 +1,8 @@
-import { Component, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { BaseLayersService } from '../../../services/BaseLayersService';
 import { OverLaysService, LayerSchema } from '../../../services/OverLaysService';
 import { MapService } from '../../../services/MapService';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'layer-selection',

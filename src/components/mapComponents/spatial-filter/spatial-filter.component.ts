@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-
 import { MapService } from '../../../services/MapService';
-
 import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
+
 @Component({
   selector: 'spatial-filter',
   templateUrl: './spatial-filter.component.html',

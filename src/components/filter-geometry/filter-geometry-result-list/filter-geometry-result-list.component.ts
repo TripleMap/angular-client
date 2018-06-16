@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, Input } from "@angular/core";
 import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
-import { Observable } from "rxjs/Observable";
+import { Subscription } from "rxjs";
 import { MapService } from "../../../services/MapService";
 import { OverLaysService, LayerSchema } from "../../../services/OverLaysService";
-import { Subscription } from 'rxjs/Subscription';
 
 
 

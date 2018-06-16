@@ -1,10 +1,9 @@
-import { Component, ViewChild, OnInit, OnDestroy, AfterViewInit, Output, EventEmitter } from "@angular/core";
+import { Component, ViewChild, OnInit, OnDestroy, Output, EventEmitter } from "@angular/core";
 import { FilterGeometryAdapter } from "../../services/FilterGeometryAdapter";
-import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { FilterGeometryFirstLineComponent } from './filter-geometry-first-line/filter-geometry-first-line.component';
 import { FilterGeometryResultListComponent } from './filter-geometry-result-list/filter-geometry-result-list.component';
 import { OverLaysService, LayerSchema } from "../../services/OverLaysService";
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { FormControl } from '@angular/forms'
 
 
@@ -17,7 +16,6 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   public isFiltersActive: boolean;
   public isResultPaneAvalible: boolean;
   public isResultPaneCounts: number;
-  public activeMediaQuery: string = "";
   public avaliableLayers: LayerSchema[];
   public filterSubscription: Subscription;
   public filterLayerFormControlSubscriber: Subscription;
@@ -29,15 +27,12 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   @ViewChild(FilterGeometryResultListComponent) resultPane: FilterGeometryResultListComponent;
   constructor(
     public OverLaysService: OverLaysService,
-    public FilterGeometryAdapter: FilterGeometryAdapter,
-    public media: ObservableMedia
+    public FilterGeometryAdapter: FilterGeometryAdapter
   ) { }
 
   ngOnInit() {
     this.isFiltersActive = true;
     this.isResultPaneAvalible = false;
-    this.mediaSubscription = this.media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
-    this.filterSubscription = this.FilterGeometryAdapter.filteredLayerId.subscribe(this.toogleAvaliableResultPane);
   }
 
   ngAfterViewInit() {
@@ -55,22 +50,22 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
 
   changeFilterOrResultPane = () => this.isFiltersActive = !this.isFiltersActive;
 
-  toogleAvaliableResultPane = (layerIdAndData) => {
-    let inspectLayer
-    if (layerIdAndData) {
-      inspectLayer = this.FilterGeometryAdapter.getLayerById(layerIdAndData.layerId);
-    }
+  // toogleAvaliableResultPane = (layerIdAndData) => {
+  //   let inspectLayer
+  //   if (layerIdAndData) {
+  //     inspectLayer = this.FilterGeometryAdapter.getLayerById(layerIdAndData.layerId);
+  //   }
 
-    this.isResultPaneAvalible = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0;
-    this.isResultPaneCounts = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0 ? inspectLayer.filteredList.length : null;
-    if (layerIdAndData && layerIdAndData.data) {
-      this.OverLaysService.refreshFilteredIds(this.filterLayerFormControl.value.id, inspectLayer.filteredList.map(item => item.id))
-    } else {
-      if (this.filterLayerFormControl.value && this.filterLayerFormControl.value.id) {
-        this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
-      }
-    }
-  };
+  //   this.isResultPaneAvalible = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0;
+  //   this.isResultPaneCounts = layerIdAndData && layerIdAndData.data && inspectLayer.filteredList.length > 0 ? inspectLayer.filteredList.length : null;
+  //   if (layerIdAndData && layerIdAndData.data) {
+  //     this.OverLaysService.refreshFilteredIds(this.filterLayerFormControl.value.id, inspectLayer.filteredList.map(item => item.id))
+  //   } else {
+  //     if (this.filterLayerFormControl.value && this.filterLayerFormControl.value.id) {
+  //       this.OverLaysService.removeFilteredIds(this.filterLayerFormControl.value.id);
+  //     }
+  //   }
+  // };
 
   clearFilters() {
     this.FilterGeometryAdapter.clearData();

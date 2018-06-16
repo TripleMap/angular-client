@@ -7,7 +7,7 @@ import { MapService } from '../../../services/MapService';
   styleUrls: ["./zoom.component.css"]
 })
 export class ZoomComponent {
-  constructor(public MapService: MapService) {}
+  constructor(public MapService: MapService) { }
 
   zoomIn(e) {
     if (

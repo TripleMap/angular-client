@@ -1,34 +1,57 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import { HttpClient } from "@angular/common/http";
+import { BehaviorSubject } from "rxjs";
 import { MapService } from './MapService';
 import { AuthService } from '../auth/auth-service';
 
 export const LayersLinks = {
-    getLayersByUserId: (userId) => `api/accounts/userLayers/${userId}`,
-    dataApi: () => "api/layers",
-    schemaInfoUrl: (layerId) => `api/layers/GetGeoJSONLayerSchemaWithData?LayerId=${layerId}`,
-    featuresFilterUrl: (layerId) => `api/layers/GetFeaturesByFilters?LayerId=${layerId}`,
+    getLayersByUserId: (userId) => `api/Accounts/userlayers?id=${userId}`,
+    dataApi: () => "api/Layers",
+    schemaInfoUrl: (layerId) => `api/Layers/GetGeoJSONLayerSchemaWithData?LayerId=${layerId}`,
+    featuresFilterUrl: (layerId) => `api/Layers/GetFeaturesByFilters?LayerId=${layerId}`,
     featuresEdit: {
-        getAllGeo: (layerId) => `api/layers/GetGeoJSONFeatures?LayerId=${layerId}`,
-        getAllInfo: (layerId) => `api/layers/GetJSONFeatures?LayerId=${layerId}`,
-        getInfo: (layerId, feautureId) => `api/layers/GetJSONFeature?LayerId=${layerId}&FeatureId=${feautureId}`,
-        create: (layerId) => `api/layers/CreateJSONFeature?LayerId=${layerId}`,
-        updateById: (layerId, feautureId) => `api/layers/UpdateJSONFeature?LayerId=${layerId}&id=${feautureId}`,
-        deleteById: (layerId, feautureId) => `api/layers/DeleteJSONFeature?LayerId=${layerId}&id=${feautureId}`
+        getAllGeo: (layerId) => `api/Layers/GetGeoJSONFeatures?LayerId=${layerId}`,
+        getFeatureGeoJSONById: (layerId, feautureId) => `api/Layers/GetGeoJSONFeature?LayerId=${layerId}&FeatureId=${feautureId}`,
+        getAllInfo: (layerId) => `api/Layers/GetJSONFeatures?LayerId=${layerId}`,
+        getInfo: (layerId, feautureId) => `api/Layers/GetJSONFeature?LayerId=${layerId}&FeatureId=${feautureId}`,
+        create: (layerId, withCadastralData) => `api/Layers/CreateJSONFeature?LayerId=${layerId}&withCadastralData=${withCadastralData}`,
+        updateById: (layerId, feautureId) => `api/Layers/UpdateJSONFeature?LayerId=${layerId}&id=${feautureId}`,
+        updateByIds: (layerId) => `api/Layers/UpdateJSONFeatures?LayerId=${layerId}`,
+        removeByIds: (layerId, feauturesId) => `api/Layers/RemoveGeoJSONFeature?LayerId=${layerId}&FeaturesId=${feauturesId}`,
+        updateFeatureGeometryById: (layerId, feautureId) => `api/Layers/UpdateFeatureGeometry?LayerId=${layerId}&id=${feautureId}`,
+    },
+    featuresLabel: {
+        getAllData: (layerId) => `api/Layers/GetLayerFeaturesLables?LayerId=${layerId}`,
+        getUserLabels: () => `api/Layers/GetLables?`,
+        createUserLabel: () => `api/Layers/CreateLables?`,
+        deleteUserLabel: (labelId) => `api/Layers/DeleteLables?LabelId=${labelId}`,
+        updateUserLabel: (labelId) => `api/Layers/UpdateLables?LabelId=${labelId}`,
+    },
+    cadastralDataEdit: {
+        create: (layerId, featureId) => `api/Layers/CreateFeatureCadastralInfo?LayerId=${layerId}&FeatureId=${featureId}`,
+        updateByCn: (layerId, cadastralNumber) => `api/Layers/UpdateFeatureCadastralInfo?LayerId=${layerId}&cn=${cadastralNumber}`,
+        deleteById: (layerId, feautureId) => `api/Layers/DeleteJSONFeature?LayerId=${layerId}&id=${feautureId}`,
     },
     additionalCharacters: {
-        getAll: (layerId, feautureId) => `api/layers/GetAdditionalCharacters?LayerId=${layerId}&FeatureId=${feautureId}`,
-        getById: (layerId, additionalCharacterId) => `api/layers/GetAdditionalCharacter?LayerId=${layerId}&id=${additionalCharacterId}`,
-        create: (layerId, feautureId) => `api/layers/CreateAdditionalCharacter?LayerId=${layerId}&FeatureId=${feautureId}`,
-        updateById: (layerId, additionalCharacterId) => `api/layers/UpdateAdditionalCharacter?LayerId=${layerId}&id=${additionalCharacterId}`,
-        deleteById: (layerId, additionalCharacterId) => `api/layers/DeleteAdditionalCharacter?LayerId=${layerId}&id=${additionalCharacterId}`
+        getAll: (layerId, feautureId) => `api/Layers/GetAdditionalCharacters?LayerId=${layerId}&FeatureId=${feautureId}`,
+        getById: (layerId, additionalCharacterId) => `api/Layers/GetAdditionalCharacter?LayerId=${layerId}&id=${additionalCharacterId}`,
+        create: (layerId, feautureId) => `api/Layers/CreateAdditionalCharacter?LayerId=${layerId}&FeatureId=${feautureId}`,
+        updateById: (layerId, additionalCharacterId) => `api/Layers/UpdateAdditionalCharacter?LayerId=${layerId}&id=${additionalCharacterId}`,
+        deleteById: (layerId, additionalCharacterId) => `api/Layers/DeleteAdditionalCharacter?LayerId=${layerId}&id=${additionalCharacterId}`
+    },
+    events: {
+        getAll: (layerId, feautureId) => `api/Layers/GetEvents?LayerId=${layerId}&FeatureId=${feautureId}`,
+        getById: (layerId, eventId) => `api/Layers/GetEvent?LayerId=${layerId}&EventId=${eventId}`,
+        create: (layerId, feautureId) => `api/Layers/CreateEvent?LayerId=${layerId}&FeatureId=${feautureId}`,
+        updateById: (layerId, eventId) => `api/Layers/UpdateEvent?LayerId=${layerId}&EventId=${eventId}`,
+        deleteById: (layerId, eventId) => `api/Layers/DeleteEvent?LayerId=${layerId}&EventId=${eventId}`
     }
 }
 
 export interface LayerOptions {
     id: string;
     dataUrl: string;
+    labelUrl: string;
     labelName: string;
     visible: boolean;
     maxZoom: number;
@@ -76,7 +99,9 @@ export class OverLaysService {
                 this.leafletLayers = layers.map(layer => {
                     layer.layer_schema.options.id = layer.id;
                     layer.layer_schema.options.dataUrl = LayersLinks.featuresEdit.getAllGeo(layer.id);
-                    return new TDMap.Service.GeoJSONService(layer.layer_schema.options);
+                    layer.layer_schema.options.labelUrl = LayersLinks.featuresLabel.getAllData(layer.id);
+                    this.MapService.getMap().createPane(layer.id);
+                    return new TDMap.Service.GeoJSONService(layer.layer_schema.options, layer.layer_schema.properties);
                 });
                 this.layersSchemas = layers;
                 this.layersChange.next(1);
@@ -90,6 +115,12 @@ export class OverLaysService {
             layer.options.visible = true;
             layerSchema.layer_schema.options.visible = true;
             layer.addTo(this.MapService.getMap());
+
+            const setContrast = (e) => e.layer.setStyle({ fillOpacity: 0.9 });
+            const setPlain = (e) => e.layer.setStyle({ fillOpacity: 0.4 });
+            layer.on('mouseover', setContrast)
+            layer.on('mouseout', setPlain)
+
             this.visibleLayers.next(this.visibleLayers.getValue().concat([layerId]))
         }
     };
@@ -153,3 +184,5 @@ export class OverLaysService {
         if (layer.selections) layer.selections.setTempFeature(feature);
     }
 }
+
+

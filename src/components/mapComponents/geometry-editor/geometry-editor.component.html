@@ -1,0 +1,56 @@
+<button mat-fab [color]="editToolsIsActive ? 'accent' : 'primary'" (click)="toggleEdit()" class="speed-dial_gru" [ngClass]="isActive ? 'edit-tools-active_main' : 'edit-tools-deactive_main' ">
+   <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#ffffff" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
+  </svg>
+</button>
+<!-- <button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_undo' : editToolsIsActive }" (click)="undo()">
+ <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
+  </svg>
+</button>
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_redo' : editToolsIsActive }" (click)="redo()">
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M18.4,10.6C16.55,9 14.15,8 11.5,8C6.85,8 2.92,11.03 1.54,15.22L3.9,16C4.95,12.81 7.95,10.5 11.5,10.5C13.45,10.5 15.23,11.22 16.62,12.38L13,16H22V7L18.4,10.6Z" />
+  </svg>
+</button> -->
+
+<!-- 
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_six' : editToolsIsActive }" (click)="createMarker()">
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z" />
+  </svg>
+</button>
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_fifth' : editToolsIsActive }" (click)="createPolyline()">
+   <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M16,2V8H17.08L14.95,13H14.26L12,9.97V5H6V11H6.91L4.88,16H2V22H8V16H7.04L9.07,11H10.27L12,13.32V19H18V13H17.12L19.25,8H22V2M18,4H20V6H18M8,7H10V9H8M14,15H16V17H14M4,18H6V20H4" />
+  </svg>
+</button>
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_forth' : editToolsIsActive }" (click)="createPolygon()">
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M2,2V8H4.28L5.57,16H4V22H10V20.06L15,20.05V22H21V16H19.17L20,9H22V3H16V6.53L14.8,8H9.59L8,5.82V2M4,4H6V6H4M18,5H20V7H18M6.31,8H7.11L9,10.59V14H15V10.91L16.57,9H18L17.16,16H15V18.06H10V16H7.6M11,10H13V12H11M6,18H8V20H6M17,18H19V20H17" />
+  </svg>
+</button> -->
+
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_forth' : editToolsIsActive }" (click)="removeGeometry()">
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+  </svg>
+</button>
+
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_third' : editToolsIsActive }" (click)="cutGeometry()">
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M19,3L13,9L15,11L22,4V3M12,12.5A0.5,0.5 0 0,1 11.5,12A0.5,0.5 0 0,1 12,11.5A0.5,0.5 0 0,1 12.5,12A0.5,0.5 0 0,1 12,12.5M6,20A2,2 0 0,1 4,18C4,16.89 4.9,16 6,16A2,2 0 0,1 8,18C8,19.11 7.1,20 6,20M6,8A2,2 0 0,1 4,6C4,4.89 4.9,4 6,4A2,2 0 0,1 8,6C8,7.11 7.1,8 6,8M9.64,7.64C9.87,7.14 10,6.59 10,6A4,4 0 0,0 6,2A4,4 0 0,0 2,6A4,4 0 0,0 6,10C6.59,10 7.14,9.87 7.64,9.64L10,12L7.64,14.36C7.14,14.13 6.59,14 6,14A4,4 0 0,0 2,18A4,4 0 0,0 6,22A4,4 0 0,0 10,18C10,17.41 9.87,16.86 9.64,16.36L12,14L19,21H22V20L9.64,7.64Z" />
+  </svg>
+</button>
+
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_second' : editToolsIsActive }" (click)="unionGeometries()">
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M3,1C1.89,1 1,1.89 1,3V14C1,15.11 1.89,16 3,16H7V20C7,21.11 7.89,22 9,22H20C21.11,22 22,21.11 22,20V9C22,7.89 21.11,7 20,7H16V3C16,1.89 15.11,1 14,1H3M3,3H14V9H20V20H9V14H3V3Z" />
+  </svg>
+</button>
+
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'edit-tools-active_first' : editToolsIsActive }" (click)="saveEdits()">
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" />
+  </svg>
+</button>

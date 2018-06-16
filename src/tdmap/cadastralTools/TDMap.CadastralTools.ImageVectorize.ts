@@ -10,7 +10,7 @@ export class ImageVectorize {
 
     }
 
-    pkkImageToGeoJSON(image, map, deltaSW, deltaNE, zoom) {
+    pkkImageToGeoJSON(image, map, deltaSW, deltaNE, zoom, d) {
         // получаем список точек первого обхода
         let pathPoints = MSQR(image, {
             tolerance: 1.5,
@@ -74,8 +74,8 @@ export class ImageVectorize {
         };
         geometry.coordinates = polygons.map(polygonItem => {
             let exterior = polygonItem.map(item => {
-                // let polygonPoint = L.point(item.x * d[1] + deltaSW.x, item.y * d[1] + deltaNE.y);
-                // return [map.unproject(polygonPoint, zoom).lng, map.unproject(polygonPoint, zoom).lat];
+                let polygonPoint = L.point(item.x * d[1] + deltaSW.x, item.y * d[1] + deltaNE.y);
+                return [map.unproject(polygonPoint, zoom).lng, map.unproject(polygonPoint, zoom).lat];
             })
             if (polygonItem.length) exterior.push(exterior[0]);
             return [exterior];
@@ -83,8 +83,8 @@ export class ImageVectorize {
 
         let arrayOfHoles = holes.map(holeItem => {
             let hole = holeItem.map(item => {
-                // let holePoint = L.point(item.x * d[1] + deltaSW.x, item.y * d[1] + deltaNE.y);
-                // return [map.unproject(holePoint, zoom).lng, map.unproject(holePoint, zoom).lat];
+                let holePoint = L.point(item.x * d[1] + deltaSW.x, item.y * d[1] + deltaNE.y);
+                return [map.unproject(holePoint, zoom).lng, map.unproject(holePoint, zoom).lat];
             })
             if (holeItem.length) hole.push(hole[0]);
 

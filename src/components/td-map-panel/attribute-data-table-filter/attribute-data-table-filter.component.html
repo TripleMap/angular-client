@@ -1,8 +1,10 @@
 <div mat-sort-header>
     <ng-content></ng-content>
 </div>
-<button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="columnData.columnType !== 'findDate'">
-  <mat-icon fontSet="mdi" fontIcon="mdi-filter" color='accent' [color]="isActive? 'accent': ''"></mat-icon>
+<button mat-icon-button [matMenuTriggerFor]="menu"> 
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path [attr.fill]="isActive? '#ff6d00': '#0000008a'"   d="M15,19.88C15.04,20.18 14.94,20.5 14.71,20.71C14.32,21.1 13.69,21.1 13.3,20.71L9.29,16.7C9.06,16.47 8.96,16.16 9,15.87V10.75L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L15,10.75V19.88M7.04,5L11,10.06V15.58L13,17.58V10.05L16.96,5H7.04Z" />
+    </svg>
 </button>
 <mat-menu #menu="matMenu" class="attribute-data-table-filter-mat-menu-content">
     <form [formGroup]="filterForm" style="display: flex;flex-direction: column;">
@@ -10,10 +12,17 @@
             <mat-form-field (click)="$event.stopPropagation()" style="flex:1;">
                 <input matInput placeholder="" formControlName="findSimple">
             </mat-form-field>
-            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findSimpleNull">нет значений</mat-checkbox>
+            <div style="display: flex;flex-direction: row; justify-content: space-between;">
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findSimpleNull">нет значений</mat-checkbox>
+                <button mat-icon-button (click)="clearForm()"> 
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="#000000" d="M14.76,20.83L17.6,18L14.76,15.17L16.17,13.76L19,16.57L21.83,13.76L23.24,15.17L20.43,18L23.24,20.83L21.83,22.24L19,19.4L16.17,22.24L14.76,20.83M12,12V19.88C12.04,20.18 11.94,20.5 11.71,20.71C11.32,21.1 10.69,21.1 10.3,20.71L8.29,18.7C8.06,18.47 7.96,18.16 8,17.87V12H7.97L2.21,4.62C1.87,4.19 1.95,3.56 2.38,3.22C2.57,3.08 2.78,3 3,3V3H17V3C17.22,3 17.43,3.08 17.62,3.22C18.05,3.56 18.13,4.19 17.79,4.62L12.03,12H12Z" />
+                </svg>
+            </button>
+            </div>
         </ng-container>
         <ng-container *ngIf="columnData.columnType === 'findBoolean'">
-            <div fxLayout="column" style="flex:1;">
+            <div style="display: flex;flex-direction: column; flex:1;">
                 <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanTrue">да</mat-checkbox>
                 <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanFalse">нет</mat-checkbox>
                 <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findBooleanNull">нет значений</mat-checkbox>
@@ -28,8 +37,44 @@
                     <input matInput placeholder="до" formControlName="findNumberTo">
                 </mat-form-field>
             </div>
-            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findNumberNull">нет значений</mat-checkbox>
+            <div style="display: flex;flex-direction: row; justify-content: space-between;">
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findNumberNull">нет значений</mat-checkbox>
+                <button mat-icon-button (click)="clearForm()"> 
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                        <path fill="#000000" d="M14.76,20.83L17.6,18L14.76,15.17L16.17,13.76L19,16.57L21.83,13.76L23.24,15.17L20.43,18L23.24,20.83L21.83,22.24L19,19.4L16.17,22.24L14.76,20.83M12,12V19.88C12.04,20.18 11.94,20.5 11.71,20.71C11.32,21.1 10.69,21.1 10.3,20.71L8.29,18.7C8.06,18.47 7.96,18.16 8,17.87V12H7.97L2.21,4.62C1.87,4.19 1.95,3.56 2.38,3.22C2.57,3.08 2.78,3 3,3V3H17V3C17.22,3 17.43,3.08 17.62,3.22C18.05,3.56 18.13,4.19 17.79,4.62L12.03,12H12Z" />
+                    </svg>
+                </button>
+            </div>
         </ng-container>
+
+
+        <ng-container *ngIf="columnData.columnType === 'findDate'">
+            <div style="flex:1;display:flex; flex-direction:row">
+                <mat-form-field (click)="$event.stopPropagation()" style="flex:0.5; width:128px;">
+                    <input matInput [matDatepicker]="reportdatestart" placeholder="Дата начала" (focus)="reportdatestart.open()" formControlName="findDateFrom" [max]="maxDateValue">
+                    <mat-datepicker-toggle matSuffix [for]="reportdatestart"></mat-datepicker-toggle>
+                    <mat-datepicker #reportdatestart></mat-datepicker>
+                    <mat-error *ngIf="filterForm.get('findDateFrom').hasError('pattern')"> Неправильно введена дата </mat-error>
+                </mat-form-field>
+
+                <mat-form-field (click)="$event.stopPropagation()" style="flex:0.5;margin-left:8px;width:128px;">
+                    <input matInput [matDatepicker]="reportdateend" placeholder="Дата конца" (focus)="reportdateend.open()" formControlName="findDateTo" [max]="maxDateValue">
+                    <mat-datepicker-toggle matSuffix [for]="reportdateend"></mat-datepicker-toggle>
+                    <mat-datepicker #reportdateend></mat-datepicker>
+                    <mat-error *ngIf="filterForm.get('findDateTo').hasError('pattern')"> Неправильно введена дата </mat-error>
+                </mat-form-field>
+            </div>
+            <div style="display: flex;flex-direction: row; justify-content: space-between;">
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findDateNull">нет значений</mat-checkbox>
+                <button mat-icon-button (click)="clearForm()"> 
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                        <path fill="#000000" d="M14.76,20.83L17.6,18L14.76,15.17L16.17,13.76L19,16.57L21.83,13.76L23.24,15.17L20.43,18L23.24,20.83L21.83,22.24L19,19.4L16.17,22.24L14.76,20.83M12,12V19.88C12.04,20.18 11.94,20.5 11.71,20.71C11.32,21.1 10.69,21.1 10.3,20.71L8.29,18.7C8.06,18.47 7.96,18.16 8,17.87V12H7.97L2.21,4.62C1.87,4.19 1.95,3.56 2.38,3.22C2.57,3.08 2.78,3 3,3V3H17V3C17.22,3 17.43,3.08 17.62,3.22C18.05,3.56 18.13,4.19 17.79,4.62L12.03,12H12Z" />
+                    </svg>
+                </button>
+            </div>
+        </ng-container>
+
+
         <ng-container *ngIf="columnData.columnType === 'findMany'">
             <mat-form-field style="flex:1;">
                 <mat-select formControlName="findMany" class="attribute-fiter-select" multiple="true">
@@ -38,7 +83,14 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findManyNull">нет значений</mat-checkbox>
+            <div style="display: flex;flex-direction: row; justify-content: space-between;">
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findManyNull">нет значений</mat-checkbox>
+                <button mat-icon-button (click)="clearForm()"> 
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                        <path fill="#000000" d="M14.76,20.83L17.6,18L14.76,15.17L16.17,13.76L19,16.57L21.83,13.76L23.24,15.17L20.43,18L23.24,20.83L21.83,22.24L19,19.4L16.17,22.24L14.76,20.83M12,12V19.88C12.04,20.18 11.94,20.5 11.71,20.71C11.32,21.1 10.69,21.1 10.3,20.71L8.29,18.7C8.06,18.47 7.96,18.16 8,17.87V12H7.97L2.21,4.62C1.87,4.19 1.95,3.56 2.38,3.22C2.57,3.08 2.78,3 3,3V3H17V3C17.22,3 17.43,3.08 17.62,3.22C18.05,3.56 18.13,4.19 17.79,4.62L12.03,12H12Z" />
+                    </svg>
+                </button>
+            </div>
         </ng-container>
         <ng-container *ngIf="columnData.columnType === 'findOne'">
             <mat-form-field style="flex:1;">
@@ -48,7 +100,32 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findOneNull">нет значений</mat-checkbox>
+            <div style="display: flex;flex-direction: row; justify-content: space-between;">
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findOneNull">нет значений</mat-checkbox>
+                <button mat-icon-button (click)="clearForm()"> 
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                        <path fill="#000000" d="M14.76,20.83L17.6,18L14.76,15.17L16.17,13.76L19,16.57L21.83,13.76L23.24,15.17L20.43,18L23.24,20.83L21.83,22.24L19,19.4L16.17,22.24L14.76,20.83M12,12V19.88C12.04,20.18 11.94,20.5 11.71,20.71C11.32,21.1 10.69,21.1 10.3,20.71L8.29,18.7C8.06,18.47 7.96,18.16 8,17.87V12H7.97L2.21,4.62C1.87,4.19 1.95,3.56 2.38,3.22C2.57,3.08 2.78,3 3,3V3H17V3C17.22,3 17.43,3.08 17.62,3.22C18.05,3.56 18.13,4.19 17.79,4.62L12.03,12H12Z" />
+                    </svg>
+                </button>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="columnData.columnType === 'findUser'">
+            <mat-form-field style="flex:1;">
+                <mat-select formControlName="findUser" class="attribute-fiter-select" multiple="false">
+                    <mat-option *ngFor="let currentProperty of columnData.currentProperties" [value]="currentProperty">
+                        {{ currentProperty.username }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div style="display: flex;flex-direction: row; justify-content: space-between;">
+                <mat-checkbox (click)="$event.stopPropagation()" disableRipple="true" style="padding: 2px 4px;" formControlName="findUserNull">нет значений</mat-checkbox>
+                <button mat-icon-button (click)="clearForm()"> 
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                        <path fill="#000000" d="M14.76,20.83L17.6,18L14.76,15.17L16.17,13.76L19,16.57L21.83,13.76L23.24,15.17L20.43,18L23.24,20.83L21.83,22.24L19,19.4L16.17,22.24L14.76,20.83M12,12V19.88C12.04,20.18 11.94,20.5 11.71,20.71C11.32,21.1 10.69,21.1 10.3,20.71L8.29,18.7C8.06,18.47 7.96,18.16 8,17.87V12H7.97L2.21,4.62C1.87,4.19 1.95,3.56 2.38,3.22C2.57,3.08 2.78,3 3,3V3H17V3C17.22,3 17.43,3.08 17.62,3.22C18.05,3.56 18.13,4.19 17.79,4.62L12.03,12H12Z" />
+                    </svg>
+                </button>
+            </div>
         </ng-container>
     </form>
 </mat-menu>

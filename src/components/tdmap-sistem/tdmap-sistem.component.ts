@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef, AfterViewInit } from '@angular/core';
-import { MediaChange, ObservableMedia } from "@angular/flex-layout";
+import { Component, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+
 import { AuthService } from '../../auth/auth-service'
 
 @Component({
@@ -15,11 +15,8 @@ export class TdmapSistem implements AfterViewInit {
   public isAttributeItemActive: boolean = false;
   constructor(
     public changeDetectorRef: ChangeDetectorRef,
-    public media: ObservableMedia,
     public AuthService: AuthService
-  ) {
-    media.subscribe((change: MediaChange) => (this.activeMediaQuery = change ? change.mqAlias : ""));
-  }
+  ) { }
 
   ngAfterViewInit(): void {
     this.changeDetectorRef.detectChanges();

@@ -2,7 +2,7 @@
     <form [formGroup]="registerForm" (submit)="registration()">
         <mat-card-title> Регистрация </mat-card-title>
         <mat-card-content>
-            <section fxLayout="column">
+            <section style="display:flex;flex-direction:column;">
                 <mat-form-field>
                     <input matInput placeholder="Ваше имя" formControlName="name">
                     <mat-icon matSuffix>perm_identity</mat-icon>

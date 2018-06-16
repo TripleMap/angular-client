@@ -1,0 +1,62 @@
+<div style="display: flex;flex-direction: column; justify-content: space-between; width: 100%;height: 100%;">
+    <label mat-dialog-title style="padding: 0;min-height: 36px;height: 36px;margin:0;">
+        Выберете объект для слияния.
+    </label>
+    <mat-dialog-content style="padding: 16px;">
+        <mat-accordion multi="true">
+
+            <mat-expansion-panel *ngFor="let featureData of featuresData;" expanded="true">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-checkbox [checked]="mainFeatureIdToUnion === featureData.id" (change)="setMainFeatureIdToUnion(featureData.id)" (click)="$event.stopPropagation()" disableRipple="true">
+                            {{featureData.cn ? featureData.cn : featureData.id }}
+                        </mat-checkbox>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <ng-container *ngFor='let column of attributeColumns; let keyIndex = index'>
+                    <div style=" display:flex;flex-direction:row;" class="feature-info-elements_element" [ngClass]="{ 'zebra': keyIndex %2 !==0 } ">
+                        <label class="feature-attribute-key nonedit-feature-attribute-key">{{column.label}}</label>
+
+                        <ng-container *ngIf="column.columnType==='findBoolean'">
+                            <label class="feature-attribute-value" *ngIf="featureData[column.name] ">Да</label>
+                            <label class="feature-attribute-value" *ngIf="!featureData[column.name] && featureData[column.name] !== false">Нет значения</label>
+                            <label class="feature-attribute-value" *ngIf="featureData[column.name] === false">Нет</label>
+                        </ng-container>
+                        <ng-container *ngIf="column.columnType==='findMany'">
+                            <div class="feature-attribute-value">
+                                <ng-container *ngFor="let fyndManyItem of featureData[ '_' + column.name]; let i=i ndex">
+                                    <label>{{i+1}}) {{fyndManyItem.description}} </label>
+                                    <br/>
+                                </ng-container>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="column.columnType==='findOne'">
+                            <div class="feature-attribute-value ">
+                                <label *ngIf="featureData[ '_' + column.name]">{{ featureData['_' + column.name].description}} </label>
+                                <label *ngIf="!featureData[ '_' + column.name]"></label>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="column.columnType==='findSimple'">
+                            <div *ngIf="linkDetector(featureData[column.name])" class="feature-attribute-value">
+                                <a href="{{featureData[column.name]}} ">{{featureData[column.name]}}</a>
+                            </div>
+                            <label *ngIf="!linkDetector(featureData[column.name])" class="feature-attribute-value"> {{featureData[column.name]}} </label>
+                        </ng-container>
+                        <ng-container *ngIf="column.columnType==='findNumber'">
+                            <label class="feature-attribute-value "> {{featureData[column.name]}} </label>
+                        </ng-container>
+                        <ng-container *ngIf="column.columnType==='findDate'">
+                            <label class="feature-attribute-value">{{ featureData[column.name] | date:"dd.MM.yyyy "}} </label>
+                        </ng-container>
+
+                    </div>
+                </ng-container>
+            </mat-expansion-panel>
+
+        </mat-accordion>
+    </mat-dialog-content>
+    <mat-dialog-actions style="padding: 4px;min-height: 38px;height: 38px; ">
+        <button mat-button color="primary" (click)="cancel()">Отмена</button>
+        <button mat-button color="primary" (click)="sendResult()">Далее</button>
+    </mat-dialog-actions>
+</div>

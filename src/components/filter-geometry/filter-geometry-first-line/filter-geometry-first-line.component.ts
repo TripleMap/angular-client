@@ -1,13 +1,6 @@
 import { Component, AfterViewInit, Input } from "@angular/core";
-import {
-	FormControl,
-	FormGroup,
-	FormBuilder,
-	Validators
-} from "@angular/forms";
-
+import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { FilterGeometryAdapter } from "../../../services/FilterGeometryAdapter";
-import "rxjs/add/operator/filter";
 
 @Component({
 	selector: "filter-geometry-first-line",

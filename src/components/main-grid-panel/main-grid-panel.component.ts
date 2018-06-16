@@ -1,5 +1,5 @@
-import { Component, Input, ChangeDetectionStrategy, AfterViewInit, OnChanges, ViewChild, ViewChildren, QueryList } from '@angular/core';
-import { CompactType, DisplayGrid, GridsterComponentInterface, GridsterConfig, GridsterItem, GridsterItemComponentInterface, GridType, GridsterItemComponent } from 'angular-gridster2';
+import { Component, Input, ViewChild, ViewChildren, QueryList } from '@angular/core';
+import { CompactType, DisplayGrid, GridsterConfig, GridsterItem, GridType, GridsterItemComponent } from 'angular-gridster2';
 import { MapService } from "../../services/MapService";
 import { TdMapPanelComponent } from '../td-map-panel/td-map-panel.component';
 
@@ -99,7 +99,7 @@ export class MainGridPanelComponent {
 
       setTimeout(() => {
         if (this.gridsterItems && this.gridsterItems.length === 1) {
-          let tdmap = this.gridsterItems.forEach(gridsterItem => {
+          this.gridsterItems.forEach(gridsterItem => {
             if (gridsterItem.item.id === 'tdmap') {
               gridsterItem.$item.cols = 16;
               gridsterItem.$item.rows = 8;
@@ -122,7 +122,7 @@ export class MainGridPanelComponent {
 
   toggleAttributeItem(attributeItemActiveValueChanges) {
     if (attributeItemActiveValueChanges) {
-      let tdmap = this.gridsterItems.forEach(gridsterItem => {
+      this.gridsterItems.forEach(gridsterItem => {
         if (gridsterItem.item.id === 'tdmap') {
           gridsterItem.$item.cols = 10;
           gridsterItem.$item.rows = 8;
@@ -143,7 +143,7 @@ export class MainGridPanelComponent {
       }
       setTimeout(() => {
         if (this.gridsterItems && this.gridsterItems.length === 1) {
-          let tdmap = this.gridsterItems.forEach(gridsterItem => {
+          this.gridsterItems.forEach(gridsterItem => {
             if (gridsterItem.item.id === 'tdmap') {
               gridsterItem.$item.cols = 16;
               gridsterItem.$item.rows = 8;

@@ -1,19 +1,19 @@
-<mat-toolbar color="primary" class="toolbar" fxLayout="row" fxLayoutAlign="space-between center">
-    <div fxLayout="row" *ngIf="activeMediaQuery === 'xs'">
+<mat-toolbar color="primary" class="toolbar" style="display:flex;flex-direction:row;align-items: center;justify-content: space-between;">
+    <div style="display:flex;flex-direction:row;">
         <button mat-icon-button (click)="toggleSideNav()">
             <mat-icon>keyboard_backspace</mat-icon>
         </button>
     </div>
     <mat-form-field class="filter-layer-select dark-theme">
         <mat-select placeholder="слой фильтрации" [formControl]="filterLayerFormControl">
-            <mat-option *ngFor="let layer of avaliableLayers" [value]="layer">{{ layer.labelName }} </mat-option>
+            <mat-option *ngFor="let layer of avaliableLayers" [value]="layer">{{ layer.layer_schema.labelName }} </mat-option>
         </mat-select>
     </mat-form-field>
     <button mat-icon-button (click)="clearFilters()">
         <mat-icon>cached</mat-icon>
     </button>
 </mat-toolbar>
-<div class="filter-wrapper" fxLayout="column">
+<div class="filter-wrapper" style="display:flex;flex-direction:column;">
     <filter-geometry-first-line [isActive]="isFiltersActive"></filter-geometry-first-line>
     <button class='filter-pane-toggler' mat-raised-button [color]="isResultPaneAvalible ? 'accent' : 'primary'" (click)="changeFilterOrResultPane()">
         {{ isFiltersActive ? 'Показать результаты': 'Назад к фильтрам'}} {{isResultPaneCounts && isFiltersActive? '(' + isResultPaneCounts + ')' : '' }}

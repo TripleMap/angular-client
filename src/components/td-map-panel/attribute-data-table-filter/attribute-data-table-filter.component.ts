@@ -1,6 +1,7 @@
-import { Component, Directive, OnInit, Input, ViewEncapsulation, ViewContainerRef, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
-import { FormControl, FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { FilterGeometryAdapter } from '../../../services/FilterGeometryAdapter'
+import { Component, OnInit, Input, ViewEncapsulation, ViewContainerRef, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from "@angular/forms";
+
+import * as moment from 'moment';
 @Component({
   selector: "attribute-data-table-filter",
   templateUrl: './attribute-data-table-filter.component.html',
@@ -14,6 +15,7 @@ export class AttributeDataTableFilterComponent implements OnInit {
   @Input() filterDataLayer;
   @Output() filterChange: EventEmitter<object> = new EventEmitter<object>();
   public filterForm: FormGroup;
+  public maxDateValue: Date = new Date();
   public isActive: boolean = false;
   constructor(
     public container: ViewContainerRef,
@@ -41,6 +43,12 @@ export class AttributeDataTableFilterComponent implements OnInit {
       });
     } else if (this.columnData.columnType === 'findDate') {
       this.filterForm = this.fb.group({
+        findDateFrom: null,
+        findDateTo: null,
+        findDateNull: false
+      });
+    } else if (this.columnData.columnType === 'findDate') {
+      this.filterForm = this.fb.group({
         findSimple: '',
         findSimpleNull: false
       });
@@ -54,8 +62,12 @@ export class AttributeDataTableFilterComponent implements OnInit {
         findOne: null,
         findOneNull: false
       });
+    } else if (this.columnData.columnType === 'findUser') {
+      this.filterForm = this.fb.group({
+        findUser: null,
+        findUserNull: false
+      });
     }
-
 
 
     this.filterForm.valueChanges
@@ -82,7 +94,10 @@ export class AttributeDataTableFilterComponent implements OnInit {
     }
 
     if (this.columnData.columnType === 'findOne') {
-      filters.findOne = filters.findOne ? filters.findOne.length ? filters.findOne : null : null;
+      filters.findOne = filters.findOne ? filters.findOne : null;
+    }
+    if (this.columnData.columnType === 'findUser') {
+      filters.findUser = filters.findUser ? filters.findUser : null;
     }
 
     return filters;
@@ -108,16 +123,32 @@ export class AttributeDataTableFilterComponent implements OnInit {
     } else if (this.columnData.columnType === 'findOne') {
       this.filterForm.get('findOne').setValue(null);
       this.filterForm.get('findOneNull').setValue(false);
+    } else if (this.columnData.columnType === 'findUser') {
+      this.filterForm.get('findUser').setValue(null);
+      this.filterForm.get('findUserNull').setValue(false);
+    } else if (this.columnData.columnType === 'findDate') {
+      this.filterForm.get('findDateFrom').setValue(null);
+      this.filterForm.get('findDateTo').setValue(null);
+      this.filterForm.get('findDateNull').setValue(false);
     }
     this.isActive = false;
   }
 
   filterData(filterValue) {
     let filterValues = null;
-
     switch (this.columnData.columnType) {
-      case 'findSimple':
       case 'findDate':
+        if (filterValue.findDateFrom || filterValue.findDateTo || filterValue.findDateNull) {
+          filterValues = {
+            values: {
+              from: filterValue.findDateFrom ? filterValue.findDateFrom.unix() * 1000 : null,
+              to: filterValue.findDateTo ? moment(filterValue.findDateTo).add(1, "day").unix() * 1000 : null,
+            },
+            noop: filterValue.findDateNull
+          };
+        }
+        break;
+      case 'findSimple':
         if (filterValue.findSimple || filterValue.findSimpleNull) {
           filterValues = {
             values: filterValue.findSimple,
@@ -160,6 +191,14 @@ export class AttributeDataTableFilterComponent implements OnInit {
           filterValues = {
             values: filterValue.findOne,
             noop: filterValue.findOneNull
+          };
+        }
+        break;
+      case 'findUser':
+        if (filterValue.findUser || filterValue.findUserNull) {
+          filterValues = {
+            values: filterValue.findUser,
+            noop: filterValue.findUserNull
           };
         }
         break;

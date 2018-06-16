@@ -1,0 +1,66 @@
+<mat-dialog-content>
+
+    <ng-container *ngIf="feature">
+        <form class="feature-info-elements" [formGroup]="orderForm">
+            <ng-container *ngFor='let column of columns; let keyIndex = index'>
+                <div style="display:flex;flex-direction:row;" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}">
+                    <label class="feature-attribute-key nonedit-feature-attribute-key">{{column.label}}</label>
+                    <ng-container *ngIf="column.columnType === 'findSimple' || column.columnType === 'findNumber'">
+                        <mat-form-field class="feature-attribute-value">
+                            <input matInput [value]="feature[column.name]" [formControlName]="column.name" [attr.maxlength]="(column.dataLength && column.tableType==='varchar' ) ? column.dataLength : false">
+                            <mat-hint *ngIf="column.userFilling">Обязательный атрибут</mat-hint>
+                            <mat-hint align="end" *ngIf="column.dataLength && column.tableType==='varchar'">
+                                <span aria-live="polite" *ngIf="!getFormControl(column.name).value">0 / {{ column.dataLength }}</span>
+                                <span aria-live="polite" *ngIf="getFormControl(column.name).value">{{getFormControl(column.name).value.length}} / {{ column.dataLength }}</span>
+                            </mat-hint>
+                            <mat-hint align="end" *ngIf="column.columnType === 'findNumber'">
+                                <span aria-live="polite" *ngIf="!getFormControl(column.name).value && column.tableType === 'integer'">0 / 20</span>
+                                <span aria-live="polite" *ngIf="getFormControl(column.name).value && column.tableType === 'integer'">{{getFormControl(column.name).value.length}} / 20</span>
+                                <span aria-live="polite" *ngIf="!getFormControl(column.name).value && column.tableType === 'double'">0 / 21</span>
+                                <span aria-live="polite" *ngIf="getFormControl(column.name).value && column.tableType === 'double'">{{getFormControl(column.name).value.length}} / 41</span>
+                            </mat-hint>
+                            <mat-error *ngIf="getFormControl(column.name).hasError('required')">
+                                <strong>Обязательный</strong> атрибут
+                            </mat-error>
+                        </mat-form-field>
+                    </ng-container>
+                    <ng-container *ngIf="column.columnType === 'findDate'">
+                        <mat-form-field class="feature-attribute-value">
+                            <input matInput [matDatepicker]="picker" [formControlName]="column.name">
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                    </ng-container>
+
+                    <ng-container *ngIf="column.columnType === 'findBoolean'">
+                        <mat-checkbox class="feature-attribute-value" [value]="feature[column.name]" disableRipple="true" [formControlName]="column.name" [indeterminate]="feature[column.name] === null"></mat-checkbox>
+                    </ng-container>
+                    <ng-container *ngIf="column.columnType === 'findMany' || column.columnType === 'findOne'">
+                        <mat-form-field class="feature-attribute-value">
+                            <mat-select [ngModel]="feature['_' + column.name]" [multiple]="column.columnType === 'findMany'" [compareWith]="compareFn" [formControlName]="column.name">
+                                <mat-option style="font-size:14px;" [value]="null" *ngIf="column.columnType === 'findOne'">удалить значение</mat-option>
+                                <mat-option style="font-size:14px;" *ngFor="let prop of column.avaliableProperties" [value]="prop">{{prop.description}}</mat-option>
+                            </mat-select>
+                            <mat-hint *ngIf="column.userFilling">Обязательный атрибут</mat-hint>
+                        </mat-form-field>
+                    </ng-container>
+
+                    <ng-container *ngIf="column.columnType === 'findUser'">
+                        <mat-form-field class="feature-attribute-value">
+                            <mat-select [ngModel]="feature['_' + column.name]" [compareWith]="compareFn" [formControlName]="column.name">
+                                <mat-option style="font-size:14px;" [value]="null">удалить значение</mat-option>
+                                <mat-option style="font-size:14px;" *ngFor="let prop of column.avaliableProperties" [value]="prop">{{prop.username}}</mat-option>
+                            </mat-select>
+                            <mat-hint *ngIf="column.userFilling">Обязательный атрибут</mat-hint>
+                        </mat-form-field>
+                    </ng-container>
+                </div>
+            </ng-container>
+        </form>
+    </ng-container>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="close()" color="primary">Отмена</button>
+    <button mat-button (click)="save()" [color]="saveEnable ? 'success' : 'accent'">Сохранить</button>
+</mat-dialog-actions>

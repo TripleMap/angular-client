@@ -81,8 +81,11 @@ export class TDMapManagerConstructor {
         this._map = L.map(mapDivId, mapOptions);
         if (managerOptions && managerOptions.memorize) {
             this.restoreMapPosition();
+            this._map.on('moveend', this.updateHashOnPositionChange.bind(this));
+            window.addEventListener('hashchange', this.updatePositionOnHashChange.bind(this));
         }
     }
+
 
     restoreMapPosition() {
         let zoom, lat, lng;
@@ -100,6 +103,15 @@ export class TDMapManagerConstructor {
             lng = Number(lngState);
         }
 
+        let hash = window.location.hash;
+        let hashParams = this.parseHash(hash);
+
+        if (hashParams) {
+            lat = hashParams.center[0];
+            lng = hashParams.center[1];
+            zoom = hashParams.zoom;
+        }
+
         if (zoom && lat && lng) {
             this._map.setView([lat, lng], zoom);
         }
@@ -111,6 +123,44 @@ export class TDMapManagerConstructor {
         };
 
         window.addEventListener("beforeunload", saveMapState);
+    }
+
+
+    parseHash(hash) {
+        if (hash.indexOf('#') === 0) hash = hash.substr(1);
+
+        const hashParams = hash.split("/");
+        if (hashParams.length === 3) {
+            let zoom = parseInt(hashParams[2], 10),
+                lat = parseFloat(hashParams[0]),
+                lng = parseFloat(hashParams[1]);
+
+            return (isNaN(zoom) || isNaN(lat) || isNaN(lng)) ? false : { center: [lat, lng], zoom };
+        } else {
+            return false;
+        }
+    }
+
+    updatePositionOnHashChange(e) {
+        let hash = window.location.hash;
+        let hashParams = this.parseHash(hash);
+
+        let center, zoom;
+        if (hashParams) {
+            center = hashParams.center;
+            zoom = hashParams.zoom;
+            this._map.setView(center, zoom);
+        }
+    }
+
+    updateHashOnPositionChange() {
+        let newHash;
+        let zoom = this._map.getZoom();
+        let center = this._map.getCenter();
+
+        if (zoom && center.lat && center.lng) newHash = `#${center.lat}/${center.lng}/${zoom}`;
+        if (newHash) window.location.hash = newHash;
+
     }
 
     updateMapPosition(latLng, zoom) {

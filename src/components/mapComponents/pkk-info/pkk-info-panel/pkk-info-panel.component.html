@@ -1,0 +1,34 @@
+<div class="feature-info-elements">
+    <ng-container *ngFor='let column of cadSchemaColumns; let keyIndex = index'>
+        <ng-container *ngIf="column.name !== 'area_unit' && column.name !== 'cad_unit' && column.name !== 'area_type'">
+            <div style="display:flex;flex-direction:row;" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}" *ngIf="column.name !=='cad_unit' && column.name !=='area_type' && column.name !=='area_unit'">
+                <label class="feature-attribute-key">{{column.label}}</label>
+                <ng-container *ngIf="column.columnType === 'findSimple'">
+                    <label class="feature-attribute-value">{{CadastralFeatureInfo[column.name]}}</label>
+                </ng-container>
+                <ng-container *ngIf="column.columnType === 'findBoolean'">
+                    <label class="feature-attribute-value" *ngIf="CadastralFeatureInfo[column.name]">Да</label>
+                    <label class="feature-attribute-value" *ngIf="CadastralFeatureInfo[column.name] === false">Нет</label>
+                    <label class="feature-attribute-value" *ngIf="CadastralFeatureInfo[column.name] !== false && CadastralFeatureInfo[column.name] !== true">Нет значения</label>
+                </ng-container>
+                <ng-container *ngIf="column.columnType === 'findOne'">
+                    <div class="feature-attribute-value">
+                        <label *ngIf="CadastralFeatureInfo[column.name]">{{ getFindOneValue(column.name, CadastralFeatureInfo[column.name])}} </label>
+                        <label *ngIf="!CadastralFeatureInfo[column.name]"></label>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="column.columnType === 'findNumber'">
+                    <ng-container *ngIf="column.name === 'cad_cost'">
+                        <label class="feature-attribute-value">{{CadastralFeatureInfo[column.name]}} {{getFindOneValue('cad_unit', CadastralFeatureInfo['cad_unit'])}}</label>
+                    </ng-container>
+                    <ng-container *ngIf="column.name === 'area_value'">
+                        <label class="feature-attribute-value">
+                                        {{getFindOneValue('area_type', CadastralFeatureInfo['area_type'])}} 
+                                        {{CadastralFeatureInfo[column.name]}} 
+                                        {{getFindOneValue('area_unit', CadastralFeatureInfo['area_unit'])}}</label>
+                    </ng-container>
+                </ng-container>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>

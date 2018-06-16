@@ -1,10 +1,10 @@
-import { Component, AfterContentInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterContentInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { MediaChange, ObservableMedia } from "@angular/flex-layout";
 import { AuthService } from '../auth-service';
-
-import { Subscription } from "rxjs/Subscription";
+import { Subscription } from "rxjs";
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/distinctUntilChanged';
 @Component({
   selector: 'login',
   templateUrl: './login.html',
@@ -16,17 +16,13 @@ import { Subscription } from "rxjs/Subscription";
 export class Login implements AfterContentInit, OnDestroy {
   public loginForm: FormGroup;
   public loginEnable: any;
-  public mediaSubscription: Subscription;
   public loginFormSubscription: Subscription;
   public invisible: boolean = false;
   constructor(
     public router: Router,
     public fb: FormBuilder,
-    public AuthService: AuthService,
-    public media: ObservableMedia
-  ) {
-    this.mediaSubscription = media.subscribe((change: MediaChange) => (console.log(change)));
-  }
+    public AuthService: AuthService
+  ) { }
   ngAfterContentInit() {
     this.loginForm = this.fb.group({
       email: new FormControl('', [Validators.required, Validators.pattern("^[-a-z0-9!#$%&'*+/=?^_`{|}~]+(?:\.[-a-z0-9!#$%&'*+/=?^_`{|}~]+)*@(?:[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?\.)*(?:aero|arpa|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-z][a-z])$")]),
@@ -41,7 +37,6 @@ export class Login implements AfterContentInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.mediaSubscription.unsubscribe();
     this.loginFormSubscription.unsubscribe();
   }
 

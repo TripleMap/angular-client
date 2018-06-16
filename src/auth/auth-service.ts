@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Router } from '@angular/router';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from "@angular/common/http";
-import { Observable } from "rxjs/Observable";
-import { MatSnackBar } from '@angular/material';
-import { Subject } from 'rxjs/subject'
+import { Observable, Subject, Subscription } from "rxjs";
+import { MessageService } from '../services/MessageService';
 import 'rxjs/add/operator/debounceTime.js';
-import { Subscription } from 'rxjs/Subscription';
 
 export let AUTH_LINKS = {
   login: 'api/Accounts/login',
@@ -50,19 +48,15 @@ interface LoginResponse {
 export class AuthService {
   public onMessageSubject: Subject<any>;
   public onSubscriber: Subscription;
-  constructor(public http: HttpClient, public router: Router, public snackBar: MatSnackBar) {
+  constructor(
+    public http: HttpClient,
+    public router: Router,
+    public MessageService: MessageService
+  ) {
     this.onMessageSubject = new Subject();
     this.onSubscriber = this.onMessageSubject
       .debounceTime(300)
-      .subscribe(message => this.errorSnack(message));
-  }
-
-  errorSnack(message) {
-    this.snackBar.open(message, null, {
-      duration: 5000,
-      panelClass: ['error-snack'],
-      horizontalPosition: 'right'
-    });
+      .subscribe(message => this.MessageService.errorMessage(message));
   }
 
   login(creditals: loginCreditals) {

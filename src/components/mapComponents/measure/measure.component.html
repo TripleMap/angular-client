@@ -1,12 +1,20 @@
 <button mat-fab [color]="measureToolsIsActive ? 'accent' : 'primary'" (click)="showMeasureTools($event)" class="speed-dial_gru" [ngClass]=" isActive ? 'measure-tools-active_main' : 'measure-tools-deactive_main' ">
-    <mat-icon fontSet="mdi" fontIcon="mdi-ruler"></mat-icon>
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#ffffff" d="M1.39,18.36L3.16,16.6L4.58,18L5.64,16.95L4.22,15.54L5.64,14.12L8.11,16.6L9.17,15.54L6.7,13.06L8.11,11.65L9.53,13.06L10.59,12L9.17,10.59L10.59,9.17L13.06,11.65L14.12,10.59L11.65,8.11L13.06,6.7L14.47,8.11L15.54,7.05L14.12,5.64L15.54,4.22L18,6.7L19.07,5.64L16.6,3.16L18.36,1.39L22.61,5.64L5.64,22.61L1.39,18.36Z" />
+</svg>
 </button>
 <button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'measure-tools-active_first' : isActive }" (click)="showMeasureTools($event)" (click)="startPolygonMeasure($event)">
-    <mat-icon fontSet="mdi" fontIcon="mdi-vector-polygon"></mat-icon>
+   <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M2,2V8H4.28L5.57,16H4V22H10V20.06L15,20.05V22H21V16H19.17L20,9H22V3H16V6.53L14.8,8H9.59L8,5.82V2M4,4H6V6H4M18,5H20V7H18M6.31,8H7.11L9,10.59V14H15V10.91L16.57,9H18L17.16,16H15V18.06H10V16H7.6M11,10H13V12H11M6,18H8V20H6M17,18H19V20H17" />
+  </svg>
 </button>
-<button mat-mini-fab  class="speed-dial_minions" color="white" [ngClass]="{ 'measure-tools-active_second' : isActive }" (click)="showMeasureTools($event)" (click)="startPolylineMeasure($event)">
-    <mat-icon fontSet="mdi" fontIcon="mdi-vector-polyline"></mat-icon>
+<button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'measure-tools-active_second' : isActive }" (click)="showMeasureTools($event)" (click)="startPolylineMeasure($event)">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M16,2V8H17.08L14.95,13H14.26L12,9.97V5H6V11H6.91L4.88,16H2V22H8V16H7.04L9.07,11H10.27L12,13.32V19H18V13H17.12L19.25,8H22V2M18,4H20V6H18M8,7H10V9H8M14,15H16V17H14M4,18H6V20H4" />
+</svg>
 </button>
 <button mat-mini-fab class="speed-dial_minions" color="white" [ngClass]="{ 'measure-tools-active_third' : isActive }" (click)="showMeasureTools($event)" (click)="stopMeasure($event)">
-    <mat-icon fontSet="mdi" fontIcon="mdi-close"></mat-icon>
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path fill="#000000" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+</svg>  
 </button>

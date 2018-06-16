@@ -1,9 +1,9 @@
 .table-wrapper {
-    height: 100%;
+    height: calc(100% - 48px);
 }
 
 .attribute-table {
-    height: calc(100% - 48px);
+    height: 100%;
     overflow: auto;
     position: relative;
 }
@@ -84,6 +84,7 @@
     text-overflow: ellipsis;
     word-wrap: normal;
     font-size: 12px;
+    white-space: nowrap;
 }
 
 .mat-row {

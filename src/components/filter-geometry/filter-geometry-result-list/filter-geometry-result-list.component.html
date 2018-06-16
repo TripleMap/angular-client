@@ -1,12 +1,12 @@
 <mat-card *ngIf="isActive" class="filter-result-card">
-    <td-virtual-scroll-container [data]="filteredList" [trackBy]="trackByFn" class="filter-result-card_list" #resultList>
+    <!-- <td-virtual-scroll-container [data]="filteredList" [trackBy]="trackByFn" class="filter-result-card_list" #resultList>
         <ng-template let-row="row" let-last="last" tdVirtualScrollRow>
             <mat-option (click)="showItemOnMap(row)">
                 <label>{{row.cn}}</label>
             </mat-option>
             <mat-divider></mat-divider>
         </ng-template>
-    </td-virtual-scroll-container>
+    </td-virtual-scroll-container> -->
     <mat-card-actions class="filter-result-card_actions">
         <button mat-button (click)="resultList.scrollToStart()"> К первому </button>
         <button mat-button (click)="resultList.scrollToEnd()"> К последнему </button>

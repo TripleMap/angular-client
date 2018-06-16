@@ -1,15 +1,12 @@
-<!-- <div color="white" class="toolbar header-feature-info-elements" fxLayout="row" fxLayoutAlign="space-between center">
-  <ng-container *ngIf="feature">
-    <label class="selected-elements-counter ">Кадастровый номер: {{ feature.cn }}</label>
-  </ng-container>
-</div> -->
-
-<mat-tab-group class="attribute-tabs" #tabs>
+<mat-tab-group class="attribute-tabs" #tabs (selectedIndexChange)="selectedTab = $event">
+    <mat-tab label="Поиск кадастровых объектов" *ngIf="CadastralFeatureInfo">
+        <pkk-info-panel></pkk-info-panel>
+    </mat-tab>
     <mat-tab label="Атрибуты">
         <ng-container *ngIf="feature">
             <form class="feature-info-elements" dnd-sortable-container [sortableData]="attributeColumns" [formGroup]="orderForm">
                 <ng-container *ngFor='let column of attributeColumns; let keyIndex = index'>
-                    <div fxLayout="row" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}" dnd-sortable [sortableIndex]="keyIndex" (onDragEnd)="updateOrder($event)">
+                    <div style="display:flex;flex-direction:row;" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}" dnd-sortable [sortableIndex]="keyIndex" (onDragEnd)="updateOrder($event)">
                         <mat-icon dnd-sortable-handle *ngIf="editMode" style="margin: auto;padding: 0 8px;">import_export</mat-icon>
                         <label class="feature-attribute-key nonedit-feature-attribute-key">{{column.label}}</label>
                         <!-- РЕЖИМ ПРОСМОТРА АТРИБУТОВ -->
@@ -33,9 +30,15 @@
                                     <label *ngIf="!feature['_' + column.name]"></label>
                                 </div>
                             </ng-container>
+                            <ng-container *ngIf="column.columnType === 'findUser'">
+                                <div class="feature-attribute-value">
+                                    <label *ngIf="feature['_' + column.name]">{{ feature['_' + column.name].username}} </label>
+                                    <label *ngIf="!feature['_' + column.name]"></label>
+                                </div>
+                            </ng-container>
                             <ng-container *ngIf="column.columnType === 'findSimple'">
                                 <div *ngIf="linkDetector(feature[column.name])" class="feature-attribute-value">
-                                    <a href="{{feature[column.name]}}">{{feature[column.name]}}</a>
+                                    <a href="{{feature[column.name]}}" target="_blank">{{feature[column.name]}}</a>
                                 </div>
                                 <label *ngIf="!linkDetector(feature[column.name])" class="feature-attribute-value"> {{feature[column.name]}} </label>
                             </ng-container>
@@ -89,12 +92,22 @@
                                     <mat-hint *ngIf="column.userFilling">Обязательный атрибут</mat-hint>
                                 </mat-form-field>
                             </ng-container>
+
+                            <ng-container *ngIf="column.columnType === 'findUser'">
+                                <mat-form-field class="feature-attribute-value">
+                                    <mat-select [ngModel]="feature['_' + column.name]" [compareWith]="compareFn" [formControlName]="column.name">
+                                        <mat-option style="font-size:14px;" [value]="null">удалить значение</mat-option>
+                                        <mat-option style="font-size:14px;" *ngFor="let prop of column.avaliableProperties" [value]="prop">{{prop.username}}</mat-option>
+                                    </mat-select>
+                                    <mat-hint *ngIf="column.userFilling">Обязательный атрибут</mat-hint>
+                                </mat-form-field>
+                            </ng-container>
                         </ng-container>
 
                     </div>
                 </ng-container>
             </form>
-            <div fxLayout="row" fxLayoutAlign="start center">
+            <div style="display:flex;flex-direction:row;justify-content: start;align-items:center;">
                 <button *ngIf="editMode" mat-icon-button style="margin: auto 16px;" (click)="addAdditionalItem()">
                     <mat-icon>add</mat-icon>
                 </button>
@@ -103,7 +116,7 @@
             <form class="feature-info-elements" [formGroup]="additionalForm">
                 <!-- РЕЖИМ ПРОСМОТРА АТРИБУТОВ -->
                 <ng-container *ngIf="!editMode">
-                    <div fxLayout="row" class="feature-info-elements_element" *ngFor='let item of featureAdditionalCharacters; let keyIndex = index' [ngClass]="{'zebra': keyIndex %2 !== 0}">
+                    <div style="display:flex;flex-direction:row;" class="feature-info-elements_element" *ngFor='let item of featureAdditionalCharacters; let keyIndex = index' [ngClass]="{'zebra': keyIndex %2 !== 0}">
                         <label class="feature-attribute-value" style="padding:6px;font-size:14px; flex:0.33;">{{item.character_name}}</label>
                         <label class="feature-attribute-value" style="padding:6px;font-size:14px; flex:0.67;">{{item.character_value}}</label>
                     </div>
@@ -111,7 +124,7 @@
                 <!-- РЕЖИМ РЕДАКТИРОВАНИЯ АТРИБУТОВ -->
                 <ng-container *ngIf="editMode">
                     <ng-container *ngFor='let item of featureAdditionalCharacters; let keyIndex = index'>
-                        <div fxLayout="row" class="feature-info-elements_element" *ngIf="!item.removed">
+                        <div style="display:flex;flex-direction:row;" class="feature-info-elements_element" *ngIf="!item.removed">
                             <button *ngIf="editMode" mat-icon-button style="margin: auto 2px;" (click)="removeAdditionalItem(item)">
                                 <mat-icon>remove</mat-icon>
                             </button>
@@ -132,7 +145,7 @@
             <form class="feature-info-elements">
                 <ng-container *ngFor='let column of cadSchema; let keyIndex = index'>
                     <ng-container *ngIf="column.name !== 'area_unit' && column.name !== 'cad_unit' && column.name !== 'area_type'">
-                        <div fxLayout="row" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}" *ngIf="column.name !=='cad_unit' && column.name !=='area_type' && column.name !=='area_unit'">
+                        <div style="display:flex;flex-direction:row;" class="feature-info-elements_element" [ngClass]="{'zebra': keyIndex %2 !== 0}" *ngIf="column.name !=='cad_unit' && column.name !=='area_type' && column.name !=='area_unit'">
                             <label class="feature-attribute-key">{{column.label}}</label>
                             <ng-container *ngIf="column.columnType === 'findSimple'">
                                 <label class="feature-attribute-value">{{cadFeature[column.name]}}</label>
@@ -165,14 +178,24 @@
             </form>
         </ng-container>
     </mat-tab>
-    <mat-tab label="Лента событий">Лента событий</mat-tab>
+    <mat-tab label="Лента событий">
+        <td-map-panel-item-events [feature]="feature" [layerId]="activeLayer ? activeLayer.id : ''" #eventComponent></td-map-panel-item-events>
+    </mat-tab>
     <mat-tab label="Фото и изображения">Фото и изображения</mat-tab>
     <mat-tab label="Документы и файлы">Документы и файлы</mat-tab>
     <mat-tab label="Архивные данные">Архивные данные</mat-tab>
 
 
 </mat-tab-group>
-<mat-card-actions class="attribute-tabs-actions" *ngIf="feature">
-    <button mat-button [color]="editMode? 'accent' : 'primary'" (click)="toggleEditMode()">{{ editMode ? 'Отмена' : 'Редактировать'}}</button>
-    <button *ngIf="editMode" mat-button [color]="saveEnable ? (differentBetweenInputDataAndInspectFeature || differentBetweenInputDataAndAdditionalFeature) ? 'success' : 'accent' : 'warn'" (click)="saveData()">Сохранить</button>
+<mat-card-actions class="attribute-tabs-actions">
+    <button *ngIf="(feature && selectedTab === 0 && !CadastralFeatureInfo) || (feature && selectedTab === 1 && CadastralFeatureInfo)" mat-button [color]="editMode? 'accent' : 'primary'" (click)="toggleEditMode()">{{ editMode ? 'Отмена' : 'Редактировать'}}</button>
+    <button *ngIf="editMode && feature" mat-button [color]="saveEnable ? (differentBetweenInputDataAndInspectFeature || differentBetweenInputDataAndAdditionalFeature) ? 'success' : 'accent' : 'warn'" (click)="saveData()">Сохранить</button>
+    <button mat-button color="primary" (click)="loadCadastralFeatureIntoSystem()" *ngIf="selectedTab === 0 && CadastralFeatureInfo">Загрузить участок в систему</button>
+    <ng-container *ngIf="(feature && selectedTab === 1 &&  !CadastralFeatureInfo) || (feature && selectedTab === 2 && CadastralFeatureInfo)">
+        <button mat-button color="primary" (click)="loadCadastralInfoToSystem()" *ngIf="cadastralInfoEmpty">Загрузить кадастровые данные</button>
+        <button mat-button color="primary" (click)="updateCadastralInfoToSystem()" *ngIf="!cadastralInfoEmpty">Обновить кадастровые данные</button>
+    </ng-container>
+    <ng-container *ngIf="(feature && selectedTab === 2 && !CadastralFeatureInfo) || (feature && selectedTab === 3 && CadastralFeatureInfo)">
+        <button mat-button color="primary" (click)="createEvent()">Создать событие</button>
+    </ng-container>
 </mat-card-actions>

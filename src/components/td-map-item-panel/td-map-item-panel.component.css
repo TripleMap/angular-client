@@ -13,7 +13,7 @@
     width: 100%;
     line-height: 24px;
     align-content: center;
-    padding: 4px 2px;
+    padding: 4px 8px;
 }
 
 .feature-attribute-key {
@@ -35,7 +35,7 @@
 }
 
 .zebra {
-    background: rgba(0, 0, 0, 0.02);
+    background: rgba(0, 0, 0, 0.01);
 }
 
 .attribute-tabs {

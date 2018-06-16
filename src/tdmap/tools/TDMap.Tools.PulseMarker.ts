@@ -8,16 +8,16 @@ export const IconPulse = L.DivIcon.extend({
         radius: 4
     },
 
-    createIcon: function(options) {
+    createIcon: function (options) {
         let div = document.createElement('div');
         div.classList.add('pulse-container');
-        div.style.marginLeft = `-${this.options.iconSize[0]/2}px`;
-        div.style.marginTop = `-${this.options.iconSize[1]/2}px`;
-        let element = `<svg id='pulse-svg' class='pulse-svg' height='${this.options.iconSize[0]}px' width='${this.options.iconSize[1]}px' version='1.1' viewBox='${this.options.iconSize[0]/2} ${this.options.iconSize[1]/2} ${this.options.iconSize[0]} ${this.options.iconSize[1]}' xmlns='http://www.w3.org/2000/svg'>
+        div.style.marginLeft = `-${this.options.iconSize[0] / 2}px`;
+        div.style.marginTop = `-${this.options.iconSize[1] / 2}px`;
+        let element = `<svg id='pulse-svg' class='pulse-svg' height='${this.options.iconSize[0]}px' width='${this.options.iconSize[1]}px' version='1.1' viewBox='${this.options.iconSize[0] / 2} ${this.options.iconSize[1] / 2} ${this.options.iconSize[0]} ${this.options.iconSize[1]}' xmlns='http://www.w3.org/2000/svg'>
                         <circle class='wave first-wave' cx='${this.options.iconSize[0]}' cy='${this.options.iconSize[1]}' opacity='0' r='${this.options.radius}'></circle>
                         <circle class='wave second-wave' cx='${this.options.iconSize[0]}' cy='${this.options.iconSize[1]}' opacity='0' r='${this.options.radius}'></circle>
                         <g>
-                            <circle class='circle epicenter' cx='${this.options.iconSize[0]}' cy='${this.options.iconSize[1]}' r='${this.options.radius}'></circle>
+                            <circle class='circle epicenter' cx='${this.options.iconSize[0]}' cy='${this.options.iconSize[1]}' r='${this.options.radius}' stroke="white" stroke-width="${this.options.radius / 2}" ></circle>
                         </g>
                     </svg>`;
         let svgCss = `.pulse-svg {overflow:visible;}`;
@@ -41,7 +41,7 @@ export const IconPulse = L.DivIcon.extend({
                 opacity: 0.09;
             }
             100% {
-                r: ${this.options.iconSize[0]/2};
+                r: ${this.options.iconSize[0] / 2};
                 opacity: 0;
             }
         }`;
@@ -57,11 +57,11 @@ export const IconPulse = L.DivIcon.extend({
 });
 
 export const PulseMarker = L.Marker.extend({
-    initialize: function(latlng, options) {
+    initialize: function (latlng, options) {
         options.icon = new IconPulse(options);
         L.Marker.prototype.initialize.call(this, latlng, options);
     },
-    onAdd: function(map) {
+    onAdd: function (map) {
         L.Marker.prototype.onAdd.call(this, map);
         if (this.options.timeout) {
             setTimeout(() => {

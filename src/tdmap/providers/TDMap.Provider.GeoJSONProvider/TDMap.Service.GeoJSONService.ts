@@ -1,7 +1,7 @@
-import { Promises } from "../../utils/TDMap.Utils.Promises.js";
-import { GeoJSONSelection } from "./TDMap.Service.GeoJSONSelection.js";
-import { GeoJSONProvider } from "./TDMap.Service.GeoJSONProvider.js";
-import { Subject } from "rxjs/Subject";
+import { GeoJSONSelection } from "./TDMap.Service.GeoJSONSelection";
+import { GeoJSONProvider } from "./TDMap.Service.GeoJSONProvider";
+import { GeoJSONLabelLayer } from "./TDMap.Service.GeoJSONLabel";
+import { Subject } from "rxjs";
 import 'rxjs/add/operator/map';
 
 // export interface LayerSchema {
@@ -21,10 +21,12 @@ export var GeoJSONService = L.GeoJSON.extend({
     // стили пользователя хранятся на сервере с привязкой к атрибуту
 
 
-    initialize: function (options) {
+    initialize: function (options, schemaProperties) {
+        this.schemaProperties = schemaProperties;
         L.setOptions(this, options);
         L.GeoJSON.prototype.initialize.call(this, null, options);
         this._provider = new GeoJSONProvider(options.dataUrl);
+        this._lablelLayer = new GeoJSONLabelLayer(this, options.labelUrl);
         this.filteredIds = null;
         this.featuresFlow = new Subject();
         this._processFeatures();
@@ -39,16 +41,14 @@ export var GeoJSONService = L.GeoJSON.extend({
         this.styled = false
     },
 
-    setLabeled: function () {
-        this.labeled = true
+    setLabeled: function (labelField) {
+        this.labeled = true;
+        this._lablelLayer.addLabels(labelField);
     },
 
     removeLabels: function () {
-        this.labeled = false
-    },
-
-    updateLabels: function () {
-
+        this.labeled = false;
+        this._lablelLayer.removeLabels();
     },
 
     onAdd: function (map) {

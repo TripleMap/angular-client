@@ -1,0 +1,5 @@
+<span #contextMenuSpan [matMenuTriggerFor]="contextMenu"></span>
+
+<mat-menu #contextMenu="matMenu" [overlapTrigger]="false">
+    <button mat-menu-item *ngIf="mapFeature" (click)="zoomToFeature()">Приблизить к объекту</button>
+</mat-menu>

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import { BehaviorSubject } from "rxjs";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { TDMapManagerConstructor, TDMapConstructor } from '../tdmap/TDMap'
 
@@ -40,8 +40,6 @@ export class MapService {
         };
 
         this.mapReady.next(true);
-
-
     }
 
     getMap = () => this.TDMapManager._map;

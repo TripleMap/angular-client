@@ -1,0 +1,56 @@
+<div style="display: flex;flex-direction: column;justify-content: space-between;height: 100%;">
+    <div style="height: calc(100% - 68px);overflow: auto;">
+        <mat-list style="height: fit-content;padding: 8px 0;" [formGroup]="eventEditForm">
+            <ng-container *ngFor="let event of featureEvents">
+                <mat-list-item style="height: fit-content;padding: 8px 0;" (mouseover)="eventCanEditOrRemove(event)" (mouseleave)="eventCanNOTEditOrRemove(event)">
+
+                    <mat-icon mat-list-icon *ngIf="event.added || event.editMode" (click)="saveEvent(event)">save</mat-icon>
+                    <mat-icon mat-list-icon *ngIf="event.editMode" (click)="editEvent(event)" style="cursor:pointer;">edit</mat-icon>
+
+
+
+                    <mat-form-field style="padding:6px;font-size:14px;" *ngIf="event.editMode">
+                        <input matInput placeholder="название события" [formControlName]="generateEventFormControlName(event.id, 'event')">
+                    </mat-form-field>
+                    <mat-form-field style="padding:6px;font-size:14px;" *ngIf="event.editMode">
+                        <input matInput placeholder="описание события" [formControlName]="generateEventFormControlName(event.id, 'event_description')">
+                    </mat-form-field>
+
+
+
+                    <div mat-line style="display: flex;flex-direction: row;justify-content: space-between;align-items: center;" *ngIf="!event.editMode">
+                        <p style="white-space: normal;padding: 12px 0;margin: 0;">{{event.event}}</p>
+                        <div>
+                            <button mat-icon-button (click)="editEvent(event)" *ngIf="event.canEdit">
+                               <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="removeEvent(event)" *ngIf="event.canRemove">
+                              <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <p mat-line style="white-space: normal;color: rgba(0,0,0,0.74); padding: 4px 0;" *ngIf="!event.editMode"> {{event.event_description }} </p>
+                    <p mat-line style="white-space: normal;color: rgba(0,0,0,0.42)" *ngIf="!event.editMode"> {{event.created_at | date:"dd.MM.yy hh:mm"}} {{ event._user_id.username}}</p>
+
+
+
+
+
+                </mat-list-item>
+                <mat-divider></mat-divider>
+            </ng-container>
+        </mat-list>
+    </div>
+    <div style="width: 100%;display: flex;flex-direction: row;height: 68px;">
+
+        <mat-form-field style="padding:6px;font-size:14px; flex:0.40;" *ngIf="newEvent && newEvent.id">
+            <input matInput [(ngModel)]="newEvent.event" placeholder="название события">
+        </mat-form-field>
+        <mat-form-field style="padding:6px;font-size:14px; flex:0.60;" *ngIf="newEvent && newEvent.id">
+            <input matInput [(ngModel)]="newEvent.event_description" placeholder="описание события">
+        </mat-form-field>
+
+    </div>
+</div>

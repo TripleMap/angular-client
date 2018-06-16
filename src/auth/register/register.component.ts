@@ -1,9 +1,9 @@
-import { Component, AfterContentInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterContentInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { AuthService } from '../auth-service';
-import { MediaChange, ObservableMedia } from "@angular/flex-layout";
-import { Subscription } from "rxjs/Subscription";
+import { Subscription } from "rxjs";
+import 'rxjs/add/operator/filter';
 @Component({
   selector: 'registration',
   templateUrl: './register.component.html',
@@ -15,18 +15,14 @@ import { Subscription } from "rxjs/Subscription";
 export class Register implements AfterContentInit, OnDestroy {
   public registerForm: FormGroup;
   public registerEnable: any;
-  public mediaSubscription: Subscription;
   public registerFormSubscription: Subscription;
   public passVisible: boolean = false;
   public confirmVisible: boolean = false;
   constructor(
     public router: Router,
     public fb: FormBuilder,
-    public AuthService: AuthService,
-    public media: ObservableMedia
-  ) {
-    this.mediaSubscription = media.subscribe((change: MediaChange) => (console.log(change)));
-  }
+    public AuthService: AuthService
+  ) { }
   ngAfterContentInit() {
     this.registerForm = this.fb.group({
       name: new FormControl('', [Validators.required]),
@@ -37,19 +33,16 @@ export class Register implements AfterContentInit, OnDestroy {
 
     this.registerFormSubscription = this.registerForm.valueChanges
       .debounceTime(200)
-      .distinctUntilChanged()
       .filter(this.isValidForm)
       .subscribe()
   }
 
   ngOnDestroy() {
-    this.mediaSubscription.unsubscribe();
     this.registerFormSubscription.unsubscribe();
   }
 
   isValidForm = () => {
     (this.registerForm.status !== "VALID") ? this.registerEnable = false : this.registerEnable = true;
-    console.log(this.registerForm);
     return this.registerForm.status === "VALID";
   };
 
