@@ -69,40 +69,42 @@ export var Measurment = L.Editable.extend({
         L.setOptions(this, options);
         map.measureTools = this;
         this.map = map;
-        var that = this;
-        map.on('stopmeasure', function () {
+
+        this.labelsLayerSVGHack = L.geoJSON({
+            "type": "Feature", "properties": {},
+            "geometry": { "type": "LineString", "coordinates": [[0, 0], [0, 0]] }
+        }, { renderer: L.svg(), className: `measurment` })
+            .addTo(map);
+
+        let svgPath = document.getElementsByClassName(`measurment`);
+        let svgGroup = svgPath[0].parentElement;
+        svgGroup.setAttribute('id', `label_group_measurment`);
+
+        map.on('stopmeasure', () => {
             var id;
-            that.abortDrawing();
-            for (var o in that.featuresLayer._layers) {
-                id = that.featuresLayer._layers[o]._leaflet_id;
+            this.abortDrawing();
+            for (var o in this.featuresLayer._layers) {
+                id = this.featuresLayer._layers[o]._leaflet_id;
             }
-            that.removeLabel(id);
-            that.featuresLayer.remove();
-            that.map.off('zoomend', that.dravingZoomEnd);
+            this.removeLabel(id);
+            this.featuresLayer.remove();
+            this.map.off('zoomend', this.dravingZoomEnd);
         }, this);
     },
 
     disableMapZoom: function () {
-        if (this.map.doubleClickZoom) {
-            this.map.doubleClickZoom.disable();
-        }
-        if (this.map.touchZoom) {
-            this.map.touchZoom.disable();
-        }
+        if (this.map.doubleClickZoom) this.map.doubleClickZoom.disable();
+        if (this.map.touchZoom) this.map.touchZoom.disable();
     },
 
     enableMapZoom: function () {
-        if (!this.map.doubleClickZoom) {
-            this.map.doubleClickZoom.enable();
-        }
-        if (!this.map.touchZoom) {
-            this.map.touchZoom.enable();
-        }
+        if (!this.map.doubleClickZoom) this.map.doubleClickZoom.enable();
+        if (!this.map.touchZoom) this.map.touchZoom.enable();
     },
 
     abortDrawing: function () {
-        this.off('editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseover editable:middlemarker:mouseout editable:vertex:drag editable:vertex:dragend editable:drawing:move', this.preMeasureCookLayer);
-        this.off('editable:vertex:drag editable:vertex:dragend editable:drawing:move editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseout', this.preMeasureCookLayer);
+        this.off('editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseover editable:middlemarker:mouseout editable:vertex:drag editable:vertex:dragend editable:drawing:move editable:vertex:deleted', this.preMeasureCookLayer);
+        this.off('editable:vertex:drag editable:vertex:dragend editable:drawing:move editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseout editable:vertex:deleted', this.preMeasureCookLayer);
         this.off('editable:drawing:end', this.dravingLineEnd);
         this.off('editable:drawing:end', this.dravingPolygonEnd);
         this.enableMapZoom();
@@ -110,9 +112,8 @@ export var Measurment = L.Editable.extend({
     },
 
     startPolylineMeasure: function () {
-        var that = this;
         this.disableMapZoom();
-        this.on('editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseover editable:middlemarker:mouseout editable:vertex:drag editable:vertex:dragend editable:drawing:move', this.preMeasureCookLayer);
+        this.on('editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseover editable:middlemarker:mouseout editable:vertex:drag editable:vertex:dragend editable:drawing:move editable:vertex:deleted', this.preMeasureCookLayer);
         this.on('editable:drawing:end', this.dravingLineEnd);
         L.Editable.prototype.startPolyline.call(this);
     },
@@ -125,20 +126,18 @@ export var Measurment = L.Editable.extend({
     },
 
     startPolygonMeasure: function () {
-        var that = this;
         this.disableMapZoom();
-        this.on('editable:vertex:drag editable:vertex:dragend editable:drawing:move editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseout', this.preMeasureCookLayer);
+        this.on('editable:vertex:drag editable:vertex:dragend editable:drawing:move editable:vertex:mouseover editable:vertex:mouseout editable:middlemarker:mouseout editable:vertex:deleted', this.preMeasureCookLayer);
         this.on('editable:drawing:end', this.dravingPolygonEnd);
         L.Editable.prototype.startPolygon.call(this);
     },
 
     dravingPolygonEnd: function (e) {
-        var that = this;
-        that.off('editable:drawing:move', that.preMeasureCookLayer);
-        that.preMeasureCookLayer(e);
-        that.enableMapZoom();
-        that.map.on('zoomend', this.dravingZoomEnd);
-        that.on('editable:middlemarker:mouseover', that.preMeasureCookLineLayer);
+        this.off('editable:drawing:move', this.preMeasureCookLayer);
+        this.preMeasureCookLayer(e);
+        this.enableMapZoom();
+        this.map.on('zoomend', this.dravingZoomEnd);
+        this.on('editable:middlemarker:mouseover', this.preMeasureCookLineLayer);
     },
 
     dravingZoomEnd: function (e) {
@@ -180,10 +179,11 @@ export var Measurment = L.Editable.extend({
         }
         this.removeLabel(layer._leaflet_id);
         if (e.type === "editable:drawing:move") {
+            if (!layer._latlngs.length) return;
             var endingPoint = e.latlng;
             screenCords = e.layerPoint;
             newlatLngsArray.push(endingPoint);
-        } else if (e.type === "editable:drawing:end" || e.type === 'editable:vertex:dragend' || e.type === "editable:vertex:mouseout" || e.type === "editable:middlemarker:mouseout") {
+        } else if (e.type === "editable:drawing:end" || e.type === "editable:vertex:deleted" || e.type === 'editable:vertex:dragend' || e.type === "editable:vertex:mouseout" || e.type === "editable:middlemarker:mouseout") {
             screenCords = layer._rings[0][layer._rings[0].length - 1];
         } else if (e.type === "editable:vertex:drag") {
             screenCords = e.vertex.dragging._draggable._newPos;
@@ -213,7 +213,7 @@ export var Measurment = L.Editable.extend({
             return;
         }
         var self = this;
-        if (e.type === "zoomend") {
+        if (e.type === "zoomend" || e.type === "editable:vertex:deleted") {
             setTimeout(function () {
                 self.createMouseMoveLabel({
                     pathLength: self._getPerimeter(newlatLngsArray)
@@ -227,7 +227,6 @@ export var Measurment = L.Editable.extend({
     },
 
     preMeasureCookPolygonLayer: function (e) {
-        var that = this;
         var layer = e.layer || e.target;
         var latlngs = this._getLineLatLngs(layer);
         var newlatLngsArray = [];
@@ -244,8 +243,8 @@ export var Measurment = L.Editable.extend({
             if (latlngs[0][latlngs.length - 1] !== undefined) {
                 newlatLngsArray.push(latlngs[0][latlngs.length - 1]);
             }
-        } else if (e.type === "editable:drawing:end") {
-            screenCords = that.map.latLngToContainerPoint(layer.getCenter());
+        } else if (e.type === "editable:drawing:end" || e.type === "editable:vertex:deleted") {
+            screenCords = this.map.latLngToContainerPoint(layer.getCenter());
             newlatLngsArray.push(latlngs[0][latlngs.length - 1]);
             screenCordsShift = true;
         } else if (e.type === "editable:vertex:drag") {
@@ -259,28 +258,28 @@ export var Measurment = L.Editable.extend({
             return;
         }
 
-        if (e.type === "zoomend" || e.type === "editable:vertex:mouseout" || e.type === "editable:middlemarker:mouseout" || e.type === 'editable:vertex:dragend') {
+        if (e.type === "zoomend" || e.type === "editable:vertex:mouseout" || e.type === "editable:vertex:deleted" || e.type === "editable:middlemarker:mouseout" || e.type === 'editable:vertex:dragend') {
             this.removeLabel(layer._leaflet_id);
             // даем про!"№;  дом
-            setTimeout(function () {
+            setTimeout(() => {
                 var array = $('.leaflet-map-pane').css('transform').replace('(', ',').replace(')', '').split(',');
-                screenCords = that.map.latLngToContainerPoint(layer.getCenter());
+                screenCords = this.map.latLngToContainerPoint(layer.getCenter());
                 screenCords.x = screenCords.x - array[array.length - 2];
                 screenCords.y = screenCords.y - array[array.length - 1];
                 newlatLngsArray.push(latlngs[0][latlngs.length - 1]);
-                that.removeLabel(layer._leaflet_id);
+                this.removeLabel(layer._leaflet_id);
                 screenCordsShift = true;
-                that.createMouseMoveLabel({
-                    pathLength: that._getPerimeter(newlatLngsArray),
-                    pathSquare: that.getArea(newlatLngsArray),
+                this.createMouseMoveLabel({
+                    pathLength: this._getPerimeter(newlatLngsArray),
+                    pathSquare: this.getArea(newlatLngsArray),
                     screenCordsShift: screenCordsShift
                 }, screenCords, layer._leaflet_id);
             }, 50);
         } else {
             this.removeLabel(layer._leaflet_id);
             this.createMouseMoveLabel({
-                pathLength: that._getPerimeter(newlatLngsArray),
-                pathSquare: that.getArea(newlatLngsArray),
+                pathLength: this._getPerimeter(newlatLngsArray),
+                pathSquare: this.getArea(newlatLngsArray),
                 screenCordsShift: screenCordsShift
             }, screenCords, layer._leaflet_id);
         }
@@ -392,11 +391,7 @@ export var Measurment = L.Editable.extend({
         if (measurment === undefined) {
             return;
         }
-
-        var group = d3.select('.leaflet-overlay-pane')
-            .select('svg')
-            .append('g')
-            .attr("class", 'measurment' + id);
+        const group = d3.select(`#label_group_measurment`).append('g').attr("class", 'measurment' + id);
 
         var rectangle = group.append("rect");
         var text = group.append('text')
@@ -456,7 +451,7 @@ export var Measurment = L.Editable.extend({
             .attr("y", bbox.y - 1)
             .style("fill", "white")
             .style("fill-opacity", 0.5)
-            .style("stroke", "#3f51b5")
+            .style("stroke", "#1976d2")
             .style("stroke-width", "1px")
             .style("stroke-opacity", 1);
     },

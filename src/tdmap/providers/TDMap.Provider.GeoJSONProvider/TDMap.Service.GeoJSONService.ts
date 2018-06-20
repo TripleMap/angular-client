@@ -17,9 +17,6 @@ import 'rxjs/add/operator/map';
 // }
 
 export var GeoJSONService = L.GeoJSON.extend({
-    // стили приходят с сервера feature.properties.style
-    // стили пользователя хранятся на сервере с привязкой к атрибуту
-
 
     initialize: function (options, schemaProperties) {
         this.schemaProperties = schemaProperties;
@@ -41,27 +38,34 @@ export var GeoJSONService = L.GeoJSON.extend({
         this.styled = false
     },
 
-    setLabeled: function (labelField) {
-        this.labeled = true;
-        this._lablelLayer.addLabels(labelField);
+    setLabeled: function (labelProperties) {
+        this._lablelLayer.canLabel = true;
+        this.labelProperties = labelProperties;
+        if (this.options.visible) {
+            this._lablelLayer.addLabels(labelProperties);
+        }
     },
 
     removeLabels: function () {
-        this.labeled = false;
+        this._lablelLayer.canLabel = false;
         this._lablelLayer.removeLabels();
     },
 
     onAdd: function (map) {
         this._map = map;
+
         L.GeoJSON.prototype.onAdd.call(this, map);
         this._updateData();
         if (!this.options.onceLoaded) {
             this._map.on("moveend", this._updateData, this);
         }
+        this._lablelLayer.canLabel = true;
     },
 
     onRemove: function (map) {
         this.clearLayers();
+        this.removeLabels();
+        this._lablelLayer.canLabel = false;
         L.GeoJSON.prototype.onRemove.call(this, map);
         if (!this.options.onceLoaded) {
             map.off("moveend", this._updateData, this);
@@ -93,7 +97,10 @@ export var GeoJSONService = L.GeoJSON.extend({
             .getDataByBounds(bbox)
             .map(res => this.filterData(res))
             .subscribe(
-                filtered => this.featuresFlow.next(filtered),
+                filtered => {
+                    this.featuresFlow.next(filtered);
+                    if (this._lablelLayer.canLabel && this.labelProperties) this._lablelLayer.addLabels(this.labelProperties);
+                },
                 error => this.clearLayers()
             );
     },
@@ -103,7 +110,10 @@ export var GeoJSONService = L.GeoJSON.extend({
             .getData()
             .map(res => this.filterData(res))
             .subscribe(
-                filtered => this.featuresFlow.next(filtered),
+                filtered => {
+                    this.featuresFlow.next(filtered);
+                    if (this._lablelLayer.canLabel && this.labelProperties) this._lablelLayer.addLabels(this.labelProperties);
+                },
                 error => this.clearLayers()
             );
     },
@@ -127,9 +137,10 @@ export var GeoJSONService = L.GeoJSON.extend({
         if (!features) return;
 
         for (let i = features.length - 1; i >= 0; i--) {
-            this.addData(features[i])
+            this.addData(features[i]);
         }
-        this._map.fire("layer:load");
+
+        if (this._map) this._map.fire("layer:load");
         this.subscribeOnSelection();
     },
 

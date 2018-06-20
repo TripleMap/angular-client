@@ -4,6 +4,15 @@ import { BehaviorSubject } from "rxjs";
 import { MapService } from './MapService';
 import { AuthService } from '../auth/auth-service';
 
+export const LabelLinks = {
+    getAllData: (layerId) => `api/Layers/GetLayerFeaturesLables?LayerId=${layerId}`,
+    getUserLabels: () => `api/Layers/GetLables?`,
+    createUserLabel: () => `api/Layers/CreateLable?`,
+    deleteUserLabel: (labelId) => `api/Layers/DeleteLable?LabelId=${labelId}`,
+    updateUserLabel: (labelId) => `api/Layers/UpdateLable?LabelId=${labelId}`,
+}
+
+
 export const LayersLinks = {
     getLayersByUserId: (userId) => `api/Accounts/userlayers?id=${userId}`,
     dataApi: () => "api/Layers",
@@ -21,11 +30,7 @@ export const LayersLinks = {
         updateFeatureGeometryById: (layerId, feautureId) => `api/Layers/UpdateFeatureGeometry?LayerId=${layerId}&id=${feautureId}`,
     },
     featuresLabel: {
-        getAllData: (layerId) => `api/Layers/GetLayerFeaturesLables?LayerId=${layerId}`,
-        getUserLabels: () => `api/Layers/GetLables?`,
-        createUserLabel: () => `api/Layers/CreateLables?`,
-        deleteUserLabel: (labelId) => `api/Layers/DeleteLables?LabelId=${labelId}`,
-        updateUserLabel: (labelId) => `api/Layers/UpdateLables?LabelId=${labelId}`,
+        getAllData: (layerId) => `api/Layers/GetLayerFeaturesLables?LayerId=${layerId}`
     },
     cadastralDataEdit: {
         create: (layerId, featureId) => `api/Layers/CreateFeatureCadastralInfo?LayerId=${layerId}&FeatureId=${featureId}`,
@@ -105,7 +110,9 @@ export class OverLaysService {
                 });
                 this.layersSchemas = layers;
                 this.layersChange.next(1);
+                this.emitToLabelLeafletLayer();
             });
+
     };
 
     addLayerToMap(layerId) {
@@ -182,6 +189,20 @@ export class OverLaysService {
             if (layer.feature.properties.id === featureId) feature = layer;
         });
         if (layer.selections) layer.selections.setTempFeature(feature);
+    }
+
+
+
+    emitToLabelLeafletLayer() {
+        this.http.get(LabelLinks.getUserLabels()).subscribe(
+            (data: any[]) => {
+                for (let i = 0; i < data.length; i++) {
+                    const leafletLayer = this.getLeafletLayerById(data[i].layer_id);
+                    data[i].active ? leafletLayer.setLabeled(data[i]) : leafletLayer.removeLabels();
+                }
+            },
+            error => { console.log(error) }
+        )
     }
 }
 

@@ -38,6 +38,7 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/materia
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 //main
 import { TdmapSistem } from '../components/tdmap-sistem/tdmap-sistem.component';
 
@@ -212,7 +213,8 @@ import { UnionFeaturesDialogComponent } from '../components/union-features-dialo
     MatDialogModule,
     MatStepperModule,
     ColorPickerModule,
-    MatSliderModule
+    MatSliderModule,
+    MatSlideToggleModule
   ],
 
   bootstrap: [AppComponent]

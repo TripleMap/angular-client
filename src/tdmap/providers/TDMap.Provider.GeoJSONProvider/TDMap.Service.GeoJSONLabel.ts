@@ -1,10 +1,26 @@
 import * as polylabel from 'polylabel';
 import * as moment from 'moment';
 export class GeoJSONLabelLayer {
-    public labelField: string | boolean = false;
+    public labelProperties: any | boolean = false;
     private labelsLayerSVGHack: any;
+    public canLabel: boolean = false;
     public url: string | boolean = false;
     private leafletLayer: any = null;
+    public labelOptions: {
+        field_to_label: string;
+        label_color: string;
+        label_font_size: string;
+        halo_color: string;
+        halo_size: string;
+        active: boolean,
+    } = {
+            field_to_label: '',
+            label_color: '#000',
+            label_font_size: '12',
+            halo_color: '#fff',
+            halo_size: '12',
+            active: false,
+        };
     public set labelData(data) {
         this._labelData = data;
         this.renderData();
@@ -21,9 +37,8 @@ export class GeoJSONLabelLayer {
         this.url = urlToGetData;
     }
 
-    addLabels(labelField) {
-        this.labelField = labelField;
-
+    addLabels(labelProperties) {
+        this.labelProperties = labelProperties;
         this.labelsLayerSVGHack = L.geoJSON({
             "type": "Feature", "properties": {},
             "geometry": { "type": "LineString", "coordinates": [[0, 0], [0, 0]] }
@@ -34,12 +49,13 @@ export class GeoJSONLabelLayer {
         svgGroup.setAttribute('id', `label_group_${this.leafletLayer.options.id}`);
 
         this.updateLabels();
-        this.leafletLayer._map.on('moveend', this.refreshOnMoveEnd, this)
+        if (this.leafletLayer && this.leafletLayer._map) this.leafletLayer._map.on('moveend', this.refreshOnMoveEnd, this)
 
     }
 
     updateLabels() {
         this.clearLabels();
+        if (!this.canLabel) return;
         const getDataProcess = this.getDataToLabel();
         if (!getDataProcess) return;
         getDataProcess
@@ -50,15 +66,15 @@ export class GeoJSONLabelLayer {
     }
 
     getDataToLabel() {
-        if (this.url && this.labelField) return TDMap.Utils.Promises.getPromise(this.url, { FieldToLabel: this.labelField });
+        if (this.url && this.labelProperties && this.labelProperties.field_to_label) return TDMap.Utils.Promises.getPromise(this.url, { FieldToLabel: this.labelProperties.field_to_label });
         return false;
     }
 
     removeLabels() {
         this.clearLabels();
-        this.labelsLayerSVGHack.remove();
+        if (this.labelsLayerSVGHack) this.labelsLayerSVGHack.remove();
         this.labelData = null;
-        this.leafletLayer._map.off('moveend', this.refreshOnMoveEnd, this)
+        if (this.leafletLayer && this.leafletLayer._map) this.leafletLayer._map.off('moveend', this.refreshOnMoveEnd, this);
     }
 
     renderData() {
@@ -67,19 +83,24 @@ export class GeoJSONLabelLayer {
 
     refreshOnMoveEnd() {
         this.clearLabels();
+        if (!this.canLabel) return;
         this.labelFeatures();
     }
+
     labelFeatures() {
+        if (!this.leafletLayer || !this.leafletLayer._map) return;
+        let zoom = this.leafletLayer._map.getZoom();
+        if (zoom < 12 || !this.labelData) return;
         let column;
         for (const key in this.leafletLayer.schemaProperties) {
-            if (this.labelField === key) column = this.leafletLayer.schemaProperties[key];
+            if (this.labelProperties.field_to_label === key) column = this.leafletLayer.schemaProperties[key];
         }
         if (!column) return;
         const group = d3.select(`#label_group_${this.leafletLayer.options.id}`).append('g').attr("id", `labels_group_${this.leafletLayer.options.id}`);
         this.leafletLayer.eachLayer(layer => {
 
             let layerId = layer.feature.properties.id;
-            let labelData = this._labelData[layerId];
+            let labelData = this.labelData[layerId];
             if (labelData === null || labelData === undefined) return;
             let label;
             if (column.columnType === 'findMany') label = labelData.map(item => item.description).join(',')
@@ -98,10 +119,9 @@ export class GeoJSONLabelLayer {
 
             group.append('text')
                 .attr("class", `halo_${this.leafletLayer.options.id}`)
-                .style("stroke", 'white')
-                .style("opacity", 0.5)
-                .style("stroke-width", 2)
-                .style("font-size", '12')
+                .style("stroke", this.labelProperties.halo_color)
+                .style("stroke-width", this.labelProperties.halo_size)
+                .style("font-size", this.labelProperties.label_font_size)
                 .style("text-anchor", 'middle')
                 .style("font-family", 'Roboto,Helvetica Neue,sans-serif')
                 .attr("x", pos[0])
@@ -109,10 +129,9 @@ export class GeoJSONLabelLayer {
                 .text(label);
             group.append('text')
                 .attr("class", `text_${this.leafletLayer.options.id}`)
-                .style("fill", 'maroon')
-                .style("fill-opacity", 0.8)
+                .style("fill", this.labelProperties.label_color)
                 .style("text-anchor", 'middle')
-                .style("font-size", '12')
+                .style("font-size", this.labelProperties.label_font_size)
                 .style("font-family", 'Roboto,Helvetica Neue,sans-serif')
                 .attr("x", pos[0])
                 .attr("y", pos[1])

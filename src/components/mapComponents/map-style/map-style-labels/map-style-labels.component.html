@@ -1,32 +1,39 @@
 <mat-dialog-content>
-    <mat-tab-group>
-        <mat-tab *ngFor="let label of userLabels">
-
+    <mat-tab-group #labelTabs>
+        <mat-tab *ngFor="let label of userLabels" [label]="getTabNameByLayerId(label)">
             <div style="display: flex;flex-direction: column;">
                 <mat-form-field>
-                    <mat-select [(ngModel)]="label.selectedLayer" required (selectionChange)="layerChange(label)">
-                        <mat-option *ngFor="let avaliableLayer of layersSchemas" [value]="avaliableLayer">{{avaliableLayer.layer_schema.labelName}}</mat-option>
+                    <mat-select [(ngModel)]="label.selectedLayer" required (selectionChange)="layerChange(label)" (selectionChange)="labelWasChange(label)">
+                        <ng-container *ngFor="let avaliableLayer of layersSchemas">
+                            <mat-option *ngIf="layerCanBeChosen(avaliableLayer.id, label)" [value]="avaliableLayer">{{avaliableLayer.layer_schema.labelName}}</mat-option>
+                        </ng-container>
+
                     </mat-select>
                 </mat-form-field>
 
                 <mat-form-field>
-                    <mat-select [(ngModel)]="label.currentProp" required>
+                    <mat-select [(ngModel)]="label.currentProp" required (selectionChange)="propWasChange(label)" (selectionChange)="labelWasChange(label)">
                         <mat-option *ngFor="let prop of label.avaliableProperties" [value]="prop">{{prop.description}}</mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div style="display: flex;flex-direction: column;">
-                <div style="display: flex;flex-direction: row;">
-                    <color-picker colorPlaceHolder="цвет подписи" [color]="label.labelColor" (colorChange)="colorChange(label, $event, 'label')"></color-picker>
-                    <mat-form-field style="width: 100px; margin-left: 32px;">
-                        <input matInput placeholder="размер шрифта" [(ngModel)]="label.labelFontSize">
-                    </mat-form-field>
+            <div style="display: flex;flex-direction: row;">
+                <div style="display: flex;flex-direction: column;flex:1;">
+                    <div style="display: flex;flex-direction: row;">
+                        <color-picker colorPlaceHolder="цвет подписи" [color]="label.label_color" (colorChange)="colorChange(label, $event, 'label')" (colorChange)="labelWasChange(label)"></color-picker>
+                        <mat-form-field style="width: 100px; margin-left: 32px;">
+                            <input matInput placeholder="размер шрифта" [(ngModel)]="label.label_font_size" (change)="labelWasChange(label)">
+                        </mat-form-field>
+                    </div>
+                    <div style="display: flex;flex-direction: row;">
+                        <color-picker colorPlaceHolder="цвет ореола" [color]="label.halo_color" (colorChange)="colorChange(label, $event, 'halo')" (colorChange)="labelWasChange(label)"></color-picker>
+                        <mat-form-field style="width: 100px; margin-left: 32px;">
+                            <input matInput placeholder="размер ореола" [(ngModel)]="label.halo_size" (change)="labelWasChange(label)">
+                        </mat-form-field>
+                    </div>
                 </div>
-                <div style="display: flex;flex-direction: row;">
-                    <color-picker colorPlaceHolder="цвет ореола" [color]="label.haloColor" (colorChange)="colorChange(label, $event, 'halo')"></color-picker>
-                    <mat-form-field style="width: 100px; margin-left: 32px;">
-                        <input matInput placeholder="размер ореола" [(ngModel)]="label.haloSize">
-                    </mat-form-field>
+                <div style="display: flex;flex-direction: column;justify-content: start;align-items: flex-end; flex:1;">
+                    <mat-slide-toggle [(ngModel)]="label.active" (change)="labelWasChange(label)">Подписать объекты</mat-slide-toggle>
                 </div>
             </div>
         </mat-tab>
@@ -34,6 +41,7 @@
 </mat-dialog-content>
 <mat-dialog-actions>
     <button mat-button (click)="close()" color="primary">Отмена</button>
-    <button mat-button (click)="createLabel()" color="primary">Создать</button>
-    <button mat-button (click)="saveLabel()" [color]="labelEnable ? 'primary' : 'accent'">Сохранить и подписать объекты</button>
+    <button mat-button (click)="removeLabel()" color="primary">Удалить</button>
+    <button mat-button (click)="createLabel()" color="primary" [disabled]="allLayersAreChosen()">Создать</button>
+    <button mat-button (click)="saveLabel()" [color]="!saveEnable ? 'primary' : 'accent'">Сохранить</button>
 </mat-dialog-actions>
