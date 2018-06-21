@@ -4,6 +4,15 @@ import { BehaviorSubject } from "rxjs";
 import { MapService } from './MapService';
 import { AuthService } from '../auth/auth-service';
 
+export const StyleLinks = {
+    getAllData: (layerId) => `api/Layers/GetLayerFeaturesStyles?LayerId=${layerId}`,
+    getUserStyles: () => `api/Layers/GetStyles?`,
+    createUserStyle: () => `api/Layers/CreateStyle?`,
+    deleteUserStyle: (styleId) => `api/Layers/DeleteStyle?styleId=${styleId}`,
+    updateUserStyle: (styleId) => `api/Layers/UpdateStyle?styleId=${styleId}`,
+}
+
+
 export const LabelLinks = {
     getAllData: (layerId) => `api/Layers/GetLayerFeaturesLables?LayerId=${layerId}`,
     getUserLabels: () => `api/Layers/GetLables?`,

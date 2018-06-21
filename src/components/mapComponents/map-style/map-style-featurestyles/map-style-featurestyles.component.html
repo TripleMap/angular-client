@@ -1,3 +1,50 @@
-<p>
-  map-style-featurestyles works!
-</p>
+<ng-template #styleElementsTempl let-style="style">
+  <div style="display: flex;flex-direction: row;">
+    <div style="display: flex;flex-direction: column;flex:1;">
+      <div style="display: flex;flex-direction: row;">
+        <color-picker colorPlaceHolder="цвет заливки" [color]="style.style_color" (colorChange)="colorChange(style, $event, 'fill')"
+          (colorChange)="styleWasChange(style)"></color-picker>
+      </div>
+      <div style="display: flex;flex-direction: row;">
+        <color-picker colorPlaceHolder="цвет границы" [color]="style.style_color" (colorChange)="colorChange(style, $event, 'stroke')"
+          (colorChange)="styleWasChange(style)"></color-picker>
+      </div>
+    </div>
+    <div style="display: flex;flex-direction: column;justify-content: start;align-items: flex-end; flex:1;">
+      <mat-slide-toggle [(ngModel)]="style.active" (change)="styleWasChange(style)">Применить стили</mat-slide-toggle>
+    </div>
+  </div>
+</ng-template>
+
+
+<mat-dialog-content>
+  <mat-tab-group #styleTabs>
+    <mat-tab *ngFor="let style of userStyles" [style]="getTabNameByLayerId(style)">
+      <div style="display: flex;flex-direction: column;">
+        <mat-form-field>
+          <mat-select [(ngModel)]="style.selectedLayer" required (selectionChange)="layerChange(style)" (selectionChange)="styleWasChange(style)">
+            <ng-container *ngFor="let avaliableLayer of layersSchemas">
+              <mat-option *ngIf="layerCanBeChosen(avaliableLayer.id, style)" [value]="avaliableLayer">{{avaliableLayer.styleName}}</mat-option>
+            </ng-container>
+
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-select [(ngModel)]="style.currentProp" required (selectionChange)="propWasChange(style)" (selectionChange)="styleWasChange(style)">
+            <mat-option *ngFor="let prop of style.avaliableProperties" [value]="prop">{{prop.description}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <ng-template *ngTemplateOutlet="styleElementsTempl;context:style"></ng-template>
+
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="close()" color="primary">Отмена</button>
+  <button mat-button (click)="removeStyle()" color="primary">Удалить</button>
+  <button mat-button (click)="createStyle()" color="primary" [disabled]="allLayersAreChosen()">Создать</button>
+  <button mat-button (click)="saveStyle()" [color]="!saveEnable ? 'primary' : 'accent'">Сохранить</button>
+</mat-dialog-actions>

@@ -75,7 +75,7 @@ import { GeometryEditorComponent } from '../components/mapComponents/geometry-ed
 import { LoadUpdateCadastralInfoDialogComponent } from '../components/mapComponents//pkk-info/load-update-cadastral-info-dialog/load-update-cadastral-info-dialog.component';
 import { MapStyleComponent } from '../components/mapComponents/map-style/map-style.component';
 import { MapStyleLabelsComponent } from '../components/mapComponents/map-style/map-style-labels/map-style-labels.component';
-import { MapStyleFeaturestylesComponent } from '../components/mapComponents/map-style/map-style-featurestyles/map-style-featurestyles.component';
+import { MapStyleStylesComponent } from '../components/mapComponents/map-style/map-style-featurestyles/map-style-featurestyles.component';
 
 import { SearchAutocompleteComponent } from "../components/search-autocomplete/search-autocomplete.component";
 import { FilterGeometryComponent } from "../components/filter-geometry/filter-geometry.component";
@@ -167,7 +167,7 @@ import { UnionFeaturesDialogComponent } from '../components/union-features-dialo
     ContextMenuComponent,
     MapStyleComponent,
     MapStyleLabelsComponent,
-    MapStyleFeaturestylesComponent
+    MapStyleStylesComponent
   ],
   entryComponents: [
     ConfirmDialogDialog,
@@ -176,7 +176,7 @@ import { UnionFeaturesDialogComponent } from '../components/union-features-dialo
     PkkImportFeatureSteperComponent,
     LoadUpdateCadastralInfoDialogComponent,
     MapStyleLabelsComponent,
-    MapStyleFeaturestylesComponent
+    MapStyleStylesComponent
   ],
   imports: [
     BrowserModule,

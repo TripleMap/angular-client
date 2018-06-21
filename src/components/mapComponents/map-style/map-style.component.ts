@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MapStyleLabelsComponent } from './map-style-labels/map-style-labels.component';
+import { MapStyleStylesComponent } from './map-style-featurestyles/map-style-featurestyles.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 @Component({
   selector: 'map-style',
@@ -20,5 +21,14 @@ export class MapStyleComponent implements OnInit {
     dialogConfig.height = '80vh';
     dialogConfig.width = '80vw';
     this.matDialog.open(MapStyleLabelsComponent, dialogConfig);
+  }
+
+  styleFeatures() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.height = '80vh';
+    dialogConfig.width = '80vw';
+    this.matDialog.open(MapStyleStylesComponent, dialogConfig);
   }
 }
