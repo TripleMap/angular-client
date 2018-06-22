@@ -19,7 +19,9 @@ interface Style {
   layer_id: string;
   user_id: string | boolean;
   field_to_style: string;
-  options: any[],
+  options: { fill: string; stroke: string; strokeWidth: number; }[],
+  other: { fill: string; stroke: string; strokeWidth: number; },
+  nope: { fill: string; stroke: string; strokeWidth: number; },
   active: boolean;
 }
 
@@ -31,6 +33,8 @@ interface WorkStyle extends Style {
   currentPropWithData: any;
   action: string;
 }
+
+
 interface StyleFromServer extends Style {
   id: string;
 }
@@ -109,6 +113,16 @@ export class MapStyleStylesComponent implements OnInit {
       user_id: false,
       field_to_style: '',
       options: [],
+      nope: {
+        fill: "#673ab7",
+        stroke: "rgba(0,0,0,0.5)",
+        strokeWidth: 1
+      },
+      other: {
+        fill: "#3f51b5",
+        stroke: "rgba(0,0,0,0.5)",
+        strokeWidth: 1
+      },
       active: false,
       avaliableProperties: [],
       currentProp: null,
@@ -139,12 +153,31 @@ export class MapStyleStylesComponent implements OnInit {
   }
 
   propWasChange(style: WorkStyle) {
+    const nopeProps = () => ({
+      fill: "#673ab7",
+      stroke: "rgba(0,0,0,0.5)",
+      strokeWidth: 1
+    });
+    const otherProps = () => ({
+      fill: "#3f51b5",
+      stroke: "rgba(0,0,0,0.5)",
+      strokeWidth: 1
+    });
+    const plainProps = () => ({
+      fill: "#3f51b5",
+      stroke: "rgba(0,0,0,0.5)",
+      strokeWidth: 1
+    });
+
     for (const key in (style.selectedLayer as SchemaWithData).properties) {
       if ((style.selectedLayer as SchemaWithData).properties[key].description === style.currentProp.description) style.field_to_style = key;
     }
+    if (style.currentProp.columnType === 'findBoolean') {
+      style.nope = nopeProps();
+      style.other = otherProps();
+      style.options = [plainProps(), plainProps()];
+    }
     this.checkSaveEnable();
-
-    console.log(style)
   }
 
   removeStyle() {
@@ -205,7 +238,9 @@ export class MapStyleStylesComponent implements OnInit {
         user_id: null,
         field_to_style: style.field_to_style,
         options: style.options,
-        active: style.active
+        active: style.active,
+        other: style.other,
+        nope: style.nope
       }
 
       this.http.post(StyleLinks.createUserStyle(), styleToCreate)
@@ -233,7 +268,9 @@ export class MapStyleStylesComponent implements OnInit {
         user_id: null,
         field_to_style: style.field_to_style,
         options: style.options,
-        active: style.active
+        active: style.active,
+        other: style.other,
+        nope: style.nope
       }
 
       this.http.patch(StyleLinks.updateUserStyle(style.id), styleToUpdate)
