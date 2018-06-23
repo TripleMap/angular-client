@@ -20,9 +20,11 @@ body {
 .gutter-header {
     width: 8px;
     height: 48px;
-    margin-left: auto;
+    position: relative;
+    margin-left: 8px;
     border-right: 1px solid rgba(0, 0, 0, 0.1);
     cursor: e-resize;
+    right: -8px;
 }
 
 .mdi:before,

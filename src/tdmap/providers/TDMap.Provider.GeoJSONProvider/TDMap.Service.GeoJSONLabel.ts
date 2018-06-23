@@ -37,19 +37,26 @@ export class GeoJSONLabelLayer {
         this.url = urlToGetData;
     }
 
+    setLabelProperties(labelProperties) {
+        this.labelProperties = labelProperties;
+    }
+
     addLabels(labelProperties) {
         this.labelProperties = labelProperties;
-        this.labelsLayerSVGHack = L.geoJSON({
-            "type": "Feature", "properties": {},
-            "geometry": { "type": "LineString", "coordinates": [[0, 0], [0, 0]] }
-        }, { renderer: L.svg(), className: `label_path_${this.leafletLayer.options.id}` })
-            .addTo(this.leafletLayer._map);
-        let svgPath = document.getElementsByClassName(`label_path_${this.leafletLayer.options.id}`);
-        let svgGroup = svgPath[0].parentElement;
-        svgGroup.setAttribute('id', `label_group_${this.leafletLayer.options.id}`);
+        if (this.leafletLayer && this.leafletLayer._map) {
+            debugger;
+            this.labelsLayerSVGHack = L.geoJSON({
+                "type": "Feature", "properties": {},
+                "geometry": { "type": "LineString", "coordinates": [[0, 0], [0, 0]] }
+            }, { renderer: L.svg(), className: `label_path_${this.leafletLayer.options.id}` })
+                .addTo(this.leafletLayer._map);
+            let svgPath = document.getElementsByClassName(`label_path_${this.leafletLayer.options.id}`);
+            let svgGroup = svgPath[0].parentElement;
+            svgGroup.setAttribute('id', `label_group_${this.leafletLayer.options.id}`);
 
-        this.updateLabels();
-        if (this.leafletLayer && this.leafletLayer._map) this.leafletLayer._map.on('moveend', this.refreshOnMoveEnd, this)
+            this.updateLabels();
+            this.leafletLayer._map.on('moveend', this.refreshOnMoveEnd, this);
+        }
 
     }
 
@@ -74,20 +81,25 @@ export class GeoJSONLabelLayer {
         this.clearLabels();
         if (this.labelsLayerSVGHack) this.labelsLayerSVGHack.remove();
         this.labelData = null;
-        if (this.leafletLayer && this.leafletLayer._map) this.leafletLayer._map.off('moveend', this.refreshOnMoveEnd, this);
+        if (this.leafletLayer && this.leafletLayer._map) {
+            this.leafletLayer._map.off('moveend', this.refreshOnMoveEnd, this);
+        }
     }
 
     renderData() {
         this.labelFeatures();
     }
 
-    refreshOnMoveEnd() {
+    refreshOnMoveEnd(e) {
+        console.log(e);
         this.clearLabels();
         if (!this.canLabel) return;
         this.labelFeatures();
+
     }
 
     labelFeatures() {
+        console.log('sdfgsdf');
         if (!this.leafletLayer || !this.leafletLayer._map) return;
         let zoom = this.leafletLayer._map.getZoom();
         if (zoom < 12 || !this.labelData) return;

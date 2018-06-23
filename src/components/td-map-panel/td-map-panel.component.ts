@@ -257,7 +257,7 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 						avaliableProperties: data.properties[key].avaliableProperties || null,
 						currentProperties: data.properties[key].currentProperties || null,
 						columnFilters: [],
-						rowWidth: data.properties[key].columnType === 'findBoolean' ? 140 : 200
+						rowWidth: data.properties[key].columnType === 'findBoolean' ? 160 : 200
 					});
 					layer.displayedColumns.push(key);
 				}

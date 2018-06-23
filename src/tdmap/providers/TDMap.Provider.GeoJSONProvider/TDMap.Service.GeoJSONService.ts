@@ -45,6 +45,11 @@ export var GeoJSONService = L.GeoJSON.extend({
             this._lablelLayer.addLabels(labelProperties);
         }
     },
+    setLabelProperties: function (labelProperties) {
+        this._lablelLayer.canLabel = true;
+        this.labelProperties = labelProperties;
+        this._lablelLayer.setLabelProperties(labelProperties);
+    },
 
     removeLabels: function () {
         this._lablelLayer.canLabel = false;

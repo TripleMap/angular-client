@@ -1,17 +1,17 @@
 <ng-template #styleElementsTempl let-prop let-style>
 
-  <div style="display: flex;flex-direction: column;flex:1;">
-    <div style="display: flex;flex-direction: row;">
-      <color-picker colorPlaceHolder="цвет заливки" [color]="prop.fill" (colorChange)="colorChange(style,$event,'fill')" (colorChange)="styleWasChange(style)"></color-picker>
-    </div>
-    <div style="display: flex;flex-direction: row;">
-      <color-picker colorPlaceHolder="цвет границы" [color]="prop.stroke" (colorChange)="colorChange(style,$event,'stroke')" (colorChange)="styleWasChange(style)"></color-picker>
+    <div style="display: flex;flex-direction: column;flex:1;">
+        <div style="display: flex;flex-direction: row;">
+            <color-picker colorPlaceHolder="цвет заливки" [color]="prop.fill" (colorChange)="colorChange(style,$event,'fill')" (colorChange)="styleWasChange(style)"></color-picker>
+        </div>
+        <div style="display: flex;flex-direction: row;">
+            <color-picker colorPlaceHolder="цвет границы" [color]="prop.stroke" (colorChange)="colorChange(style,$event,'stroke')" (colorChange)="styleWasChange(style)"></color-picker>
 
-      <mat-form-field>
-        <input matInput type="number" placeholder="толщина границы" [(prop.strokeWidth)] required min="0">
-      </mat-form-field>
+            <mat-form-field>
+                <input matInput type="number" placeholder="толщина границы" [(ngModel)]="prop.strokeWidth" required min="0">
+            </mat-form-field>
+        </div>
     </div>
-  </div>
 
 </ng-template>
 
@@ -27,69 +27,69 @@
 
 
 <mat-dialog-content>
-  <mat-tab-group #styleTabs>
-    <mat-tab *ngFor="let style of userStyles" [style]="getTabNameByLayerId(style)">
-      <div style="display: flex;flex-direction: column;">
+    <mat-tab-group #styleTabs>
+        <mat-tab *ngFor="let style of userStyles" [style]="getTabNameByLayerId(style)">
+            <div style="display: flex;flex-direction: column;">
 
-        <div style="display:flex;flex-direction: row;">
-          <mat-form-field>
-            <mat-select [(ngModel)]="style.selectedLayer" required (selectionChange)="layerChange(style)" (selectionChange)="styleWasChange(style)">
-              <ng-container *ngFor="let avaliableLayer of layersSchemas">
-                <mat-option *ngIf="layerCanBeChosen(avaliableLayer.id, style)" [value]="avaliableLayer">{{avaliableLayer.labelName}}</mat-option>
-              </ng-container>
+                <div style="display:flex;flex-direction: row;">
+                    <mat-form-field>
+                        <mat-select [(ngModel)]="style.selectedLayer" required (selectionChange)="layerChange(style)" (selectionChange)="styleWasChange(style)">
+                            <ng-container *ngFor="let avaliableLayer of layersSchemas">
+                                <mat-option *ngIf="layerCanBeChosen(avaliableLayer.id, style)" [value]="avaliableLayer">{{avaliableLayer.labelName}}</mat-option>
+                            </ng-container>
 
-            </mat-select>
-          </mat-form-field>
-          <div style="display: flex;flex-direction: column;justify-content: start;align-items: flex-end; flex:1;">
-            <mat-slide-toggle [(ngModel)]="style.active" (change)="styleWasChange(style)">Применить стили</mat-slide-toggle>
-          </div>
-        </div>
-
-
-        <div style="display:flex;flex-direction: row;">
-          <mat-form-field>
-            <mat-select [(ngModel)]="style.currentProp" required (selectionChange)="propWasChange(style)" (selectionChange)="styleWasChange(style)">
-              <mat-option *ngFor="let prop of style.avaliableProperties" [value]="prop">{{prop.description}}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <button mat-button (click)="close()" color="primary">Добавить стиль</button>
-        </div>
-
-      </div>
-
-      <mat-accordion>
-
-        <ng-container *ngIf="style.currentProp.columnType === 'boolean'">
-
-          <mat-expansion-panel>
-            <mat-panel-title>Да</mat-panel-title>
-            <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.options[0] }"></ng-container>
-          </mat-expansion-panel>
-          <mat-expansion-panel>
-            <mat-panel-title>Нет</mat-panel-title>
-            <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.options[1] }"></ng-container>
-          </mat-expansion-panel>
-          <mat-expansion-panel>
-            <mat-panel-title> Нет значений </mat-panel-title>
-            <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.nope }"></ng-container>
-          </mat-expansion-panel>
-
-        </ng-container>
-
-        <mat-expansion-panel>
-          <mat-panel-title> Остальные </mat-panel-title>
-          <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.other }"></ng-container>
-        </mat-expansion-panel>
-      </mat-accordion>
+                        </mat-select>
+                    </mat-form-field>
+                    <div style="display: flex;flex-direction: column;justify-content: start;align-items: flex-end; flex:1;">
+                        <mat-slide-toggle [(ngModel)]="style.active" (change)="styleWasChange(style)">Применить стили</mat-slide-toggle>
+                    </div>
+                </div>
 
 
-    </mat-tab>
-  </mat-tab-group>
+                <div style="display:flex;flex-direction: row;">
+                    <mat-form-field>
+                        <mat-select [(ngModel)]="style.currentProp" required (selectionChange)="propWasChange(style)" (selectionChange)="styleWasChange(style)">
+                            <mat-option *ngFor="let prop of style.avaliableProperties" [value]="prop">{{prop.description}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <button mat-button (click)="close()" color="primary">Добавить стиль</button>
+                </div>
+
+            </div>
+
+            <mat-accordion>
+
+                <ng-container *ngIf="style.currentProp.columnType === 'boolean'">
+
+                    <mat-expansion-panel>
+                        <mat-panel-title>Да</mat-panel-title>
+                        <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.options[0] }"></ng-container>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel>
+                        <mat-panel-title>Нет</mat-panel-title>
+                        <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.options[1] }"></ng-container>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel>
+                        <mat-panel-title> Нет значений </mat-panel-title>
+                        <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.nope }"></ng-container>
+                    </mat-expansion-panel>
+
+                </ng-container>
+
+                <mat-expansion-panel>
+                    <mat-panel-title> Остальные </mat-panel-title>
+                    <ng-container *ngTemplateOutlet="styleElementsTempl;context: { $implicit: style, prop: style.other }"></ng-container>
+                </mat-expansion-panel>
+            </mat-accordion>
+
+
+        </mat-tab>
+    </mat-tab-group>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button (click)="close()" color="primary">Отмена</button>
-  <button mat-button (click)="removeStyle()" color="primary">Удалить</button>
-  <button mat-button (click)="createStyle()" color="primary" [disabled]="allLayersAreChosen()">Создать</button>
-  <button mat-button (click)="saveStyle()" [color]="!saveEnable ? 'primary' : 'accent'">Сохранить</button>
+    <button mat-button (click)="close()" color="primary">Отмена</button>
+    <button mat-button (click)="removeStyle()" color="primary">Удалить</button>
+    <button mat-button (click)="createStyle()" color="primary" [disabled]="allLayersAreChosen()">Создать</button>
+    <button mat-button (click)="saveStyle()" [color]="!saveEnable ? 'primary' : 'accent'">Сохранить</button>
 </mat-dialog-actions>

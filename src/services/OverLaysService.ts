@@ -207,7 +207,7 @@ export class OverLaysService {
             (data: any[]) => {
                 for (let i = 0; i < data.length; i++) {
                     const leafletLayer = this.getLeafletLayerById(data[i].layer_id);
-                    data[i].active ? leafletLayer.setLabeled(data[i]) : leafletLayer.removeLabels();
+                    if (leafletLayer) data[i].active ? leafletLayer.setLabelProperties(data[i]) : leafletLayer.removeLabels();
                 }
             },
             error => { console.log(error) }
