@@ -76,7 +76,7 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 					showOnlySelected: false
 				}
 				mapLayer.selections.selectedFeatures.onChange.subscribe(featureSelectionsEvent => {
-					this.updateTableData(this.activeLayer, true);
+					this.updateTableData(this.activeLayer, false);
 					this.changeDetection.detectChanges();
 				});
 				return avaliableLayer;
@@ -89,7 +89,7 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 		this.subscriptions[`OverLaysService_inspectLayerAttributeTable`] = this.inspectLayerAttributeTable.valueChanges.subscribe(avaliableLayerId => {
 			if (avaliableLayerId && avaliableLayerId !== 'None') {
 				this.activeLayer = this.avaliableLayers.filter(item => item.id === avaliableLayerId ? item : false)[0];
-				this.getColumnDataForLayer(this.activeLayer, false);
+				this.getColumnDataForLayer(this.activeLayer);
 			}
 		});
 
@@ -125,10 +125,10 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
-		if (changes.tdMapPanel && this.activeLayer) this.getColumnDataForLayer(this.activeLayer, false);
+		if (changes.tdMapPanel && this.activeLayer) this.getColumnDataForLayer(this.activeLayer);
 	}
 
-	getColumnDataForLayer(layer, force) {
+	getColumnDataForLayer(layer) {
 		this.http.get(LayersLinks.featuresEdit.getAllInfo(layer.id)).subscribe(data => {
 			layer.data = data;
 			this.updateTableData(layer, false)
@@ -204,7 +204,7 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 	}
 
 	updateTableData(layer, onScroll) {
-
+		console.log(onScroll);
 		const throttle = () => {
 			if (!this.table || !this.table.first) return;
 			let tableRef = this.table.first.nativeElement;
@@ -214,6 +214,7 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 			let filteredData = this.compareOnFilterList(layer, data)
 			layer.visibleFeatures = filteredData;
 			const tableViewHeight = tableRef.offsetHeight;
+			const tableScrollHeight = tableRef.scrollHeight;
 			const scrollLocation = tableRef.scrollTop;
 			let rowHeigth = 48;
 			if (!onScroll) {
@@ -224,12 +225,12 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 			let firstElement = Math.floor(scrollLocation / rowHeigth);
 			inspectLayer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
 			let delta = scrollLocation > 56 ? 1 : 0;
-			this.changeDetection.detectChanges();
+
 			let matRows = tableRef.getElementsByTagName('mat-row');
 			for (let i = 0; i < matRows.length; i++) {
 				matRows[i].style.position = 'absolute';
 				matRows[i].style.zIndex = 0;
-				matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`;
+				matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta * 2) * rowHeigth}px,0)`;
 			}
 		}
 
@@ -277,7 +278,7 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 
 	toggleFeatureSelect(layer, id) {
 		layer.selectedFeatures.toggle(id);
-		this.updateTableData(layer, true);
+		this.updateTableData(layer, false);
 	}
 
 	masterToggle() {

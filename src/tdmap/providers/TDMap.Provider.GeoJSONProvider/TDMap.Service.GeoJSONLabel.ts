@@ -44,7 +44,6 @@ export class GeoJSONLabelLayer {
     addLabels(labelProperties) {
         this.labelProperties = labelProperties;
         if (this.leafletLayer && this.leafletLayer._map) {
-            debugger;
             this.labelsLayerSVGHack = L.geoJSON({
                 "type": "Feature", "properties": {},
                 "geometry": { "type": "LineString", "coordinates": [[0, 0], [0, 0]] }
@@ -91,7 +90,6 @@ export class GeoJSONLabelLayer {
     }
 
     refreshOnMoveEnd(e) {
-        console.log(e);
         this.clearLabels();
         if (!this.canLabel) return;
         this.labelFeatures();
@@ -99,7 +97,6 @@ export class GeoJSONLabelLayer {
     }
 
     labelFeatures() {
-        console.log('sdfgsdf');
         if (!this.leafletLayer || !this.leafletLayer._map) return;
         let zoom = this.leafletLayer._map.getZoom();
         if (zoom < 12 || !this.labelData) return;
