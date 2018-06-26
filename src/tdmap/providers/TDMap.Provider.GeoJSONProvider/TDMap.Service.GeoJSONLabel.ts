@@ -25,12 +25,12 @@ export class GeoJSONLabelLayer {
     public labelData: {} = {};
 
     constructor(urlToGetData) {
-
         this.url = urlToGetData;
     }
 
     setLabelProperties(labelProperties) {
         this.labelProperties = labelProperties;
+        this.getDataToLabel();
     }
 
     addLabelLayer(leafletLayer) {
@@ -81,11 +81,9 @@ export class GeoJSONLabelLayer {
         this.clearLabels();
         if (!this.canLabel) return;
         if (e && e.type === 'zoomend') {
-            setTimeout(() => {
-                this.getDataToLabel();
-            }, 0);
+            setTimeout(() => { this.labelFeatures(); }, 0);
         } else {
-            this.getDataToLabel();
+            this.labelFeatures();
         }
 
     }

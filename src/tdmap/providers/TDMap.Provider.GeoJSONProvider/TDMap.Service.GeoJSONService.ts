@@ -31,7 +31,7 @@ export var GeoJSONService = L.GeoJSON.extend({
 
         this.labelLayerChange = new BehaviorSubject(false);
         this.labelLayerChange.subscribe(labelProperties => {
-            this._lablelLayer.labelProperties = labelProperties;
+            this._lablelLayer.setLabelProperties(labelProperties);
             this._lablelLayer.canLabel = labelProperties ? true : false;
             this._lablelLayer.refreshLabels();
         });
