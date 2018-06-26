@@ -37,7 +37,7 @@ export class ColorDialogComponent implements OnInit {
 @Component({
   selector: 'color-picker',
   template: `
-    <mat-form-field (click)="openColorDialog($event)">
+    <mat-form-field (click)="openColorDialog()">
       <div matPrefix style="top: 6px;margin-right: 8px;position:relative;">
         <div style="width: 36px; height:36px;border-radius:50%;position:relative; z-index:50;border: 1px solid rgba(0, 0, 0, 0.2);" [style.backgroundColor]="color"></div>
         <div 

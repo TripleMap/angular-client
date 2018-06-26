@@ -9,7 +9,7 @@ import 'rxjs/add/operator/debounceTime.js';
 export let AUTH_LINKS = {
   login: 'api/Accounts/login',
   logout: 'api/Accounts/logout',
-  registration: 'api/Accounts',
+  registration: 'api/Accounts/registration',
   getMyInfo: 'api/Accounts/GetMyInfo'
 };
 
@@ -46,17 +46,12 @@ interface LoginResponse {
 
 @Injectable()
 export class AuthService {
-  public onMessageSubject: Subject<any>;
   public onSubscriber: Subscription;
   constructor(
     public http: HttpClient,
     public router: Router,
     public MessageService: MessageService
   ) {
-    this.onMessageSubject = new Subject();
-    this.onSubscriber = this.onMessageSubject
-      .debounceTime(300)
-      .subscribe(message => this.MessageService.errorMessage(message));
   }
 
   login(creditals: loginCreditals) {
@@ -68,9 +63,9 @@ export class AuthService {
       this.router.navigate(['tdmap']);
     }, error => {
       if (error.status === 422) {
-        this.onMessageSubject.next('Данные не прошли проверку');
+        this.MessageService.errorMessage('Данные не прошли проверку');
       } else if (error.status !== 500 && error.status !== 401 && error.status !== 404 && error.status !== 0) {
-        this.onMessageSubject.next('Не удалось войти в систему');
+        this.MessageService.errorMessage('Не удалось войти в систему');
       }
     });
   }
@@ -83,10 +78,10 @@ export class AuthService {
       this.setUserRole(response.user.group);
       this.router.navigate(['tdmap']);
     }, error => {
-      if (error.error.error.message === "Пользователь с таким email уже существует") {
-        this.onMessageSubject.next('Пользователь с таким email уже существует');
+      if (error.error.message.message === "Пользователь с таким email уже существует") {
+        this.MessageService.errorMessage('Пользователь с таким email уже существует');
       } else {
-        this.onMessageSubject.next('Данные не прошли проверку');
+        this.MessageService.errorMessage('Данные не прошли проверку');
       }
     });
   }

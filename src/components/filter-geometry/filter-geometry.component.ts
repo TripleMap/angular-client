@@ -74,9 +74,9 @@ export class FilterGeometryComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.filterSubscription.unsubscribe();
-    this.filterLayerFormControlSubscriber.unsubscribe();
-    this.mediaSubscription.unsubscribe();
+    if (this.filterSubscription) this.filterSubscription.unsubscribe();
+    if (this.filterLayerFormControlSubscriber) this.filterLayerFormControlSubscriber.unsubscribe();
+    if (this.mediaSubscription) this.mediaSubscription.unsubscribe();
   }
 
   toggleSideNav = () => this.closesidenav.emit('close-sidenav');

@@ -204,7 +204,6 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 	}
 
 	updateTableData(layer, onScroll) {
-		console.log(onScroll);
 		const throttle = () => {
 			if (!this.table || !this.table.first) return;
 			let tableRef = this.table.first.nativeElement;
@@ -237,7 +236,7 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 		if (!onScroll) {
 			setTimeout(() => {
 				throttle.call(this);
-			}, 50);
+			}, 0);
 		} else {
 			throttle();
 		}
