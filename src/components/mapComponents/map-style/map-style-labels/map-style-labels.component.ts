@@ -299,15 +299,7 @@ export class MapStyleLabelsComponent implements OnInit {
 
 
   emitToLabelLeafletLayer() {
-    this.http.get(LabelLinks.getUserLabels()).subscribe(
-      (data: Label[]) => {
-        for (let i = 0; i < data.length; i++) {
-          const leafletLayer = this.OverLaysService.getLeafletLayerById(data[i].layer_id);
-          data[i].active ? leafletLayer.setLabeled(data[i]) : leafletLayer.removeLabels();
-        }
-      },
-      error => console.log(error)
-    )
+    this.OverLaysService.emitToLabelLeafletLayer();
   }
 
   layerCanBeChosen = (layerId, label) => {

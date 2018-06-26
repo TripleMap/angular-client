@@ -114,7 +114,6 @@ export class OverLaysService {
                     layer.layer_schema.options.id = layer.id;
                     layer.layer_schema.options.dataUrl = LayersLinks.featuresEdit.getAllGeo(layer.id);
                     layer.layer_schema.options.labelUrl = LayersLinks.featuresLabel.getAllData(layer.id);
-                    this.MapService.getMap().createPane(layer.id);
                     return new TDMap.Service.GeoJSONService(layer.layer_schema.options, layer.layer_schema.properties);
                 });
                 this.layersSchemas = layers;
@@ -139,23 +138,24 @@ export class OverLaysService {
 
             this.visibleLayers.next(this.visibleLayers.getValue().concat([layerId]))
         }
+        this.emitToLabelLeafletLayer();
     };
 
     removeLayerFromMap(layerId) {
         const layer = this.getLeafletLayerById(layerId);
+        if (!layer) return;
         const layerSchema = this.getLayerById(layerId);
-        if (layer) {
-            layer.options.visible = false;
-            layerSchema.layer_schema.options.visible = true;
-            layer.remove();
-            this.visibleLayers.next(this.visibleLayers.getValue().filter(item => item === layerId ? false : item))
-        }
+        layer.options.visible = false;
+        layerSchema.layer_schema.options.visible = true;
+        layer.remove();
+        this.visibleLayers.next(this.visibleLayers.getValue().filter(item => item === layerId ? false : item))
+        this.emitToLabelLeafletLayer();
     };
 
     refreshFilteredIds(layerId, arrayOfId) {
         const layer = this.getLeafletLayerById(layerId);
         layer.setFilteredIds(arrayOfId);
-        layer.updateLabels();
+        layer.refreshLabels();
     };
 
     removeFilteredIds = (layerId) => {
@@ -205,10 +205,17 @@ export class OverLaysService {
     emitToLabelLeafletLayer() {
         this.http.get(LabelLinks.getUserLabels()).subscribe(
             (data: any[]) => {
-                for (let i = 0; i < data.length; i++) {
-                    const leafletLayer = this.getLeafletLayerById(data[i].layer_id);
-                    if (leafletLayer) data[i].active ? leafletLayer.setLabelProperties(data[i]) : leafletLayer.removeLabels();
-                }
+                let labelsLayersId = data.map(label => label.layer_id)
+                data.map(label => {
+                    const leafletLayer = this.getLeafletLayerById(label.layer_id);
+                    if (leafletLayer && label.active) leafletLayer.labelLayerChange.next(label);
+                    if (leafletLayer && !label.active) leafletLayer.labelLayerChange.next(false);
+                });
+                this.leafletLayers.map(layer => {
+                    if (labelsLayersId.indexOf(layer.options.id) === -1) {
+                        layer.labelLayerChange.next(false);
+                    }
+                });
             },
             error => { console.log(error) }
         )

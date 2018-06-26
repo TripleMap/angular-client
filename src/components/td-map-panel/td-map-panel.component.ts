@@ -204,43 +204,31 @@ export class TdMapPanelComponent implements OnInit, OnDestroy {
 	}
 
 	updateTableData(layer, onScroll) {
-		const throttle = () => {
-			if (!this.table || !this.table.first) return;
-			let tableRef = this.table.first.nativeElement;
-			let inspectLayer = layer || this.activeLayer;
-			let data = inspectLayer.data;
-			if (!tableRef || !inspectLayer || !data) return;
-			let filteredData = this.compareOnFilterList(layer, data)
-			layer.visibleFeatures = filteredData;
-			const tableViewHeight = tableRef.offsetHeight;
-			const tableScrollHeight = tableRef.scrollHeight;
-			const scrollLocation = tableRef.scrollTop;
-			let rowHeigth = 48;
-			if (!onScroll) {
-				let scrollElement = tableRef.getElementsByClassName('table-sroll-wrapper')[0];
-				scrollElement.style.height = filteredData.length * rowHeigth + 'px';
-			}
-			let elementPreView = Math.ceil(tableViewHeight / rowHeigth);
-			let firstElement = Math.floor(scrollLocation / rowHeigth);
-			inspectLayer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
-			let delta = scrollLocation > 56 ? 1 : 0;
-
-			let matRows = tableRef.getElementsByTagName('mat-row');
-			for (let i = 0; i < matRows.length; i++) {
-				matRows[i].style.position = 'absolute';
-				matRows[i].style.zIndex = 0;
-				matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta * 2) * rowHeigth}px,0)`;
-			}
+		if (!this.table || !this.table.first) return;
+		let tableRef = this.table.first.nativeElement;
+		let inspectLayer = layer || this.activeLayer;
+		let data = inspectLayer.data;
+		if (!tableRef || !inspectLayer || !data) return;
+		let filteredData = this.compareOnFilterList(layer, data)
+		layer.visibleFeatures = filteredData;
+		const tableViewHeight = tableRef.offsetHeight;
+		const scrollLocation = tableRef.scrollTop;
+		let rowHeigth = 50;
+		let scrollElement = tableRef.getElementsByClassName('table-sroll-wrapper')[0];
+		if (!onScroll && scrollElement) {
+			scrollElement.style.height = filteredData.length * rowHeigth + 'px';
 		}
-
-		if (!onScroll) {
-			setTimeout(() => {
-				throttle.call(this);
-			}, 0);
-		} else {
-			throttle();
+		let elementPreView = Math.ceil(tableViewHeight / rowHeigth) + 2;
+		let firstElement = Math.floor(scrollLocation / rowHeigth);
+		inspectLayer.visibleFeaturesPerPage.data = filteredData.slice(firstElement, firstElement + elementPreView);
+		let delta = scrollLocation > 56 ? 1 : 0;
+		this.changeDetection.detectChanges();
+		let matRows = tableRef.getElementsByTagName('mat-row');
+		for (let i = 0; i < matRows.length; i++) {
+			matRows[i].style.position = 'absolute';
+			matRows[i].style.zIndex = 0;
+			matRows[i].style.transform = `translate3d(0,${(firstElement + i - delta) * rowHeigth}px,0)`;
 		}
-
 	}
 
 	getColumnNamesForLayer(layer: AvaliableLayer) {

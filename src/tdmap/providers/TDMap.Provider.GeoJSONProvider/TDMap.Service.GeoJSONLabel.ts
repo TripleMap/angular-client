@@ -3,8 +3,8 @@ import * as moment from 'moment';
 export class GeoJSONLabelLayer {
     public labelProperties: any | boolean = false;
     private labelsLayerSVGHack: any;
-    public canLabel: boolean = false;
     public url: string | boolean = false;
+    public canLabel: boolean = false;
     private leafletLayer: any = null;
     public labelOptions: {
         field_to_label: string;
@@ -21,19 +21,11 @@ export class GeoJSONLabelLayer {
             halo_size: '12',
             active: false,
         };
-    public set labelData(data) {
-        this._labelData = data;
-        this.renderData();
-    }
-    public get labelData() {
-        return this._labelData
-    }
 
-    public _labelData: {} = {};
-    public canvas: any;
+    public labelData: {} = {};
 
-    constructor(leafletLayer, urlToGetData) {
-        this.leafletLayer = leafletLayer;
+    constructor(urlToGetData) {
+
         this.url = urlToGetData;
     }
 
@@ -41,70 +33,81 @@ export class GeoJSONLabelLayer {
         this.labelProperties = labelProperties;
     }
 
-    addLabels(labelProperties) {
-        this.labelProperties = labelProperties;
-        if (this.leafletLayer && this.leafletLayer._map) {
-            this.labelsLayerSVGHack = L.geoJSON({
-                "type": "Feature", "properties": {},
-                "geometry": { "type": "LineString", "coordinates": [[0, 0], [0, 0]] }
-            }, { renderer: L.svg(), className: `label_path_${this.leafletLayer.options.id}` })
-                .addTo(this.leafletLayer._map);
-            let svgPath = document.getElementsByClassName(`label_path_${this.leafletLayer.options.id}`);
-            let svgGroup = svgPath[0].parentElement;
-            svgGroup.setAttribute('id', `label_group_${this.leafletLayer.options.id}`);
-
-            this.updateLabels();
-            this.leafletLayer._map.on('moveend', this.refreshOnMoveEnd, this);
-        }
+    addLabelLayer(leafletLayer) {
+        this.leafletLayer = leafletLayer;
+        this.labelsLayerSVGHack = L.geoJSON({
+            "type": "Feature", "properties": {},
+            "geometry": { "type": "LineString", "coordinates": [[0, 0], [0, 0]] }
+        }, { renderer: L.svg(), className: `label_path_${this.leafletLayer.options.id}` })
+            .addTo(this.leafletLayer._map);
+        let svgPath = document.getElementsByClassName(`label_path_${this.leafletLayer.options.id}`);
+        let svgGroup = svgPath[0].parentElement;
+        svgGroup.setAttribute('id', `label_group_${this.leafletLayer.options.id}`);
+        this.leafletLayer._map.on('zoomend dragend', this.refreshLabels, this);
 
     }
 
-    updateLabels() {
-        this.clearLabels();
-        if (!this.canLabel) return;
-        const getDataProcess = this.getDataToLabel();
-        if (!getDataProcess) return;
-        getDataProcess
+    removeLabelLayer() {
+        if (this.labelsLayerSVGHack) {
+            this.labelsLayerSVGHack.remove();
+            this.labelsLayerSVGHack = null;
+            const element = document.getElementById(`label_group_${this.leafletLayer.options.id}`);
+            const g = element ? element.parentNode : false;
+            g && g.parentNode && g.parentNode.removeChild(g);
+        }
+
+        if (this.leafletLayer && this.leafletLayer._map) this.leafletLayer._map.off('zoomend dragend', this.refreshLabels, this);
+
+    }
+    getDataToLabel() {
+        if (!(this.url && this.labelProperties && this.labelProperties.field_to_label)) return;
+        TDMap.Utils.Promises.getPromise(this.url, { FieldToLabel: this.labelProperties.field_to_label })
             .subscribe(
-                response => this.labelData = response,
-                error => this.removeLabels()
+                response => {
+                    this.labelData = response;
+                    this.labelFeatures();
+                },
+                error => this.clearLabels()
             );
     }
 
-    getDataToLabel() {
-        if (this.url && this.labelProperties && this.labelProperties.field_to_label) return TDMap.Utils.Promises.getPromise(this.url, { FieldToLabel: this.labelProperties.field_to_label });
-        return false;
-    }
 
     removeLabels() {
         this.clearLabels();
-        if (this.labelsLayerSVGHack) this.labelsLayerSVGHack.remove();
         this.labelData = null;
-        if (this.leafletLayer && this.leafletLayer._map) {
-            this.leafletLayer._map.off('moveend', this.refreshOnMoveEnd, this);
-        }
     }
 
-    renderData() {
-        this.labelFeatures();
-    }
-
-    refreshOnMoveEnd(e) {
+    refreshLabels(e) {
         this.clearLabels();
         if (!this.canLabel) return;
-        this.labelFeatures();
+        if (e && e.type === 'zoomend') {
+            setTimeout(() => {
+                this.getDataToLabel();
+            }, 0);
+        } else {
+            this.getDataToLabel();
+        }
 
     }
+
+    clearLabels() {
+        if (!(this.leafletLayer && this.leafletLayer.options)) return;
+        const element = document.getElementById(`labels_group_${this.leafletLayer.options.id}`);
+        element && element.parentNode && element.parentNode.removeChild(element);
+    }
+
 
     labelFeatures() {
         if (!this.leafletLayer || !this.leafletLayer._map) return;
         let zoom = this.leafletLayer._map.getZoom();
+
         if (zoom < 12 || !this.labelData) return;
         let column;
         for (const key in this.leafletLayer.schemaProperties) {
             if (this.labelProperties.field_to_label === key) column = this.leafletLayer.schemaProperties[key];
         }
         if (!column) return;
+        d3.select(`#labels_group_${this.leafletLayer.options.id}`).remove();
         const group = d3.select(`#label_group_${this.leafletLayer.options.id}`).append('g').attr("id", `labels_group_${this.leafletLayer.options.id}`);
         this.leafletLayer.eachLayer(layer => {
 
@@ -147,10 +150,4 @@ export class GeoJSONLabelLayer {
                 .text(label);
         });
     }
-
-    clearLabels() {
-        const element = document.getElementById(`labels_group_${this.leafletLayer.options.id}`);
-        element && element.parentNode && element.parentNode.removeChild(element);
-    }
-
 }
